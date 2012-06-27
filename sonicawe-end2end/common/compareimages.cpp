@@ -15,21 +15,28 @@
 
 
 CompareImages::
-        CompareImages( QString testName )
+        CompareImages( QString testName, bool platformspecific, bool computationdevicespecific )
 :    limit(30)
 {
     QString target;
-    switch (Sawe::Configuration::computationDeviceType())
+
+    if (computationdevicespecific) switch (Sawe::Configuration::computationDeviceType())
     {
-    case Sawe::Configuration::DeviceType_Cuda: target = "cuda"; break;
-    case Sawe::Configuration::DeviceType_OpenCL: target = "opencl"; break;
-    case Sawe::Configuration::DeviceType_CPU: target = "cpu"; break;
+    case Sawe::Configuration::DeviceType_Cuda: target += "-cuda"; break;
+    case Sawe::Configuration::DeviceType_OpenCL: target += "-opencl"; break;
+    case Sawe::Configuration::DeviceType_CPU: target += "-cpu"; break;
     default: target = "unknown_target"; break;
     }
 
-    resultFileName = QString("%1-%2-result.png").arg(testName).arg(target);
-    goldFileName = QString("%1-%2-gold.png").arg(testName).arg(target);
-    diffFileName = QString("%1-%2-diff.png").arg(testName).arg(target);
+    if (platformspecific)
+    {
+        target += "-";
+        target += Sawe::Configuration::operatingSystemFamilyName().c_str();
+    }
+
+    resultFileName = QString("%1%2-result.png").arg(testName).arg(target);
+    goldFileName = QString("%1%2-gold.png").arg(testName).arg(target);
+    diffFileName = QString("%1%2-diff.png").arg(testName).arg(target);
 
     QFile::remove(resultFileName);
 }

@@ -11,7 +11,7 @@ class QGLWidget;
 class CompareImages
 {
 public:
-    CompareImages( QString testName = "test" );
+    CompareImages( QString testName = "test", bool platformspecific=true, bool computationdevicespecific=true );
 
     QString resultFileName, goldFileName, diffFileName;
     double limit;
