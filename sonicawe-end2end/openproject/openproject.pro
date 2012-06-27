@@ -107,12 +107,6 @@ CONFIG(debug, debug|release):OBJECTS_DIR = $${OBJECTS_DIR}debug/
 else:OBJECTS_DIR = $${OBJECTS_DIR}release/
 
 
-unix:!macx {
-    QMAKE_CXX = g++-4.3
-    QMAKE_CC = gcc-4.3
-    QMAKE_LINK = g++-4.3
-}
-
 # #######################################################################
 # CUDA
 # #######################################################################

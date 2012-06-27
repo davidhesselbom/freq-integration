@@ -80,12 +80,6 @@ else:OBJECTS_DIR = tmp/release/
 # CUDA
 # #######################################################################
 
-unix:!macx {
-	QMAKE_CXX = g++-4.3
-	QMAKE_CC = gcc-4.3
-	QMAKE_LINK = g++-4.3
-}
-
 DEFINES += USE_CUDA
 
 LIBS += -lcufft -lcudart -lcuda
