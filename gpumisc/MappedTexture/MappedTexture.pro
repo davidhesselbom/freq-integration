@@ -27,7 +27,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 unix:IS64 = $$system(if [ "`uname -m`" = "x86_64" ]; then echo 64; fi)
 
-AUXLIB = ../../../lib
+AUXLIB = ../../../../lib
 WINLIB = $$AUXLIB/sonicawe-winlib
 MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
