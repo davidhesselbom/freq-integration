@@ -1,5 +1,5 @@
 #include "tfr/fftimplementation.h"
-#include "tfr/fftooura.h"
+#include "tfr/fftclfft.h"
 #include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
@@ -43,10 +43,15 @@ void FFTmojTest::testCase1()
 {
     using namespace std;
     using namespace Tfr;
-    static FftOoura fft;
+    //static FftOoura fft;
+    static FftClFft fft;
 
     ChunkData::Ptr data;
-    int N = 4096;
+    //int N = 4096;
+    int N = fft.lChunkSizeS(4096);
+	//fails on fusion at 200000000 (134217728);
+	//largest ok on fusion 100000000 (67108864);
+	cout << "size: " << N << endl;
     data.reset(new ChunkData(N));
 
     complex<float> *p = data->getCpuMemory();

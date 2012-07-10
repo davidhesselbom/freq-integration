@@ -14,23 +14,24 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 win32:TEMPLATE = vcapp
 
+SONICAWE = ../../../../src
+
 SOURCES += *.cpp \
-    ../../../src/tfr/fft4g.c \
-    ../../../src/tfr/fft*.cpp \
-    ../../../src/tfr/stftkernel_cpu.cpp \
-    ../../../src/signal/*buffer.cpp \
-    ../../../src/tfr/complexbuffer.cpp \
-    ../../../src/signal/intervals.cpp \
+    $$SONICAWE/tfr/fft4g.c \
+    $$SONICAWE/tfr/fft*.cpp \
+    $$SONICAWE/tfr/stftkernel_cpu.cpp \
+    $$SONICAWE/signal/*buffer.cpp \
+    $$SONICAWE/tfr/complexbuffer.cpp \
+    $$SONICAWE/signal/intervals.cpp \
 
 HEADERS += \
-    ../../../src/tfr/fft*.h \
-    ../../../src/tfr/stftkernel.h \
-    ../../../src/signal/*buffer.h \
-    ../../../src/tfr/complexbuffer.h \
-    ../../../src/signal/intervals.h \
+    $$SONICAWE/tfr/fft*.h \
+    $$SONICAWE/tfr/stftkernel.h \
+    $$SONICAWE/signal/*buffer.h \
+    $$SONICAWE/tfr/complexbuffer.h \
+    $$SONICAWE/signal/intervals.h \
 
 # "Other files" for Qt Creator
-
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
@@ -38,13 +39,13 @@ DEFINES += SAWE_NODLL
 
 unix:IS64 = $$system(if [ "`uname -m`" = "x86_64" ]; then echo 64; fi)
 
-AUXLIB = ../../../lib
+AUXLIB = ../../../../lib
 WINLIB = $$AUXLIB/sonicawe-winlib
 MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
-SONICAWE = ../../../src
 
 INCLUDEPATH += $$GPUMISC $$SONICAWE
+
 unix:!macx {
   LIBS += \
     -lglut \
@@ -63,7 +64,7 @@ LIBS += \
     -l$$WINLIB/glut/glut32 \
     -l$$WINLIB/glew/lib/glew32 \
     -L$$WINLIB/boostlib \
-    -l$$GPUMISC/release/gpumisc
+    -l$$GPUMISC/debug/gpumisc
 }
 
 macx {
@@ -90,6 +91,70 @@ UI_DIR = tmp
 CONFIG(debug, debug|release):OBJECTS_DIR = tmp/debug/
 else:OBJECTS_DIR = tmp/release/
 
+# #######################################################################
+# OpenCL
+# #######################################################################
+useopenclnvidia {
+DEFINES += USE_OPENCL
+
+SOURCES += \
+    ../../src/tfr/clfft/*.cpp
+
+HEADERS += \
+    ../../src/tfr/clfft/*.h
+
+macx: LIBS += -framework OpenCL
+!macx: LIBS += -lOpenCL
+
+win32 {
+    # use OpenCL headers from Cuda Gpu Computing SDK
+    INCLUDEPATH += "$(CUDA_INC_PATH)"
+    LIBS += -L"$(CUDA_LIB_PATH)"
+}
+
+unix:!macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+
+macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+}
+
+useopenclamd {
+DEFINES += USE_OPENCL
+
+SOURCES += \
+    $$GPUMISC/openclcontext.cpp \
+    $$GPUMISC/openclmemorystorage.cpp \
+    $$SONICAWE/tfr/clfft/*.cpp
+
+HEADERS += \
+    $$GPUMISC/openclcontext.h \
+    $$GPUMISC/openclmemorystorage.h \
+    $$SONICAWE/tfr/clfft/*.h
+
+macx: LIBS += -framework OpenCL
+!macx: LIBS += -lOpenCL
+
+win32 {
+    # use OpenCL headers from Cuda Gpu Computing SDK
+    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
+    LIBS += -L"$(AMDAPPSDKROOT)lib"
+}
+
+unix:!macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+
+macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+}
 
 # #######################################################################
 # CUDA
