@@ -41,7 +41,7 @@ macx:QMAKE_CXXFLAGS += -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version
 macx:QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -m32 -arch i386 -Wfatal-errors
 
 GPUMISC = ../../../lib/gpumisc
-WINLIB = ../../../lib/sonicawe-winlib
+WINLIB = ../../../../lib/sonicawe-winlib
 MACLIB = ../../../lib/sonicawe-maclib
 
 INCLUDEPATH += \
