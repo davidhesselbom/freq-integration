@@ -47,8 +47,11 @@ void FFTmojTest::testCase1()
     static FftClFft fft;
 
     ChunkData::Ptr data;
-    //int N = 4096;
-    int N = fft.lChunkSizeS(20000000);
+
+    // 5 000 000
+
+    int N = 5000000;
+    N = fft.lChunkSizeS(N);
 	//fails on fusion cpu at 200000000 (134217728)
 	//largest ok on fusion cpu at 100000000 (67108864), 30 sec
 	//largest ok on rampage cpu at 100000000 (67108864), 12.7 sec
@@ -66,9 +69,59 @@ void FFTmojTest::testCase1()
 
     ChunkData::Ptr result(new ChunkData(N));
 
-    TaskTimer timer("Running OOURA");
+	TaskTimer timer1("Running ClFft, 5000, run #1");
+    fft.compute(data, result, FftDirection_Forward);
+	
+	TaskTimer timer2("Running ClFft, 5000, run #2");
     fft.compute(data, result, FftDirection_Forward);
 
+    // 20 000 000
+
+    N = 20000000;
+    N = fft.lChunkSizeS(N);
+
+	cout << "size: " << N << endl;
+    data.reset(new ChunkData(N));
+
+    p = data->getCpuMemory();
+    for (int i = 0; i < N; i++)
+    {
+        p[i].real(0);
+        p[i].imag(1);
+    }
+
+    ChunkData::Ptr result2(new ChunkData(N));
+
+	TaskTimer timer3("Running ClFft, 20000, run #1");
+    fft.compute(data, result2, FftDirection_Forward);
+
+	TaskTimer timer4("Running ClFft, 20000, run #2");
+    fft.compute(data, result2, FftDirection_Forward);
+
+    // 5 000 000, again
+
+    N = 5000000;
+    N = fft.lChunkSizeS(N);
+
+	cout << "size: " << N << endl;
+    data.reset(new ChunkData(N));
+
+    p = data->getCpuMemory();
+    for (int i = 0; i < N; i++)
+    {
+        p[i].real(0);
+        p[i].imag(1);
+    }
+
+    ChunkData::Ptr result3(new ChunkData(N));
+
+
+
+    TaskTimer timer5("Running ClFft, run #1");
+    fft.compute(data, result3, FftDirection_Forward);
+
+    TaskTimer timer6("Running ClFft, run #2");
+    fft.compute(data, result3, FftDirection_Forward);
 
 //    QVERIFY( cudaSuccess == cudaGLSetGLDevice( 0 ) );
 //    QVERIFY( 0==glewInit() );
