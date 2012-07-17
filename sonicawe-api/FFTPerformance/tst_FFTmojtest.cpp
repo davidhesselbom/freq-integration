@@ -48,9 +48,12 @@ void FFTmojTest::testCase1()
 
     ChunkData::Ptr data;
     //int N = 4096;
-    int N = fft.lChunkSizeS(4096);
-	//fails on fusion at 200000000 (134217728);
-	//largest ok on fusion 100000000 (67108864);
+    int N = fft.lChunkSizeS(20000000);
+	//fails on fusion cpu at 200000000 (134217728)
+	//largest ok on fusion cpu at 100000000 (67108864), 30 sec
+	//largest ok on rampage cpu at 100000000 (67108864), 12.7 sec
+	//fails on fusion gpu at 40000000
+	//largest ok on fusion gpu at 20000000, 15 sec
 	cout << "size: " << N << endl;
     data.reset(new ChunkData(N));
 

@@ -140,7 +140,7 @@ macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
 win32 {
-    # use OpenCL headers from Cuda Gpu Computing SDK
+    # use OpenCL headers from AMD APP Computing SDK
     INCLUDEPATH += "$(AMDAPPSDKROOT)include"
     LIBS += -L"$(AMDAPPSDKROOT)lib"
 }
