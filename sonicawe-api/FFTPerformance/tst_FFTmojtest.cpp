@@ -5,6 +5,8 @@
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
 #include <QGLWidget>
+#include <fstream>;
+#include <iostream>;
 
 class FFTmojTest : public QObject
 {
@@ -43,85 +45,77 @@ void FFTmojTest::testCase1()
 {
     using namespace std;
     using namespace Tfr;
-    //static FftOoura fft;
+    // static FftOoura fft;
     static FftClFft fft;
 
     ChunkData::Ptr data;
-
-    // 5 000 000
-
-    int N = 5000000;
-    N = fft.lChunkSizeS(N);
-	//fails on fusion cpu at 200000000 (134217728)
-	//largest ok on fusion cpu at 100000000 (67108864), 30 sec
-	//largest ok on rampage cpu at 100000000 (67108864), 12.7 sec
-	//fails on fusion gpu at 40000000
-	//largest ok on fusion gpu at 20000000, 15 sec
-	cout << "size: " << N << endl;
-    data.reset(new ChunkData(N));
-
-    complex<float> *p = data->getCpuMemory();
-    for (int i = 0; i < N; i++)
-    {
-        p[i].real(0);
-        p[i].imag(1);
+    ifstream inputfile("rand12.dat");
+    float input[4096];
+    for (int i = 0; i < 4096; i++)
+	{
+        inputfile >> input[i];
     }
+    inputfile.close();
 
-    ChunkData::Ptr result(new ChunkData(N));
+    srand ( time(NULL) );
 
-	TaskTimer timer1("Running ClFft, 5000, run #1");
-    fft.compute(data, result, FftDirection_Forward);
-	
-	TaskTimer timer2("Running ClFft, 5000, run #2");
-    fft.compute(data, result, FftDirection_Forward);
+    // Chunk size:
+    // fails on fusion cpu at 200000000 (134217728)
+    // largest ok on fusion cpu at 100000000 (67108864), 30 sec
+    // largest ok on rampage cpu at 100000000 (67108864), 12.7 sec
+    // fails on fusion gpu at 40000000
+    // largest ok on fusion gpu at 20000000, 15 sec
 
-    // 20 000 000
+    // We want to test for (2^10, 2^20)
 
-    N = 20000000;
-    N = fft.lChunkSizeS(N);
-
-	cout << "size: " << N << endl;
-    data.reset(new ChunkData(N));
-
-    p = data->getCpuMemory();
-    for (int i = 0; i < N; i++)
+    for (int N = 4096; N <= 4096; N *= 2)
     {
-        p[i].real(0);
-        p[i].imag(1);
+		N++;
+        N = fft.lChunkSizeS(N);
+        cout << "size: " << N << endl;
+
+        data.reset(new ChunkData(N));
+        complex<float> *p = data->getCpuMemory();
+
+        {
+            for (int i = 0; i < N; i++)
+            {
+                p[i].real(0);
+                p[i].imag(1);
+            }
+
+			ChunkData::Ptr result(new ChunkData(N));
+			TaskTimer timer("Running ClFft, run #1");
+            fft.compute(data, result, N, FftDirection_Forward);
+        }
+
+		// Compute on new data with the same size, now that we have a plan
+        data.reset(new ChunkData(N));
+        p = data->getCpuMemory();
+
+        {
+            for (int i = 0; i < N; i++)
+            {
+                //p[i].real((float)rand()/(float)RAND_MAX);
+                //p[i].imag((float)rand()/(float)RAND_MAX);
+				p[i].real(input[i]);
+				p[i].imag(0);
+            }
+
+			cout << p[0].real() << ", " << p[0].imag() << endl;
+
+            ChunkData::Ptr result(new ChunkData(N));
+			TaskTimer timer("Running ClFft, run #2");
+            fft.compute(data, result, N, FftDirection_Forward);
+			complex<float> *r = result->getCpuMemory();
+			ofstream outputfile("rand12clfft.dat");
+			for(int j = 0; j < N; j++)
+			{
+				outputfile << r[j] << endl;
+			}
+			outputfile.close();
+        }
     }
-
-    ChunkData::Ptr result2(new ChunkData(N));
-
-	TaskTimer timer3("Running ClFft, 20000, run #1");
-    fft.compute(data, result2, FftDirection_Forward);
-
-	TaskTimer timer4("Running ClFft, 20000, run #2");
-    fft.compute(data, result2, FftDirection_Forward);
-
-    // 5 000 000, again
-
-    N = 5000000;
-    N = fft.lChunkSizeS(N);
-
-	cout << "size: " << N << endl;
-    data.reset(new ChunkData(N));
-
-    p = data->getCpuMemory();
-    for (int i = 0; i < N; i++)
-    {
-        p[i].real(0);
-        p[i].imag(1);
-    }
-
-    ChunkData::Ptr result3(new ChunkData(N));
-
-
-
-    TaskTimer timer5("Running ClFft, run #1");
-    fft.compute(data, result3, FftDirection_Forward);
-
-    TaskTimer timer6("Running ClFft, run #2");
-    fft.compute(data, result3, FftDirection_Forward);
 
 //    QVERIFY( cudaSuccess == cudaGLSetGLDevice( 0 ) );
 //    QVERIFY( 0==glewInit() );
