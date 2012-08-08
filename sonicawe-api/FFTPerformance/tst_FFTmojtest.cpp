@@ -1,5 +1,5 @@
 #include "tfr/fftimplementation.h"
-#include "tfr/fftclfft.h"
+#include "tfr/fftclamdfft.h"
 #include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
@@ -46,7 +46,8 @@ void FFTmojTest::testCase1()
     using namespace std;
     using namespace Tfr;
     // static FftOoura fft;
-    static FftClFft fft;
+    //static FftClFft fft;
+    FftClAmdFft fft = FftClAmdFft();
 
     ChunkData::Ptr data;
     ifstream inputfile("rand12.dat");
