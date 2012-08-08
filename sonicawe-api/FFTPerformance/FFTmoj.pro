@@ -10,6 +10,7 @@ QT += opengl
 TARGET = FFTmoj
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG   -= gui
 
 TEMPLATE = app
 win32:TEMPLATE = vcapp
@@ -18,7 +19,6 @@ SONICAWE = ../../../../src
 
 SOURCES += *.cpp \
     $$SONICAWE/tfr/fft4g.c \
-    $$SONICAWE/tfr/fftclamdfft.cpp \
     $$SONICAWE/tfr/fftimplementation.cpp \
     $$SONICAWE/tfr/stftkernel_cpu.cpp \
     $$SONICAWE/signal/*buffer.cpp \
@@ -26,7 +26,6 @@ SOURCES += *.cpp \
     $$SONICAWE/signal/intervals.cpp \
 
 HEADERS += \
-    $$SONICAWE/tfr/fftclamdfft.h \
     $$SONICAWE/tfr/fftimplementation.h \
     $$SONICAWE/tfr/stftkernel.h \
     $$SONICAWE/signal/*buffer.h \
@@ -67,8 +66,7 @@ LIBS += \
     -l$$WINLIB/glut/glut32 \
     -l$$WINLIB/glew/lib/glew32 \
     -L$$WINLIB/boostlib \
-    -l$$WINLIB/clamdfft/lib32/import/clAmdFft.Runtime \
-    -l$$GPUMISC/debug/gpumisc
+    -l$$WINLIB/clamdfft/lib32/import/clAmdFft.Runtime
 }
 
 macx {
@@ -102,18 +100,26 @@ useopenclnvidia {
 DEFINES += USE_OPENCL
 
 SOURCES += \
-    ../../src/tfr/clfft/*.cpp
+    $$SONICAWE/tfr/fftclfft.cpp \
+    $$SONICAWE/tfr/clfft/*.cpp
 
 HEADERS += \
-    ../../src/tfr/clfft/*.h
+    $$SONICAWE/tfr/fftclfft.h \
+    $$SONICAWE/tfr/clfft/*.h
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
-win32 {
+#win32 {
     # use OpenCL headers from Cuda Gpu Computing SDK
-    INCLUDEPATH += "$(CUDA_INC_PATH)"
-    LIBS += -L"$(CUDA_LIB_PATH)"
+    #INCLUDEPATH += "$(CUDA_INC_PATH)"
+    #LIBS += -L"$(CUDA_LIB_PATH)"
+#}
+
+win32 {
+    # use OpenCL headers from AMD APP Computing SDK
+    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
+    LIBS += -L"$(AMDAPPSDKROOT)lib"
 }
 
 unix:!macx {
@@ -131,11 +137,13 @@ useopenclamd {
 DEFINES += USE_OPENCL
 
 SOURCES += \
+    $$SONICAWE/tfr/fftclamdfft.cpp \
     $$GPUMISC/openclcontext.cpp \
     $$GPUMISC/openclmemorystorage.cpp \
     $$SONICAWE/tfr/clamdfft/*.cpp
 
 HEADERS += \
+    $$SONICAWE/tfr/fftclamdfft.h \
     $$GPUMISC/openclcontext.h \
     $$GPUMISC/openclmemorystorage.h \
     $$SONICAWE/tfr/clamdfft/*.h

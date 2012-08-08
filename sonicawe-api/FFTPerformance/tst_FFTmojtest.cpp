@@ -107,12 +107,13 @@ void FFTmojTest::testCase1()
 
             ChunkData::Ptr result(new ChunkData(N));
 			TaskTimer timer("Running ClFft, run #2");
-            fft.compute(data, result, N, FftDirection_Forward);
+            fft.compute(data, result, FftDirection_Forward);
 			complex<float> *r = result->getCpuMemory();
 			ofstream outputfile("rand12clfft.dat");
+			p = data->getCpuMemory();
 			for(int j = 0; j < N; j++)
 			{
-				outputfile << r[j] << endl;
+				outputfile << p[j] << endl;
 			}
 			outputfile.close();
         }
