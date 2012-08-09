@@ -27,11 +27,11 @@ unix:QMAKE_LFLAGS_RELEASE += -fopenmp
 win32:QMAKE_CXXFLAGS_RELEASE += /openmp
 
 
-AUXLIB = ../../../lib
+AUXLIB = ../../../../lib
 WINLIB = $$AUXLIB/sonicawe-winlib
 MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
-SONICAWE = ../../../src
+SONICAWE = ../../../../src
 
 
 ####################
@@ -48,28 +48,28 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 unix:IS64 = $$system(if [ "`uname -m`" = "x86_64" ]; then echo 64; fi)
 
 INCLUDEPATH += \
-    ../../../lib/gpumisc \
-    ../../../src \
+    $$GPUMISC \
+    $$SONICAWE \
 
 win32 {
     INCLUDEPATH += \
-        ../../../lib/sonicawe-winlib/glut \
-        ../../../lib/sonicawe-winlib/glew/include \
-        ../../../lib/sonicawe-winlib \
+        $$WINLIB/glut \
+        $$WINLIB/glew/include \
+        $$WINLIB \
 		
     LIBS += \
-        -l../../../lib/sonicawe-winlib/glut/glut32 \
-        -l../../../lib/sonicawe-winlib/glew/lib/glew32 \
-        -L../../../lib/sonicawe-winlib/boostlib \
+        -l$$WINLIB/glut/glut32 \
+        -l$$WINLIB/glew/lib/glew32 \
+        -L$$WINLIB/boostlib \
 
     LIBS += \
-        -L../../../src/release -lsonicawe \
-        -L../../../lib/gpumisc/release -lgpumisc \
+        -L$$SONICAWE/release -lsonicawe \
+        -L$$GPUMISC/release -lgpumisc \
 		
 }
 
 macx:INCLUDEPATH += \
-        ../../../lib/sonicawe-maclib/boost_1_45_0 \
+        $$MACLIB/boost_1_45_0 \
 
 
 ####################
@@ -93,17 +93,11 @@ MOC_DIR = $${TMPDIR}
 OBJECTS_DIR = $${TMPDIR}/
 UI_DIR = $${TMPDIR}
 
-INCLUDEPATH += ../../../src/$${SONICAWEMOCDIR}
+INCLUDEPATH += $$SONICAWE/$${SONICAWEMOCDIR}
 
 CONFIG(debug, debug|release):OBJECTS_DIR = $${OBJECTS_DIR}debug/
 else:OBJECTS_DIR = $${OBJECTS_DIR}release/
 
-
-unix:!macx {
-    QMAKE_CXX = g++-4.3
-    QMAKE_CC = gcc-4.3
-    QMAKE_LINK = g++-4.3
-}
 
 # #######################################################################
 # CUDA
@@ -151,7 +145,7 @@ unix:!macx {
         -c \
         -Xcompiler \
         $$join(CUDA_CXXFLAGS,",") \
-        $$join(INCLUDEPATH,'" -I "../../../src/','-I "../../../src/','"') \
+        $$join(INCLUDEPATH,'" -I "$$SONICAWE/','-I "$$SONICAWE/','"') \
         $$CUDA_FLAGS \
         ${QMAKE_FILE_NAME} \
         -o \

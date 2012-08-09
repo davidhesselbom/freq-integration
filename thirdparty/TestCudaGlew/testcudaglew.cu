@@ -1,5 +1,6 @@
-#include "gl.h"
+//#include "gl.h"
 #ifndef __APPLE__
+#	include <GL/glew.h>
 #   include <GL/glut.h>
 #else
 #   include <GLUT/glut.h>

@@ -25,11 +25,11 @@ unix:QMAKE_LFLAGS_RELEASE += -fopenmp
 win32:QMAKE_CXXFLAGS_RELEASE += /openmp
 
 
-AUXLIB = ../../../lib
+AUXLIB = ../../../../lib
 WINLIB = $$AUXLIB/sonicawe-winlib
 MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
-SONICAWE = ../../../src
+SONICAWE = ../../../../src
 
 
 ####################
@@ -74,7 +74,7 @@ unix:LIBS += \
         -L../common -lcommon
 
 # find libsonicawe when executing from project path
-unix:!macx:QMAKE_LFLAGS += -Wl,-rpath=../../../
+unix:!macx:QMAKE_LFLAGS += -Wl,-rpath=../../../../
 
 macx:INCLUDEPATH += \
         $$MACLIB/boost_1_45_0 \
@@ -106,12 +106,6 @@ INCLUDEPATH += $$SONICAWE/$${SONICAWEMOCDIR}
 CONFIG(debug, debug|release):OBJECTS_DIR = $${OBJECTS_DIR}debug/
 else:OBJECTS_DIR = $${OBJECTS_DIR}release/
 
-
-unix:!macx {
-    QMAKE_CXX = g++-4.3
-    QMAKE_CC = gcc-4.3
-    QMAKE_LINK = g++-4.3
-}
 
 # #######################################################################
 # CUDA

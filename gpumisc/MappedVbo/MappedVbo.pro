@@ -42,10 +42,11 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 unix:IS64 = $$system(if [ "`uname -m`" = "x86_64" ]; then echo 64; fi)
 
-GPUMISC = ../../../lib/gpumisc
-SONICAWE = ../../../src
-WINLIB = ../../../lib/sonicawe-winlib
-MACLIB = ../../../lib/sonicawe-maclib
+AUXLIB = ../../../../lib
+WINLIB = $$AUXLIB/sonicawe-winlib
+MACLIB = $$AUXLIB/sonicawe-maclib
+GPUMISC = $$AUXLIB/gpumisc
+SONICAWE = ../../../../src
 
 INCLUDEPATH += \
     $$GPUMISC \
@@ -109,12 +110,6 @@ else:OBJECTS_DIR = $${OBJECTS_DIR}release/
 # CUDA
 # #######################################################################
 usecuda {
-
-unix:!macx {
-	QMAKE_CXX = g++-4.3
-	QMAKE_CC = gcc-4.3
-	QMAKE_LINK = g++-4.3
-}
 
 DEFINES += USE_CUDA
 

@@ -56,11 +56,11 @@ win32 {
 }
 
 
-AUXLIB = ../../../lib
+AUXLIB = ../../../../lib
 WINLIB = $$AUXLIB/sonicawe-winlib
 MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
-SONICAWE = ../../../src
+SONICAWE = ../../../../src
 
 
 INCLUDEPATH += \
@@ -90,7 +90,7 @@ unix:LIBS += \
         -L$$SONICAWE -lsonicawe \
 
 # find libsonicawe when executing from project path
-unix:!macx:QMAKE_LFLAGS += -Wl,-rpath=../../../
+unix:!macx:QMAKE_LFLAGS += -Wl,-rpath=../../../../
 
 macx:INCLUDEPATH += \
         $$MACLIB/boost_1_45_0 \
