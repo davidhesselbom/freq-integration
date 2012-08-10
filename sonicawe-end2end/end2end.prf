@@ -1,0 +1,31 @@
+####################
+# base on common lib
+
+DEFINES += end2end
+
+TEMPLATE = app
+win32:TEMPLATE = vcapp
+
+qtfeatures = $${end2end}../../../qtfeatures/
+win32:qtfeatures = $${end2end}..\\\\..\\\\..\\\\qtfeatures\\\\
+
+CONFIG += $${qtfeatures}sawetestlib
+CONFIG += console
+
+QT += testlib
+
+
+INCLUDEPATH += \
+    ../common \
+
+
+win32 {
+    LIBS += \
+        -L../common/release -lcommon \
+		
+}
+
+unix {
+	LIBS += \
+        -L../common -lcommon
+}
