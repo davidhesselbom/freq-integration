@@ -93,10 +93,8 @@ void ReadWriteWav::
     }
     catch (std::exception &x)
     {
-        TaskInfo("%s, %s caught %s: %s",
-                 vartype(*this).c_str(), __FUNCTION__,
-                 vartype(x).c_str(), x.what());
-        throw;
+        QFAIL(QString("caught %1: %2")
+                 .arg(vartype(x).c_str()).arg(x.what()).toStdString().c_str());
     }
 }
 
@@ -118,13 +116,13 @@ void ReadWriteWav::
 
     wavwrite->source(audiofile);
     wavwrite->invalidate_samples(audiofile->getInterval());
+    wavwrite->readFixedLength(audiofile->getInterval());
+
     for (int i=0; i<4; ++i)
     {
         TaskTimer ti("ReadWriteWav::writeNormalized i=%d", i);
 
         w->normalize(0 == i%2);
-
-        wavwrite->readFixedLength(audiofile->getInterval());
 
         Signal::pOperation normalizedAudiofile(new Adapters::Audiofile(normalizedOutput));
         std::string goldname = w->normalize() ? normalizedGold : source;
@@ -161,16 +159,14 @@ void ReadWriteWav::
             maxdiff = std::max( maxdiff, std::fabs(v - v2) );
         }
 
-        if (maxdiff > 3e-4)
+        if (maxdiff > 1e-4)
             QCOMPARE( maxdiff, 0.f );
     }
     }
     catch (std::exception &x)
     {
-        TaskInfo("%s, %s caught %s: %s",
-                 vartype(*this).c_str(), __FUNCTION__,
-                 vartype(x).c_str(), x.what());
-        throw;
+        QFAIL(QString("caught %1: %2")
+                 .arg(vartype(x).c_str()).arg(x.what()).toStdString().c_str());
     }
 }
 

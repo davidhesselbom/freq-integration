@@ -1,3 +1,10 @@
+#ifndef USE_CUDA
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+#endif
+
 #if 0
 #include "sawe/project_header.h"
 #include <QtCore/QString>
