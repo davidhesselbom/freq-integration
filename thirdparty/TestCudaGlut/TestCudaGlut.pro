@@ -8,7 +8,7 @@
 # Build settings
 
 qtfeatures = ../../../../qtfeatures/
-win32:qtfeatures = ..\\\\..\\\\..\\\\..\\\\qtfeatures\\\\
+win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
 
 CONFIG += console
 CONFIG += $${qtfeatures}buildflags
