@@ -53,7 +53,7 @@ void FFTmojTest::testCase1()
 
     ChunkData::Ptr data;
     ifstream inputfile("rand12.dat");
-    const int size1 = 4096*32;
+    const int size1 = 1024;
     float input[size1];
     for (int i = 0; i < size1; i++)
 	{
@@ -73,7 +73,7 @@ void FFTmojTest::testCase1()
 
     // We want to test for (2^10, 2^20)
 
-    for (int N = size1; N <= size1; N *= 2)
+    for (int N = size1; N <= size1*size1; N *= 2)
     {
 		N++;
         N = fft.lChunkSizeS(N);
@@ -82,6 +82,7 @@ void FFTmojTest::testCase1()
         data.reset(new ChunkData(N));
         complex<float> *p = data->getCpuMemory();
 
+        /*
         {
             for (int i = 0; i < N; i++)
             {
@@ -93,12 +94,14 @@ void FFTmojTest::testCase1()
 			TaskTimer timer("Running ClFft, run #1");
             fft.compute(data, data, DataStorageSize(1, 4), FftDirection_Forward);
         }
+        */
 
 		// Compute on new data with the same size, now that we have a plan
-        data.reset(new ChunkData(N));
-        p = data->getCpuMemory();
+//        data.reset(new ChunkData(N));
+//        p = data->getCpuMemory();
 
         {
+/*
             for (int i = 0; i < N; i++)
             {
                 //p[i].real((float)rand()/(float)RAND_MAX);
@@ -106,20 +109,22 @@ void FFTmojTest::testCase1()
                 //p[i].real(input[i]);
                 //p[i].imag(0);
             }
-
-			cout << p[0].real() << ", " << p[0].imag() << endl;
+*/
+//			cout << p[0].real() << ", " << p[0].imag() << endl;
 
             //ChunkData::Ptr result(new ChunkData(N));
-			TaskTimer timer("Running ClFft, run #2");
+//			TaskTimer timer("Running ClFft, run #2");
             fft.compute(data, data, FftDirection_Forward);
 			//complex<float> *r = result->getCpuMemory();
-			ofstream outputfile("rand12clfft.dat");
+//			ofstream outputfile("rand12clfft.dat");
 			p = data->getCpuMemory();
-			for(int j = 0; j < N; j++)
+/*
+            for(int j = 0; j < N; j++)
 			{
 				outputfile << p[j] << endl;
 			}
 			outputfile.close();
+*/
         }
     }
 

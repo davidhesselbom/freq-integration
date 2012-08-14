@@ -144,7 +144,7 @@ macx: LIBS += -framework OpenCL
 win32 {
     # use OpenCL headers from AMD APP Computing SDK
     INCLUDEPATH += "$(AMDAPPSDKROOT)include"
-    LIBS += -L"$(AMDAPPSDKROOT)lib"
+    LIBS += -L"$(AMDAPPSDKROOT)lib/x86"
 }
 
 unix:!macx {
@@ -162,6 +162,7 @@ macx {
 # CUDA
 # #######################################################################
 
+usecuda{
 unix:!macx {
         QMAKE_CXX = g++-4.3
         QMAKE_CC = gcc-4.3
@@ -259,5 +260,5 @@ macx {
 cuda.input = CUDA_SOURCES
 QMAKE_EXTRA_COMPILERS += cuda
 
-# end of cuda section #######################################################################
+} # end of cuda section #######################################################################
 
