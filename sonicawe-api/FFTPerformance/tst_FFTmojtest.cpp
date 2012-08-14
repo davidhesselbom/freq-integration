@@ -1,5 +1,5 @@
 #include "tfr/fftimplementation.h"
-#include "tfr/fftclamdfft.h"
+#include "tfr/clamdfft/fftclamdfft.h"
 #include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
@@ -27,10 +27,12 @@ FFTmojTest::FFTmojTest()
 {
 }
 
+/*
 #include "cudaPitchedPtrType.h"
 #include "CudaException.h"
 
 void FFTmojTestCuda( cudaPitchedPtrType<float> data );
+*/
 
 void FFTmojTest::initTestCase()
 {
@@ -51,10 +53,12 @@ void FFTmojTest::testCase1()
 
     ChunkData::Ptr data;
     ifstream inputfile("rand12.dat");
-    float input[4096];
-    for (int i = 0; i < 4096; i++)
+    const int size1 = 4096*32;
+    float input[size1];
+    for (int i = 0; i < size1; i++)
 	{
-        inputfile >> input[i];
+        //inputfile >> input[i];
+        input[i] = ((float)rand()/(float)RAND_MAX);
     }
     inputfile.close();
 
@@ -69,7 +73,7 @@ void FFTmojTest::testCase1()
 
     // We want to test for (2^10, 2^20)
 
-    for (int N = 4096; N <= 4096; N *= 2)
+    for (int N = size1; N <= size1; N *= 2)
     {
 		N++;
         N = fft.lChunkSizeS(N);
@@ -85,9 +89,9 @@ void FFTmojTest::testCase1()
                 p[i].imag(1);
             }
 
-			ChunkData::Ptr result(new ChunkData(N));
+            //ChunkData::Ptr result(new ChunkData(N));
 			TaskTimer timer("Running ClFft, run #1");
-            fft.compute(data, result, N, FftDirection_Forward);
+            fft.compute(data, data, DataStorageSize(1, 4), FftDirection_Forward);
         }
 
 		// Compute on new data with the same size, now that we have a plan
@@ -99,16 +103,16 @@ void FFTmojTest::testCase1()
             {
                 //p[i].real((float)rand()/(float)RAND_MAX);
                 //p[i].imag((float)rand()/(float)RAND_MAX);
-				p[i].real(input[i]);
-				p[i].imag(0);
+                //p[i].real(input[i]);
+                //p[i].imag(0);
             }
 
 			cout << p[0].real() << ", " << p[0].imag() << endl;
 
-            ChunkData::Ptr result(new ChunkData(N));
+            //ChunkData::Ptr result(new ChunkData(N));
 			TaskTimer timer("Running ClFft, run #2");
-            fft.compute(data, result, FftDirection_Forward);
-			complex<float> *r = result->getCpuMemory();
+            fft.compute(data, data, FftDirection_Forward);
+			//complex<float> *r = result->getCpuMemory();
 			ofstream outputfile("rand12clfft.dat");
 			p = data->getCpuMemory();
 			for(int j = 0; j < N; j++)

@@ -100,26 +100,18 @@ useopenclnvidia {
 DEFINES += USE_OPENCL
 
 SOURCES += \
-    $$SONICAWE/tfr/fftclfft.cpp \
     $$SONICAWE/tfr/clfft/*.cpp
 
 HEADERS += \
-    $$SONICAWE/tfr/fftclfft.h \
     $$SONICAWE/tfr/clfft/*.h
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
-#win32 {
-    # use OpenCL headers from Cuda Gpu Computing SDK
-    #INCLUDEPATH += "$(CUDA_INC_PATH)"
-    #LIBS += -L"$(CUDA_LIB_PATH)"
-#}
-
 win32 {
-    # use OpenCL headers from AMD APP Computing SDK
-    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
-    LIBS += -L"$(AMDAPPSDKROOT)lib"
+     use OpenCL headers from Cuda Gpu Computing SDK
+    INCLUDEPATH += "$(CUDA_INC_PATH)"
+    LIBS += -L"$(CUDA_LIB_PATH)"
 }
 
 unix:!macx {
@@ -137,13 +129,11 @@ useopenclamd {
 DEFINES += USE_OPENCL
 
 SOURCES += \
-    $$SONICAWE/tfr/fftclamdfft.cpp \
     $$GPUMISC/openclcontext.cpp \
     $$GPUMISC/openclmemorystorage.cpp \
     $$SONICAWE/tfr/clamdfft/*.cpp
 
 HEADERS += \
-    $$SONICAWE/tfr/fftclamdfft.h \
     $$GPUMISC/openclcontext.h \
     $$GPUMISC/openclmemorystorage.h \
     $$SONICAWE/tfr/clamdfft/*.h
