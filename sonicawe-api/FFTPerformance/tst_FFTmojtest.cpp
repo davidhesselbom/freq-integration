@@ -1,7 +1,7 @@
 #include "tfr/fftimplementation.h"
 #include "tfr/clamdfft/fftclamdfft.h"
 //#include "tfr/clfft/fftclfft.h"
-//#include "tfr/fftooura.h"
+#include "tfr/fftooura.h"
 #include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
@@ -80,7 +80,7 @@ void FFTmojTest::testCase1()
 
     // We want to test for (2^10, 2^20)
 
-    for (int N = size1; N <= size1+200; N++)
+    for (int N = size1; N <= size1*size1; N++)
     {
         currentsize = fft.lChunkSizeS(N+1);
 		
@@ -122,12 +122,12 @@ void FFTmojTest::testCase1()
 */
 //			cout << p[0].real() << ", " << p[0].imag() << endl;
 
-            //ChunkData::Ptr result(new ChunkData(N));
-//			TaskTimer timer("Running ClFft, run #2");
+            ChunkData::Ptr result(new ChunkData(N));
+			TaskTimer timer("Running ClFft, run #2");
             fft.compute(data, data, FftDirection_Forward);
-			//complex<float> *r = result->getCpuMemory();
+			complex<float> *r = result->getCpuMemory();
 //			ofstream outputfile("rand12clfft.dat");
-            p = data->getCpuMemory();
+            //p = data->getCpuMemory();
 /*
             for(int j = 0; j < N; j++)
 			{
@@ -140,7 +140,7 @@ void FFTmojTest::testCase1()
 
     cout << "uniques: " << uniques << endl;
 
-    for (int N = size1; N <= size1+200; N++)
+    for (int N = size1; N <= size1*size1; N++)
     {
         currentsize = fft.lChunkSizeS(N+1);
 
@@ -182,15 +182,15 @@ void FFTmojTest::testCase1()
 */
 //			cout << p[0].real() << ", " << p[0].imag() << endl;
 
-            //ChunkData::Ptr result(new ChunkData(N));
-//			TaskTimer timer("Running ClFft, run #2");
+            ChunkData::Ptr result(new ChunkData(currentsize));
+			TaskTimer timer("Running ClFft, run #2");
             for (int i = 0; i < 100; i++)
             {
-                fft.compute(data, data, FftDirection_Forward);
+                fft.compute(data, result, FftDirection_Forward);
             }
-            //complex<float> *r = result->getCpuMemory();
+            complex<float> *r = result->getCpuMemory();
 //			ofstream outputfile("rand12clfft.dat");
-            p = data->getCpuMemory();
+            //p = data->getCpuMemory();
 /*
             for(int j = 0; j < N; j++)
             {
