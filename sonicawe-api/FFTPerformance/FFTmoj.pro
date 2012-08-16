@@ -18,6 +18,7 @@ win32:TEMPLATE = vcapp
 SONICAWE = ../../../../src
 
 SOURCES += *.cpp \
+    $$SONICAWE/tfr/fftooura.cpp \
     $$SONICAWE/tfr/fft4g.c \
     $$SONICAWE/tfr/fftimplementation.cpp \
     $$SONICAWE/tfr/stftkernel_cpu.cpp \
@@ -26,6 +27,7 @@ SOURCES += *.cpp \
     $$SONICAWE/signal/intervals.cpp \
 
 HEADERS += \
+    $$SONICAWE/tfr/fftooura.h \
     $$SONICAWE/tfr/fftimplementation.h \
     $$SONICAWE/tfr/stftkernel.h \
     $$SONICAWE/signal/*buffer.h \
@@ -60,13 +62,12 @@ INCLUDEPATH += \
     $$WINLIB \
     $$WINLIB/glew/include \
     $$WINLIB/glut \
-    $$WINLIB/clamdfft/include \
 
 LIBS += \
     -l$$WINLIB/glut/glut32 \
     -l$$WINLIB/glew/lib/glew32 \
     -L$$WINLIB/boostlib \
-    -l$$WINLIB/clamdfft/lib32/import/clAmdFft.Runtime
+
 }
 
 macx {
@@ -109,9 +110,13 @@ macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
 win32 {
-     use OpenCL headers from Cuda Gpu Computing SDK
-    INCLUDEPATH += "$(CUDA_INC_PATH)"
-    LIBS += -L"$(CUDA_LIB_PATH)"
+    # use OpenCL headers from AMD APP Computing SDK
+    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
+    LIBS += -L"$(AMDAPPSDKROOT)lib/x86"
+
+    # use OpenCL headers from Cuda Gpu Computing SDK
+    #INCLUDEPATH += "$(CUDA_INC_PATH)"
+    #LIBS += -L"$(CUDA_LIB_PATH)"
 }
 
 unix:!macx {
@@ -143,8 +148,14 @@ macx: LIBS += -framework OpenCL
 
 win32 {
     # use OpenCL headers from AMD APP Computing SDK
-    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
-    LIBS += -L"$(AMDAPPSDKROOT)lib/x86"
+    INCLUDEPATH += \
+    "$(AMDAPPSDKROOT)include" \
+    $$WINLIB/clamdfft/include \
+
+    LIBS += \
+    -L"$(AMDAPPSDKROOT)lib/x86" \
+    -l$$WINLIB/clamdfft/lib32/import/clAmdFft.Runtime \
+
 }
 
 unix:!macx {
