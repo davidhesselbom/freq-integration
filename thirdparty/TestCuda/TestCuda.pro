@@ -24,7 +24,7 @@ win32:TEMPLATE = vcapp
 ####################
 # Source code
 
-SOURCES += *.cpp
+!usecuda:SOURCES += *.cpp
 
 CUDA_SOURCES += \
     *.cu

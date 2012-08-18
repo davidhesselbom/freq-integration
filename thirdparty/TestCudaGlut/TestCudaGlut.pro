@@ -13,6 +13,7 @@ win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
 CONFIG += console
 CONFIG += $${qtfeatures}buildflags
 CONFIG += $${qtfeatures}cuda
+CONFIG += $${qtfeatures}sawelibs
 
 QT -= core
 QT -= gui
@@ -24,7 +25,7 @@ win32:TEMPLATE = vcapp
 ####################
 # Source code
 
-SOURCES += *.cpp
+!usecuda:SOURCES += *.cpp
 
 CUDA_SOURCES += \
     *.cu
