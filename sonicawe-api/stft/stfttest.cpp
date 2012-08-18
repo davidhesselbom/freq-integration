@@ -233,34 +233,56 @@ void StftTest::
     t->set_approximate_chunk_size( gold_windowsize );
     t->compute_redundant( true );
 
-    float ft_diff = testTransform( ft, gold_input_data, 0, 0, coutinfo?&epsilon[1]:0);
+    pChunk c = (*t)(gold_input_data);
+    if (!overlap)
+        QCOMPARE( c->getInterval(), gold_input_data->getInterval() );
 
-    if (coutinfo && ft_diff>epsilon[1])
+    std::complex<float>* cp = c->transform_data->getCpuMemory();
+    QCOMPARE((int)gold_ft.size(), 7*gold_windowsize );
+
+    std::vector<std::complex<float> > gold_ft_nonredundant;
+    std::vector<std::complex<float> >* gold_ft_data = 0;
+    if (overlap)
+        gold_ft_data = &gold_ft;
+    else
     {
-        pChunk c = (*t)(gold_input_data);
-        if (overlap)
-            QCOMPARE( c->getInterval(), gold_input_data->getInterval() );
+        gold_ft_nonredundant.resize(16);
 
-        std::complex<float>* cp = c->transform_data->getCpuMemory();
-        gold_ft.resize( 7*gold_windowsize );
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                gold_ft_nonredundant[i*4+j] = gold_ft[i*8+j];
 
-        std::vector<std::complex<float> > gold_ft_nonredundant;
-        std::vector<std::complex<float> >* gold_ft_data = 0;
-        if (overlap)
-            gold_ft_data = &gold_ft;
-        else
-        {
-            gold_ft_nonredundant.resize(16);
+        gold_ft_data = &gold_ft_nonredundant;
+    }
 
-            for (int i=0; i<4; ++i)
-                for (int j=0; j<4; ++j)
-                    gold_ft_nonredundant[i*4+j] = gold_ft[i*8+j];
+    std::complex<float>* gold_cp = &(*gold_ft_data)[0];
+    QCOMPARE( c->transform_data->numberOfElements(), gold_ft_data->size() );
 
-            gold_ft_data = &gold_ft_nonredundant;
-        }
+    float ft_diff = 0.f;
+    std::complex<float> accDiff;
+    float accRel = 0.f;
+    for (unsigned i=0; i<gold_ft_data->size(); ++i)
+    {
+        std::complex<float> diff = cp[i] - (*gold_ft_data)[i];
+        accDiff += diff;
+        accRel += abs(cp[i]) - abs((*gold_ft_data)[i]);
+        if (ft_diff < abs(diff))
+            ft_diff = abs(diff);
+    }
 
-        std::complex<float>* gold_cp = &(*gold_ft_data)[0];
-        QCOMPARE( c->transform_data->numberOfElements(), gold_ft_data->size() );
+    float t_diff = testTransform( ft, gold_input_data, 0, 0, coutinfo?&epsilon[1]:0);
+
+    bool passed = ft_diff < 4e-5
+            && abs(accDiff) < 7e-5
+            && abs(accRel) < 6e-5
+            && t_diff<epsilon[1];
+
+    if (coutinfo && !passed)
+    {
+        cout << "ft_diff = " << ft_diff << endl;
+        cout << "t_diff = " << t_diff << endl;
+        cout << "accDiff = " << accDiff << " " << abs(accDiff) << endl;
+        cout << "accRel = " << accRel << endl;
 
         cout << "Gold transform\t\tComputed transform" << endl;
         for (unsigned i=0; i<c->transform_data->numberOfElements() && i<coutinfo; ++i)
@@ -272,9 +294,9 @@ void StftTest::
         pBuffer b2 = t->inverse(c);
     }
 
-    passedTests += ft_diff < epsilon[1];
+    passedTests += passed;
 
-    QVERIFY( ft_diff < epsilon[1] );
+    QVERIFY( passed );
 }
 
 
@@ -397,6 +419,8 @@ float StftTest::
     return ft_diff;
 }
 
+#include "../common.h"
 
-QTEST_MAIN(StftTest);
+TEST_MAIN_TRYCATCH(StftTest)
+
 #include "stfttest.moc"
