@@ -11,16 +11,27 @@ class QGLWidget;
 class CompareImages
 {
 public:
-    CompareImages( QString testName = "test", bool platformspecific=true, bool computationdevicespecific=true );
+    enum PlatformDependency {
+        PlatformIndependent,
+        PlatformSpecific
+    };
+    enum DeviceDependency {
+        DeviceIndependent,
+        DeviceSpecific
+    };
+
+    CompareImages( QString testName = "test", PlatformDependency platformspecific=PlatformIndependent, DeviceDependency computationdevicespecific=DeviceIndependent );
 
     QString resultFileName, goldFileName, diffFileName;
     double limit;
 
     void saveImage(Sawe::pProject p);
+    void saveWindowImage(Sawe::pProject p);
     void verifyResult();
 
 private:
-    void saveImage(QWidget* mainwindow, QGLWidget *glwidget);
+    void saveImage(QGLWidget *glwidget);
+    void saveWindowImage(QWidget* mainwindow, QGLWidget *glwidget);
 };
 
 

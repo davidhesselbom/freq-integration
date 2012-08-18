@@ -102,32 +102,11 @@ void CropSelection::
 
             ui->actionPeakSelection->trigger();
 
+            QPoint p(658, 241);
+
             QTestEventList tel;
-#ifdef _MSC_VER
-    #ifdef USE_CUDA
-            tel.addMouseMove(QPoint(661, 202), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(661, 202), 100);
-    #else
-            tel.addMouseMove(QPoint(650, 219), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(650, 219), 100);
-    #endif
-#elif defined(__APPLE__)
-    #ifdef USE_CUDA
-            tel.addMouseMove(QPoint(657, 205), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(657-2, 205-3), 100);
-    #else
-            tel.addMouseMove(QPoint(604, 237), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(650, 219), 100);
-    #endif
-#else
-    #ifdef USE_CUDA
-            tel.addMouseMove(QPoint(671, 214), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(671, 214), 100);
-    #else
-            tel.addMouseMove(QPoint(661, 234), 100);
-            tel.addMouseClick(Qt::LeftButton, 0, QPoint(661, 234), 100);
-    #endif
-#endif
+            tel.addMouseMove(p, 100);
+            tel.addMouseClick(Qt::LeftButton, 0, p, 100);
             tel.simulate(glwidget);
 
             ui->actionCropSelection->trigger();

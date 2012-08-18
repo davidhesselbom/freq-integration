@@ -45,6 +45,7 @@ private:
 
 OpenGui::
         OpenGui()
+    :   compareImages("test", CompareImages::PlatformSpecific)
 {
 }
 
@@ -83,7 +84,7 @@ void OpenGui::
 void OpenGui::
         saveImage()
 {
-    compareImages.saveImage( project() );
+    compareImages.saveWindowImage( project() );
 
     Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
 }

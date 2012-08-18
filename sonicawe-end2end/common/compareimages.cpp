@@ -15,12 +15,12 @@
 
 
 CompareImages::
-        CompareImages( QString testName, bool platformspecific, bool computationdevicespecific )
+        CompareImages( QString testName, PlatformDependency platformspecific, DeviceDependency computationdevicespecific )
 :    limit(30)
 {
     QString target;
 
-    if (computationdevicespecific) switch (Sawe::Configuration::computationDeviceType())
+    if (DeviceSpecific==computationdevicespecific) switch (Sawe::Configuration::computationDeviceType())
     {
     case Sawe::Configuration::DeviceType_Cuda: target += "-cuda"; break;
     case Sawe::Configuration::DeviceType_OpenCL: target += "-opencl"; break;
@@ -28,7 +28,7 @@ CompareImages::
     default: target = "unknown_target"; break;
     }
 
-    if (platformspecific)
+    if (PlatformSpecific==platformspecific)
     {
         target += "-";
         target += Sawe::Configuration::operatingSystemFamilyName().c_str();
@@ -45,16 +45,32 @@ CompareImages::
 void CompareImages::
         saveImage(Sawe::pProject p)
 {
-    saveImage(p->mainWindowWidget(), p->tools().render_view()->glwidget);
+    saveImage(p->tools().render_view()->glwidget);
 }
 
 
 void CompareImages::
-        saveImage(QWidget* mainwindow, QGLWidget *glwidget)
+        saveWindowImage(Sawe::pProject p)
+{
+    saveWindowImage(p->mainWindowWidget(), p->tools().render_view()->glwidget);
+}
+
+
+void CompareImages::
+        saveImage(QGLWidget *glwidget)
 {
     TaskTimer ti("CompareImages::saveImage");
 
-    glwidget->makeCurrent();
+    glwidget->swapBuffers();
+    QImage glimage = glwidget->grabFrameBuffer();
+    glimage.save(resultFileName);
+}
+
+
+void CompareImages::
+        saveWindowImage(QWidget* mainwindow, QGLWidget *glwidget)
+{
+    TaskTimer ti("CompareImages::saveWindowImage");
 
     QPixmap pixmap(mainwindow->size());
     QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);

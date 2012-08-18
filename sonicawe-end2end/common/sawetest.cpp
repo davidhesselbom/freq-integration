@@ -8,6 +8,7 @@
 #include "TaskTimer.h"
 
 #include <QtTest/QtTest>
+#include <QGLWidget>
 
 SaweTestClass::
         SaweTestClass()
@@ -110,6 +111,14 @@ void SaweTestClass::
 {
     closeDropNotifications();
     timeLineVisibility(true);
+
+    Sawe::pProject p = project();
+    QGLWidget* qgl = p->tools().render_view()->glwidget;
+    QSize wantedSize(840, 436);
+    QSize actualSize = qgl->size();
+    QSize windowSize = p->mainWindow()->size();
+
+    p->mainWindow()->resize( windowSize + wantedSize - actualSize );
 }
 
 

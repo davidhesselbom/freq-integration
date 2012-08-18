@@ -99,7 +99,7 @@ void TestCommon::
 void TestCommon::
         compareImagesTest()
 {
-    CompareImages ci("predefined", false, false);
+    CompareImages ci("predefined", CompareImages::PlatformIndependent, CompareImages::DeviceIndependent);
     QFile::copy(ci.goldFileName, ci.resultFileName);
     ci.verifyResult();
 }

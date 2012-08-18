@@ -117,8 +117,16 @@ protected slots: // not private because that would make them execute as test cas
                                                                \
         Sawe::Application application(argc, (char**)&argvector[0]); \
         QTEST_DISABLE_KEYPAD_NAVIGATION                        \
-        TestClass tc;                                          \
-        return QTest::qExec(&tc, argc, (char**)&argvector[0]); \
+        try {                                                  \
+            TestClass tc;                                      \
+            return QTest::qExec(&tc, argc, (char**)&argvector[0]); \
+        }                                                      \
+        catch (const std::exception& x)                        \
+        {                                                      \
+            std::cout << "Error: " << vartype(x) << std::endl  \
+                      << "Details: " << x.what() << std::endl; \
+            return -1;                                         \
+        }                                                      \
     }
 
 #endif // SAWETEST
