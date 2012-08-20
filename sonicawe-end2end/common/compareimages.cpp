@@ -99,8 +99,10 @@ void CompareImages::
     QImage glimage = glwidget->grabFrameBuffer();
     painter.drawImage(p2, glimage);
 
+#ifdef Q_OS_LINUX
     // draw Qt widgets that are on top of the opengl window
-//    mainwindow->render(&painter);
+    mainwindow->render(&painter);
+#endif
 
     pixmap.save(resultFileName);
 }
