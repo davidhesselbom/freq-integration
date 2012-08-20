@@ -16,7 +16,7 @@
 
 CompareImages::
         CompareImages( QString testName, PlatformDependency platformspecific, DeviceDependency computationdevicespecific )
-:    limit(30)
+:    limit(40)
 {
     QString target;
 
@@ -31,7 +31,19 @@ CompareImages::
     if (PlatformSpecific==platformspecific)
     {
         target += "-";
+#ifndef Q_WS_WIN
         target += Sawe::Configuration::operatingSystemFamilyName().c_str();
+#else
+        switch(QSysInfo::WindowsVersion)
+        {
+        case QSysInfo::WV_NT_based:
+            target += "win8";
+            break;
+        default:
+            target += "win";
+            break;
+        }
+#endif
     }
 
     resultFileName = QString("%1%2-result.png").arg(testName).arg(target);
