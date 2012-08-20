@@ -75,8 +75,6 @@ void TestCommon::
     QTestEventList tel;
     tel.push_back( new CallSlotEvent(this, SLOT(hasCalledSlotTestSlot())) );
     tel.simulate(glwidget);
-
-    compare.saveImage( project() );
 }
 
 
@@ -118,6 +116,8 @@ void TestCommon::
     TaskTimer ti("%s::%s", vartype(*this).c_str(), __FUNCTION__, NULL);
 
     has_called_slot_ = true;
+
+    compare.saveImage( project() );
 
     Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
 }
