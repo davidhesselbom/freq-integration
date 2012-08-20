@@ -104,16 +104,23 @@ protected slots: // not private because that would make them execute as test cas
 };
 
 
+typedef std::vector<const char*> ArgvectorT;
+template<typename T> void TestClassArguments(ArgvectorT&) {}
+
 // expanded QTEST_MAIN but for Sawe::Application
 #define SAWETEST_MAIN(TestClass)                               \
     int main(int argc, char *argv[])                           \
     {                                                          \
-        std::vector<const char*> argvector(argc+2);            \
+        ArgvectorT argvector(argc);                            \
         for (int i=0; i<argc; ++i)                             \
             argvector[i] = argv[i];                            \
                                                                \
-        argvector[argc++] = "--use_saved_state=0";             \
-        argvector[argc++] = "--skip_update_check=1";           \
+        argvector.push_back("--use_saved_state=0");            \
+        argvector.push_back("--skip_update_check=1");          \
+        argvector.push_back("--skipfeature=overlay_navigation");\
+                                                               \
+        TestClassArguments<TestClass>( argvector );            \
+        argc = argvector.size();                               \
                                                                \
         Sawe::Application application(argc, (char**)&argvector[0]); \
         QTEST_DISABLE_KEYPAD_NAVIGATION                        \

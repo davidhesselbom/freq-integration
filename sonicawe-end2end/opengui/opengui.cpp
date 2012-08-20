@@ -97,6 +97,24 @@ void OpenGui::
 }
 
 
+bool arguments_to_remove(const char* a)
+{
+    return 0 == strcmp(a,"--skipfeature=overlay_navigation");
+}
+
+
+template<> void TestClassArguments<OpenGui>(ArgvectorT& argvector)
+{
+    do
+    {
+        ArgvectorT::iterator i = std::find_if(argvector.begin(), argvector.end(), arguments_to_remove);
+        if (i == argvector.end())
+            break;
+        argvector.erase(i);
+    } while (true);
+}
+
+
 SAWETEST_MAIN(OpenGui)
 
 #include "opengui.moc"

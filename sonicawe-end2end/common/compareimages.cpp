@@ -75,15 +75,20 @@ void CompareImages::
     QPixmap pixmap(mainwindow->size());
     QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
     QPainter painter(&pixmap);
-    // Note that Microsoft Windows does not allow an application to interrupt
-    // what the user is currently doing in another application.
+
+    // update layout by calling render
     mainwindow->activateWindow();
     mainwindow->raise();
     mainwindow->render(&painter);
-    QImage glimage = glwidget->grabFrameBuffer();
 
+    // draw OpenGL window
     QPoint p2 = glwidget->mapTo( mainwindow, QPoint() );
+    glwidget->swapBuffers();
+    QImage glimage = glwidget->grabFrameBuffer();
     painter.drawImage(p2, glimage);
+
+    // draw Qt widgets that are on top of the opengl window
+//    mainwindow->render(&painter);
 
     pixmap.save(resultFileName);
 }
