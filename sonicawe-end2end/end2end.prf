@@ -20,8 +20,11 @@ INCLUDEPATH += \
 
 
 win32 {
+    LIB_OUTPUT_FOLDER=release
+    CONFIG(debug, debug|release):LIB_OUTPUT_FOLDER=debug
+
     LIBS += \
-        -L../common/release -lcommon \
+        -L../common/$$LIB_OUTPUT_FOLDER -lcommon \
 		
 }
 

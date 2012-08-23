@@ -131,6 +131,7 @@ void OpenProject::
     case 0:
         {
             compareAudioImages.saveImage( projectAudio );
+
             for (int i=0; i<6; ++i)
             {
                 if (i>=3 && i<=4)
@@ -150,6 +151,7 @@ void OpenProject::
                     QFAIL(QString("Files %1 and %2 differ").arg(projectName).arg(goldProjectName).toLocal8Bit().data());
                 }
             }
+
 
             project( projectProjectFile = Sawe::Application::global_ptr()->slotOpen_file( projectName.toStdString() ) );
             Sawe::Application::global_ptr()->slotClosed_window( projectAudio->mainWindowWidget() );
