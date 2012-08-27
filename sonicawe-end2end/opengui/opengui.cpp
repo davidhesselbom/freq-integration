@@ -112,6 +112,8 @@ template<> void TestClassArguments<OpenGui>(ArgvectorT& argvector)
             break;
         argvector.erase(i);
     } while (true);
+
+    argvector.push_back("--skipfeature=compute_device_info_in_menu");
 }
 
 
