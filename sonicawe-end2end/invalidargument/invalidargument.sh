@@ -2,7 +2,7 @@
 set -e
 echo 1
 # test that build output exists
-outputname=argcheck
+outputname=./argcheck
 if [ -n "$(uname -s | grep MINGW32_NT)" ]; then
     outputname=release/argcheck.exe
 fi
