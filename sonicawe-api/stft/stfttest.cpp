@@ -171,12 +171,17 @@ void StftTest::initTestCase()
 
         TaskTimer tt("Warming up...");
 
-        Stft a;
-        a.set_approximate_chunk_size(windowsize);
-        a(data);
-
-        Fft f;
-        f(data);
+        {
+            TaskTimer tt("initial stft...");
+            Stft a;
+            a.set_approximate_chunk_size(windowsize);
+            a(data);
+        }
+        {
+            TaskTimer tt("initial fft...");
+            Fft f;
+            f(data);
+        }
     }
 }
 
