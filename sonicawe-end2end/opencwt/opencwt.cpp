@@ -52,7 +52,7 @@ OpenCwt::
 {
     sourceAudio = "music-1.ogg";
 
-    compareImages.limit = 120.;
+    compareImages.limit = 150.;
 }
 
 
