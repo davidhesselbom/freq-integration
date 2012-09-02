@@ -24,6 +24,8 @@ public:
 
     QString resultFileName, goldFileName, diffFileName;
     double limit;
+    double limit2;
+    double limitinf; // max
 
     void saveImage(Sawe::pProject p);
     void saveWindowImage(Sawe::pProject p);

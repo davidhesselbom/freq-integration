@@ -52,11 +52,9 @@ OpenAudio::
 {
     sourceAudio = "music-1.ogg";
 
-#ifdef USE_CUDA
     compareImages.limit = 50.;
-#else
-    compareImages.limit = 100.;
-#endif
+    compareImages.limit2 = 12.f;
+    compareImages.limitinf = 0.8f;
 }
 
 

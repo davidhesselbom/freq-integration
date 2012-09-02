@@ -54,6 +54,7 @@ DeleteSelection::
         DeleteSelection()
 {
     sourceAudio = "music-1.ogg";
+    compareImages.limitinf = 0.3;
 }
 
 

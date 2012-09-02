@@ -16,7 +16,9 @@
 
 CompareImages::
         CompareImages( QString testName, PlatformDependency platformspecific, DeviceDependency computationdevicespecific )
-:    limit(40)
+:    limit(40),
+     limit2(2),
+     limitinf(64./256)
 {
     QString target;
 
@@ -129,14 +131,18 @@ void CompareImages::
 
     QImage diffImage( goldimage.size(), goldimage.format() );
 
-    double diff = 0;
+    double norm1 = 0.f, norm2 = 0.f;
+    float norminf = 0.f;
     for (int y=0; y<goldimage.height(); ++y)
     {
         for (int x=0; x<goldimage.width(); ++x)
         {
             float gold = QColor(goldimage.pixel(x,y)).lightnessF();
             float result = QColor(resultimage.pixel(x,y)).lightnessF();
-            diff += std::fabs( gold - result );
+            float diff = std::fabs(gold - result);
+            norm1 += diff;
+            norm2 += diff*diff;
+            norminf = std::max(norminf, diff);
             float greenoffset = 1./3;
             float hue = fmod(10 + greenoffset + (gold - result)*0.5f, 1.f);
             diffImage.setPixel( x, y,
@@ -152,9 +158,16 @@ void CompareImages::
 
     diffImage.save( diffFileName );
 
-    TaskInfo("compareImages, ligtness difference between '%s' and '%s' was %g, tolerated max difference is %g. Saved diff image in '%s'",
-             goldFileName.toStdString().c_str(), resultFileName.toStdString().c_str(),
-             diff, limit, diffFileName.toStdString().c_str() );
+    TaskInfo tt("compareImages, ligtness difference between '%s' and '%s' saved diff image in '%s'",
+             goldFileName.toStdString().c_str(),
+             resultFileName.toStdString().c_str(),
+             diffFileName.toStdString().c_str() );
 
-    QVERIFY(diff <= limit);
+    TaskInfo("1-norm %g (<= %g)", norm1, limit);
+    TaskInfo("2-norm %g (<= %g)", norm2, limit2);
+    TaskInfo("inf-norm %g (<= %g)", norminf, limitinf);
+
+    QVERIFY(norm1 <= limit);
+    QVERIFY(norm2 <= limit2);
+    QVERIFY(norminf <= limitinf);
 }
