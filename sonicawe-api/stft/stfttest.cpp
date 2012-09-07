@@ -49,7 +49,7 @@ private:
     pBuffer gold_input_data;
     std::vector<std::complex<float> > gold_ft;
     float gold_overlap;
-    Stft::WindowType gold_window;
+    StftParams::WindowType gold_window;
     int gold_windowsize;
 };
 
@@ -65,31 +65,31 @@ StftTest::StftTest()
     //N = 64; windowsize=16;
     overlap = 0.75f;
 
-    epsilon.resize(1+Stft::WindowType_NumberOfWindowTypes);
+    epsilon.resize(1+StftParams::WindowType_NumberOfWindowTypes);
     // these are given for windowsize 256 and overlap 0.75
     epsilon[0] = 2e-7 * log((double)N);
-    epsilon[1+Stft::WindowType_Rectangular] = 2e-7 * log((double)windowsize); // rectangular
-    epsilon[1+Stft::WindowType_Hann] = .0002f;
-    epsilon[1+Stft::WindowType_Hamming] = .00005f;
-    epsilon[1+Stft::WindowType_Tukey] = .004f;
-    epsilon[1+Stft::WindowType_Cosine] = .001f;
-    epsilon[1+Stft::WindowType_Lanczos] = .003f;
-    epsilon[1+Stft::WindowType_Triangular] = 2e-7 * log((double)windowsize);
-    epsilon[1+Stft::WindowType_Gaussian] = .004f;
-    epsilon[1+Stft::WindowType_BarlettHann] = .0006f;
-    epsilon[1+Stft::WindowType_Blackman] = .0003f;
-    epsilon[1+Stft::WindowType_Nuttail] = 3e-5;
-    epsilon[1+Stft::WindowType_BlackmanHarris] = 3e-5;
-    epsilon[1+Stft::WindowType_BlackmanNuttail] = 4e-5;
-    epsilon[1+Stft::WindowType_FlatTop] = 0.03f;
+    epsilon[1+StftParams::WindowType_Rectangular] = 2e-7 * log((double)windowsize); // rectangular
+    epsilon[1+StftParams::WindowType_Hann] = .0002f;
+    epsilon[1+StftParams::WindowType_Hamming] = .00005f;
+    epsilon[1+StftParams::WindowType_Tukey] = .004f;
+    epsilon[1+StftParams::WindowType_Cosine] = .001f;
+    epsilon[1+StftParams::WindowType_Lanczos] = .003f;
+    epsilon[1+StftParams::WindowType_Triangular] = 2e-7 * log((double)windowsize);
+    epsilon[1+StftParams::WindowType_Gaussian] = .004f;
+    epsilon[1+StftParams::WindowType_BarlettHann] = .0006f;
+    epsilon[1+StftParams::WindowType_Blackman] = .0003f;
+    epsilon[1+StftParams::WindowType_Nuttail] = 3e-5;
+    epsilon[1+StftParams::WindowType_BlackmanHarris] = 3e-5;
+    epsilon[1+StftParams::WindowType_BlackmanNuttail] = 4e-5;
+    epsilon[1+StftParams::WindowType_FlatTop] = 0.03f;
 
 #ifdef __APPLE__
     // we haven't investigated why the accuracy differs
-    epsilon[1+Stft::WindowType_Hamming] = .00006f;
-    epsilon[1+Stft::WindowType_FlatTop] = 0.035f;
+    epsilon[1+StftParams::WindowType_Hamming] = .00006f;
+    epsilon[1+StftParams::WindowType_FlatTop] = 0.035f;
 #endif
 
-    ftruns = 1 + Stft::WindowType_NumberOfWindowTypes;
+    ftruns = 1 + StftParams::WindowType_NumberOfWindowTypes;
     diffs.resize(ftruns*2);
     forwardtime.resize(ftruns*2);
     inversetime.resize(ftruns*2);
@@ -113,7 +113,7 @@ void StftTest::initTestCase()
     gold_overlap = 0.5;
     gold_windowsize = 4;
     gold_ft.resize( 7*gold_windowsize );
-    gold_window = Stft::WindowType_Rectangular;
+    gold_window = StftParams::WindowType_Rectangular;
     gold_input[0]=.4072680;
     gold_input[1]=.5475688;
     gold_input[2]=.8947876;
@@ -173,9 +173,9 @@ void StftTest::initTestCase()
 
         {
             TaskTimer tt("initial stft...");
-            Stft a;
+            StftParams a;
             a.set_approximate_chunk_size(windowsize);
-            a(data);
+            (Stft(a))(data);
         }
         {
             TaskTimer tt("initial fft...");
@@ -195,7 +195,7 @@ void StftTest::cleanupTestCase()
     {
         bool success = diffs[i]<epsilon[i/2];
         cout << (success?"Success: ":"Failed:  ")
-             << i << " " << (i==0||i==1?"Fft":("Stft " + Stft::windowTypeName((Stft::WindowType)(i/2-1))).c_str())
+             << i << " " << (i==0||i==1?"Fft":("Stft " + StftParams::windowTypeName((StftParams::WindowType)(i/2-1))).c_str())
              << " " << (i%2?"C2C":"R2C")
              << " " << diffs[i];
 
@@ -232,12 +232,13 @@ void StftTest::
 {
     QFETCH(bool, overlap);
 
-    Stft* t;
-    pTransform ft(t = new Stft);
-    t->setWindow( gold_window, overlap?gold_overlap:0 );
-    t->set_approximate_chunk_size( gold_windowsize );
-    t->compute_redundant( true );
+    StftParams tp;
+    tp.setWindow( gold_window, overlap?gold_overlap:0 );
+    tp.set_approximate_chunk_size( gold_windowsize );
+    tp.compute_redundant( true );
 
+    Stft* t;
+    pTransform ft(t = new Stft(tp));
     pChunk c = (*t)(gold_input_data);
     if (!overlap)
         QCOMPARE( c->getInterval(), gold_input_data->getInterval() );
@@ -317,7 +318,7 @@ void StftTest::
         {
             QTest::newRow(QString("%1%2 %3")
                           .arg(stft?"Stft ":"Fft")
-                          .arg(stft?Stft::windowTypeName((Stft::WindowType)(stft-1)).c_str():"")
+                          .arg(stft?StftParams::windowTypeName((StftParams::WindowType)(stft-1)).c_str():"")
                           .arg(redundant?"C2C":"R2C").toLocal8Bit().data())
                     << stft << (bool)redundant;
         }
@@ -336,11 +337,11 @@ void StftTest::
         pTransform ft;
         if (stft)
         {
-            Stft* t;
-            ft.reset(t = new Stft);
-            t->setWindow( (Stft::WindowType)(stft-1), overlap );
-            t->set_approximate_chunk_size(windowsize);
-            t->compute_redundant(redundant);
+            StftParams tp;
+            tp.setWindow( (StftParams::WindowType)(stft-1), overlap );
+            tp.set_approximate_chunk_size(windowsize);
+            tp.compute_redundant(redundant);
+            ft.reset( new Stft(tp) );
         }
         else
         {
@@ -370,14 +371,14 @@ float StftTest::
     pChunk c;
     b->waveform_data()->getCpuMemory();
     {
-        TaskTimer tt("%s forward", t->toString().c_str());
+        TaskTimer tt("%s forward", t->transformParams()->toString().c_str());
         c = (*t)(b);
         if (forwardtime) *forwardtime=tt.elapsedTime();
     }
 
     pBuffer b2;
     {
-        TaskTimer tt("%s backward", t->toString().c_str());
+        TaskTimer tt("%s backward", t->transformParams()->toString().c_str());
         b2 = t->inverse(c);
         if (inversetime) *inversetime=tt.elapsedTime();
     }
@@ -405,7 +406,7 @@ float StftTest::
 
     if (epsilon && ft_diff>*epsilon)
     {
-        cout << t->toString() << endl;
+        cout << t->transformParams()->toString() << endl;
 
         std::complex<float>* cp = c->transform_data->getCpuMemory();
         for (unsigned i=0; i<c->transform_data->numberOfElements() && i<coutinfo; ++i)
