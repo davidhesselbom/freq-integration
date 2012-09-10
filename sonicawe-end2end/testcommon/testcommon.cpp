@@ -54,11 +54,7 @@ void TestCommon::
 
     QVERIFY( project_was_opened_ );
     QVERIFY( has_called_slot_ );
-#ifdef __APPLE__
     QVERIFY( !has_done_work_ );
-#else
-    QVERIFY( has_done_work_ );
-#endif
 }
 
 
