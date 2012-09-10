@@ -54,8 +54,8 @@ CropSelection::
         CropSelection()
 {
     sourceAudio = "music-1.ogg";
-    compareImages.limit = 100;
-    compareImages.limit2 = 4;
+    compareImages.limit = 130;
+    compareImages.limit2 = 5;
     compareImages.limitinf = 0.1;
 }
 

@@ -66,11 +66,11 @@ OpenProject::
 
     compareProjectImages.goldFileName = compareAudioImages.goldFileName;
 
-    compareAudioImages.limit = 70.;
-    compareAudioImages.limit2 = 15.; // TODO To have limit2 larger than 1 is acutally a bug for this test case. Never mind for now ...
+    compareAudioImages.limit = 75.;
+    compareAudioImages.limit2 = 20.; // TODO To have limit2 larger than 1 is acutally a bug for this test case. Never mind for now ...
     compareAudioImages.limitinf = 0.9;
-    compareProjectImages.limit = 70.;
-    compareProjectImages.limit2 = 15.;
+    compareProjectImages.limit = 75.;
+    compareProjectImages.limit2 = 20.;
     compareProjectImages.limitinf = 0.9;
 }
 
