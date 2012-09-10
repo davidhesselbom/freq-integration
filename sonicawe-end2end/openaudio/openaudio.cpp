@@ -53,7 +53,7 @@ OpenAudio::
     sourceAudio = "music-1.ogg";
 
     compareImages.limit = 50.;
-    compareImages.limit2 = 12.f;
+    compareImages.limit2 = 13.f;
     compareImages.limitinf = 0.8f;
 }
 
