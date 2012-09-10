@@ -16,7 +16,7 @@ QT += testlib
 
 
 INCLUDEPATH += \
-    ../common \
+    ../0-common \
 
 
 win32 {
@@ -24,11 +24,11 @@ win32 {
     CONFIG(debug, debug|release):LIB_OUTPUT_FOLDER=debug
 
     LIBS += \
-        -L../common/$$LIB_OUTPUT_FOLDER -lcommon \
+        -L../0-common/$$LIB_OUTPUT_FOLDER -lcommon \
 		
 }
 
 unix {
 	LIBS += \
-        -L../common -lcommon
+        -L../0-common -lcommon
 }
