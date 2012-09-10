@@ -76,11 +76,9 @@ void CropFrequency::
 {
     TaskTimer tt("DeleteSelection::projectOpened");
 
-    Tools::RenderController* rc = project()->tools().getObject<Tools::RenderController>();
-    QVERIFY( 0!=rc );
-
-    for (int i=0; i<40; ++i)
-        rc->yscaleDecrease();
+    Tools::RenderView* view = project()->toolRepo().render_view();
+    Tools::RenderModel* model = view->model;
+    model->renderer->y_scale = 0.00597602082f;
 
     SaweTestClass::projectOpened();
 }

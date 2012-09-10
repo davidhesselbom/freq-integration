@@ -81,10 +81,17 @@ void DeleteSelection::
     Tools::RenderController* rc = project()->tools().getObject<Tools::RenderController>();
     QVERIFY( 0!=rc );
 
-    for (int i=0; i<40; ++i)
+    for (int i=0; i<33; ++i)
         rc->yscaleDecrease();
 
     SaweTestClass::projectOpened();
+
+    Tools::RenderView* view = project()->toolRepo().render_view();
+    Tools::RenderModel* model = view->model;
+    float fs = model->renderer->y_scale;
+    QVERIFY(qFuzzyCompare(fs, 0.00559899537f));
+
+    model->renderer->y_scale = 0.00597602082f;
 }
 
 
