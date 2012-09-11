@@ -61,34 +61,37 @@ void FFTmojTest::testCase1()
 #ifdef USE_OPENCL
     #ifdef USE_AMD
         FftClAmdFft fft = FftClAmdFft();
-        techlib = "ClAmdFft";
+        ofstream outputfile("ClAmdFft");
     #else
         static FftClFft fft;
-        techlib = "ClFft";
+        ofstream outputfile("ClFft");
     #endif
 #elif USE_CUDA
     static FftCufft;
-    techlib = "CuFft";
-#else static FftOoura fft;
-    techlib = "Ooura";
+    ofstream outputfile("CuFft");
+#else 
+	static FftOoura fft;
+    ofstream outputfile("Ooura");
 #endif
     ChunkData::Ptr data;
-    ifstream inputfile("rand12.dat");
-    const int size1 = 1024;
+//    ifstream inputfile("rand12.dat");
+    const int size1 = 1 << 8;
     int lastsize = 0;
     int currentsize = size1;
     int uniques = 0;
 
+    float timeElapsed = 0;
 
-    float input[size1];
-    for (int i = 0; i < size1; i++)
-	{
+
+    //float input[size1];
+//    for (int i = 0; i < size1; i++)
+//	{
         //inputfile >> input[i];
-        input[i] = ((float)rand()/(float)RAND_MAX);
-    }
-    inputfile.close();
+//        input[i] = ((float)rand()/(float)RAND_MAX);
+//    }
+//    inputfile.close();
 
-    srand ( time(NULL) );
+//    srand ( time(NULL) );
 
     // Chunk size:
     // fails on fusion cpu at 200000000 (134217728)
@@ -101,9 +104,9 @@ void FFTmojTest::testCase1()
 
         // Or maybe 2^8 to 2^22?
 
-    for (int N = size1; N <= size1*size1; N++)
+    for (int N = 1 << 8; N <= 1 << 22; N++)
     {
-        currentsize = fft.lChunkSizeS(N+1);
+        currentsize = fft.lChunkSizeS(N);
 		
 		if (lastsize == currentsize) { continue; }
         else { lastsize = currentsize; }
@@ -113,19 +116,21 @@ void FFTmojTest::testCase1()
         data.reset(new ChunkData(currentsize));
 		complex<float> *p = data->getCpuMemory();
 
-        /*
+
         {
-            for (int i = 0; i < N; i++)
-            {
-                p[i].real(0);
-                p[i].imag(1);
-            }
+//            for (int i = 0; i < N; i++)
+//            {
+//                p[i].real(0);
+//                p[i].imag(1);
+//            }
 
             //ChunkData::Ptr result(new ChunkData(N));
-			TaskTimer timer("Running ClFft, run #1");
-            fft.compute(data, data, DataStorageSize(1, 4), FftDirection_Forward);
+//            TaskTimer timer("Running FFT, run #1");
+              fft.compute(data, data, FftDirection_Forward);
+//            fft.compute(data, data, DataStorageSize(1, 4), FftDirection_Forward);
+//            timeElapsed = timer.elapsedTime();
         }
-        */
+
 
 		// Compute on new data with the same size, now that we have a plan
 //        data.reset(new ChunkData(currentsize));
@@ -143,10 +148,10 @@ void FFTmojTest::testCase1()
 */
 //			cout << p[0].real() << ", " << p[0].imag() << endl;
 
-            ChunkData::Ptr result(new ChunkData(N));
-			TaskTimer timer("Running ClFft, run #2");
-            fft.compute(data, data, FftDirection_Forward);
-			complex<float> *r = result->getCpuMemory();
+//            ChunkData::Ptr result(new ChunkData(N));
+//			TaskTimer timer("Running ClFft, run #2");
+//            fft.compute(data, data, FftDirection_Forward);
+//			complex<float> *r = result->getCpuMemory();
 //			ofstream outputfile("rand12clfft.dat");
             //p = data->getCpuMemory();
 /*
@@ -161,7 +166,7 @@ void FFTmojTest::testCase1()
 
     cout << "uniques: " << uniques << endl;
 
-    for (int N = size1; N <= size1*size1; N++)
+    for (int N = size1; N <= 1 << 22; N++)
     {
         currentsize = fft.lChunkSizeS(N+1);
 
@@ -204,12 +209,15 @@ void FFTmojTest::testCase1()
 //			cout << p[0].real() << ", " << p[0].imag() << endl;
 
             ChunkData::Ptr result(new ChunkData(currentsize));
-			TaskTimer timer("Running ClFft, run #2");
+            TaskTimer timer("Running ClFft, run #3");
             for (int i = 0; i < 100; i++)
             {
-                fft.compute(data, result, FftDirection_Forward);
+                fft.compute(data, data, FftDirection_Forward);
+                complex<float> *r = data->getCpuMemory();
             }
-            complex<float> *r = result->getCpuMemory();
+            complex<float> *r = data->getCpuMemory();
+            timeElapsed = timer.elapsedTime();
+            outputfile << N << " " << timeElapsed;
 //			ofstream outputfile("rand12clfft.dat");
             //p = data->getCpuMemory();
 /*
@@ -221,12 +229,17 @@ void FFTmojTest::testCase1()
 */
         }
     }
+
+    outputfile.close();
+
 //    QVERIFY( cudaSuccess == cudaGLSetGLDevice( 0 ) );
 //    QVERIFY( 0==glewInit() );
 //    pVbo vbo( new Vbo(1024));
 //    FFTmoj<float> mapping(vbo, make_cudaExtent(256,1,1));
 //    FFTmojTestCuda( mapping.data->getCudaGlobal() );
 //    QVERIFY2(true, "Failure");
+
+
 }
 
 QTEST_MAIN(FFTmojTest)
