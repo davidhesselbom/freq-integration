@@ -1,14 +1,22 @@
 #include "tfr/fftimplementation.h"
-#include "tfr/clamdfft/fftclamdfft.h"
-//#include "tfr/clfft/fftclfft.h"
-#include "tfr/fftooura.h"
+#include "tfr/fftcufft.h"
+#ifdef USE_OPENCL
+    #ifdef USE_AMD
+        #include "tfr/clamdfft/fftclamdfft.h"
+    #else
+        #include "tfr/clfft/fftclfft.h"
+	#endif
+#else
+    #include "tfr/fftooura.h"
+#endif
+
 #include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
 #include <QGLWidget>
-#include <fstream>;
-#include <iostream>;
+#include <fstream>
+#include <iostream>
 
 class FFTmojTest : public QObject
 {
@@ -49,10 +57,21 @@ void FFTmojTest::testCase1()
 {
     using namespace std;
     using namespace Tfr;
-    //static FftOoura fft;
-    //static FftClFft fft;
-    FftClAmdFft fft = FftClAmdFft();
-
+    string techlib = "";
+#ifdef USE_OPENCL
+    #ifdef USE_AMD
+        FftClAmdFft fft = FftClAmdFft();
+        techlib = "ClAmdFft";
+    #else
+        static FftClFft fft;
+        techlib = "ClFft";
+    #endif
+#elif USE_CUDA
+    static FftCufft;
+    techlib = "CuFft";
+#else static FftOoura fft;
+    techlib = "Ooura";
+#endif
     ChunkData::Ptr data;
     ifstream inputfile("rand12.dat");
     const int size1 = 1024;
@@ -79,6 +98,8 @@ void FFTmojTest::testCase1()
     // largest ok on fusion gpu at 20000000, 15 sec
 
     // We want to test for (2^10, 2^20)
+
+        // Or maybe 2^8 to 2^22?
 
     for (int N = size1; N <= size1*size1; N++)
     {

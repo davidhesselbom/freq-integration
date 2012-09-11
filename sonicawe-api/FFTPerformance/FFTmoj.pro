@@ -101,22 +101,22 @@ useopenclnvidia {
 DEFINES += USE_OPENCL
 
 SOURCES += \
+    $$GPUMISC/openclcontext.cpp \
+    $$GPUMISC/openclmemorystorage.cpp \
     $$SONICAWE/tfr/clfft/*.cpp
 
 HEADERS += \
+    $$GPUMISC/openclcontext.h \
+    $$GPUMISC/openclmemorystorage.h \
     $$SONICAWE/tfr/clfft/*.h
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
 win32 {
-    # use OpenCL headers from AMD APP Computing SDK
-    INCLUDEPATH += "$(AMDAPPSDKROOT)include"
-    LIBS += -L"$(AMDAPPSDKROOT)lib/x86"
-
     # use OpenCL headers from Cuda Gpu Computing SDK
-    #INCLUDEPATH += "$(CUDA_INC_PATH)"
-    #LIBS += -L"$(CUDA_LIB_PATH)"
+    INCLUDEPATH += "$(CUDA_INC_PATH)"
+    LIBS += -L"$(CUDA_LIB_PATH)"
 }
 
 unix:!macx {
@@ -130,18 +130,56 @@ macx {
 }
 }
 
-useopenclamd {
+useopenclamdapple {
 DEFINES += USE_OPENCL
 
 SOURCES += \
     $$GPUMISC/openclcontext.cpp \
     $$GPUMISC/openclmemorystorage.cpp \
-    $$SONICAWE/tfr/clamdfft/*.cpp
+    $$SONICAWE/tfr/clfft/*.cpp
 
 HEADERS += \
     $$GPUMISC/openclcontext.h \
     $$GPUMISC/openclmemorystorage.h \
-    $$SONICAWE/tfr/clamdfft/*.h
+    $$SONICAWE/tfr/clfft/*.h
+
+macx: LIBS += -framework OpenCL
+!macx: LIBS += -lOpenCL
+
+win32 {
+    # use OpenCL headers from AMD APP Computing SDK
+    INCLUDEPATH += \
+    "$(AMDAPPSDKROOT)include" \
+
+    LIBS += \
+    -L"$(AMDAPPSDKROOT)lib/x86" \
+
+}
+
+unix:!macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+
+macx {
+    OPENCL_DIR = /usr/local/cuda
+    INCLUDEPATH += $$OPENCL_DIR/include
+}
+}
+
+useopenclamdamd {
+DEFINES += USE_OPENCL
+DEFINES += USE_AMD
+
+SOURCES += \
+    $$GPUMISC/openclcontext.cpp \
+    $$GPUMISC/openclmemorystorage.cpp \
+    $$SONICAWE/tfr/clamdfft/*.cpp \
+
+HEADERS += \
+    $$GPUMISC/openclcontext.h \
+    $$GPUMISC/openclmemorystorage.h \
+    $$SONICAWE/tfr/clamdfft/*.h \
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
@@ -172,15 +210,8 @@ macx {
 # #######################################################################
 # CUDA
 # #######################################################################
-
-usecuda{
-unix:!macx {
-        QMAKE_CXX = g++-4.3
-        QMAKE_CC = gcc-4.3
-        QMAKE_LINK = g++-4.3
-}
-
-
+usecufft {
+DEFINES += USE_CUDA
 
 LIBS += -lcufft -lcudart -lcuda
 CONFIG(debug, debug|release): CUDA_FLAGS += -g
@@ -272,4 +303,3 @@ cuda.input = CUDA_SOURCES
 QMAKE_EXTRA_COMPILERS += cuda
 
 } # end of cuda section #######################################################################
-
