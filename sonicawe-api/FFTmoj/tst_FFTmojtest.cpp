@@ -284,7 +284,7 @@ void FFTmojTest::testCase2()
 		cout << "Computing FFT...";
 
 		//try {
-		fft.compute(data, data, FftDirection_Forward);
+		fft.compute(data, result, FftDirection_Forward);
 		//} catch (int e) {
 		//	cout << "Error: " << e << endl;
 		//}
@@ -292,7 +292,7 @@ void FFTmojTest::testCase2()
 		cout << "                        done!" << endl;
 		cout << "Reading results back into memory...";
 
-		complex<float> *r = data->getCpuMemory();
+		complex<float> *r = result->getCpuMemory();
 
 		cout << "     done!" << endl;
 
@@ -326,8 +326,8 @@ void FFTmojTest::testCase2()
 
 		cout << " done!" << endl;
 		cout << "Computing MAXERR and NRMSD...";
-		float maxerror = maxerr(facit, data);
-		float nRSMD = nrmsd(facit, data);
+		float maxerror = maxerr(facit, result);
+		float nRSMD = nrmsd(facit, result);
 		cout << " done!" << endl;
 
 		cout << "MAXERR is " << maxerror;
