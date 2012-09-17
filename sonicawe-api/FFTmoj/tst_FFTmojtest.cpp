@@ -150,7 +150,7 @@ float FFTmojTest::nrmsd(ChunkData::Ptr P, ChunkData::Ptr R)
 
 void FFTmojTest::initTestCase()
 {
-    a.show(); // glew needs an OpenGL context
+    //a.show(); // glew needs an OpenGL context
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -159,7 +159,6 @@ void FFTmojTest::cleanupTestCase()
 
 void FFTmojTest::testCase1()
 {
-
 	#ifdef USE_OPENCL
 		#ifdef USE_AMD
 			FftClAmdFft fft = FftClAmdFft();
@@ -182,7 +181,7 @@ void FFTmojTest::testCase1()
 	scriptname << techlib << "Sizes" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 
-	const int startSize = 1 << 5;
+	const int startSize = 1 << 8;
 	const int endSize = 1 << 22;
 
 	int i = startSize;
@@ -233,7 +232,9 @@ void FFTmojTest::testCase2()
 	scriptname << techlib << "Comparison" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 
-	const int startSize = 1 << 5;
+	srand((unsigned)time(0));
+
+	const int startSize = 1 << 10;
 	const int endSize = 1 << 22;
 
 	const float maxerrlim = 0.00001; //1e-5
@@ -274,18 +275,34 @@ void FFTmojTest::testCase2()
 			std::getline(realdata, tempstring);
 			std::getline(imagdata, tempstring);
 		}
+
+		vector<float> rvalues;
+		vector<float> ivalues;
+		float tempfloatv = 1;
+		float tempfloatw = 0;
+		float tempfloatr = (float)rand()/(float)RAND_MAX;
+
+
 		for (int j = 0; j < i; j++)
 		{
+			tempfloatr = (float)rand()/(float)RAND_MAX;
 			realdata >> tempfloat;
-			p[j].real(tempfloat);
+			p[j].real(tempfloatw);
+			rvalues.push_back(p[j].real());
+			tempfloatr = (float)rand()/(float)RAND_MAX;
 			imagdata >> tempfloat;
-			p[j].imag(tempfloat);
+			p[j].imag(tempfloatv);
+			ivalues.push_back(p[j].imag());
 		}
 
 		realdata.close();
 		imagdata.close();
 
 		cout << "  done!" << endl;
+
+		cout << "(p[0]: " << p[0].real() << ", " << p[0].imag() << ")" << endl;
+		cout << "(p[" << i-1 << "]: " << p[i-1].real() << ", " << p[i-1].imag() << ")" << endl;
+
 		cout << "Computing FFT...";
 
 		//try {
