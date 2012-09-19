@@ -239,6 +239,7 @@ void FFTmojTest::testCase1()
 
 void FFTmojTest::testCase2()
 {
+    //return;
 	#ifdef USE_OPENCL
 		#ifdef USE_AMD
 			FftClAmdFft fft = FftClAmdFft();
@@ -464,6 +465,7 @@ void FFTmojTest::testCase2()
 
 void FFTmojTest::testCase3()
 {
+	return;
 	#ifdef USE_OPENCL
 		#ifdef USE_AMD
 			FftClAmdFft fft = FftClAmdFft();
@@ -516,6 +518,7 @@ void FFTmojTest::testCase3()
 		complex<float> *p = data->getCpuMemory();
 
         ChunkData::Ptr result(new ChunkData(i));
+        complex<float> *r = result->getCpuMemory();
 
 		for (int j = 0; j < i; j++)
 		{
@@ -530,6 +533,7 @@ void FFTmojTest::testCase3()
 		for (int j = 0; j <= (1 << 24)/i; j++)
 		{
 			fft.compute(data, result, FftDirection_Forward);
+            r = result->getCpuMemory();
 		}
 
         cout << "Done!" << endl << endl;
