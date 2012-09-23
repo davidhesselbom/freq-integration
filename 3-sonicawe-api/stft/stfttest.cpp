@@ -35,9 +35,9 @@ private slots:
     void equalForwardInverse();
 
 private:
-    float testTransform(pTransform t, pBuffer b, float* forwardtime=0, float* inversetime=0, float* epsilon=0);
+    float testTransform(pTransform t, pMonoBuffer b, float* forwardtime=0, float* inversetime=0, float* epsilon=0);
 
-    pBuffer data;
+    pMonoBuffer data;
     unsigned coutinfo;
     bool benchmark_summary;
     int N, windowsize, ftruns;
@@ -46,7 +46,7 @@ private:
     float overlap;
 
     unsigned passedTests, failedTests;
-    pBuffer gold_input_data;
+    pMonoBuffer gold_input_data;
     std::vector<std::complex<float> > gold_ft;
     float gold_overlap;
     StftParams::WindowType gold_window;
@@ -101,14 +101,14 @@ StftTest::StftTest()
 void StftTest::initTestCase()
 {
     TaskTimer tt("Initiating test signal");
-    data.reset(new Buffer(0, N, 1));
+    data.reset(new MonoBuffer(0, N, 1));
 
     float* p = data->waveform_data()->getCpuMemory();
     srand(0);
     for (int i=0; i<N; ++i)
         p[i] = 2.f*rand()/RAND_MAX - 1.f;
 
-    gold_input_data.reset( new Buffer(4,16,1));
+    gold_input_data.reset( new MonoBuffer(4,16,1));
     float *gold_input = gold_input_data->waveform_data()->getCpuMemory();
     gold_overlap = 0.5;
     gold_windowsize = 4;
@@ -241,7 +241,7 @@ void StftTest::
     pTransform ft(t = new Stft(tp));
     pChunk c = (*t)(gold_input_data);
     if (!overlap)
-        QCOMPARE( c->getInterval(), gold_input_data->getInterval() );
+        QCOMPARE( c->getInterval (), gold_input_data->getInterval() );
 
     std::complex<float>* cp = c->transform_data->getCpuMemory();
     QCOMPARE((int)gold_ft.size(), 7*gold_windowsize );
@@ -276,7 +276,7 @@ void StftTest::
             ft_diff = abs(diff);
     }
 
-    float t_diff = testTransform( ft, gold_input_data, 0, 0, coutinfo?&epsilon[1]:0);
+    float t_diff = testTransform( ft, gold_input_data, 0, 0, coutinfo?&epsilon[1]:0 );
 
     bool passed = ft_diff < 4e-5
             && abs(accDiff) < 7e-5
@@ -297,7 +297,7 @@ void StftTest::
             cout << i << ", " << cp[i].real() << ",\t" << cp[i].imag() << ";" << endl;
         }
 
-        pBuffer b2 = t->inverse(c);
+        pMonoBuffer b2 = t->inverse(c);
     }
 
     passedTests += passed;
@@ -361,7 +361,7 @@ void StftTest::
 
 
 float StftTest::
-    testTransform(pTransform t, pBuffer b, float* forwardtime, float* inversetime, float *epsilon)
+    testTransform(pTransform t, pMonoBuffer b, float* forwardtime, float* inversetime, float *epsilon)
 {
     float norm = 1.f;
     bool isfft = 0!=dynamic_cast<Fft*>(t.get());
@@ -376,7 +376,7 @@ float StftTest::
         if (forwardtime) *forwardtime=tt.elapsedTime();
     }
 
-    pBuffer b2;
+    pMonoBuffer b2;
     {
         TaskTimer tt("%s backward", t->transformParams()->toString().c_str());
         b2 = t->inverse(c);
@@ -386,7 +386,7 @@ float StftTest::
 
     float ft_diff = 0;
     Interval b2i = b2->getInterval();
-    pBuffer expected = BufferSource(b).readFixedLength(b2i);
+    pMonoBuffer expected = BufferSource(b).readFixedLength(b2i)->getChannel (0);
     float *expectedp = expected->waveform_data()->getCpuMemory();
     float* p2 = b2->waveform_data()->getCpuMemory();
 
@@ -418,7 +418,7 @@ float StftTest::
         {
             float diff = expectedp[i] - p2[i]*norm;
             float frac = expectedp[i] / p2[i]*norm;
-            cout << (b2->sample_offset+i).asFloat() << ", " << expectedp[i] << ", " << p2[i]*norm <<  ", " << diff << ", " << frac<< ";" << endl;
+            cout << (b2->sample_offset()+i).asFloat() << ", " << expectedp[i] << ", " << p2[i]*norm <<  ", " << diff << ", " << frac<< ";" << endl;
         }
     }
 

@@ -84,11 +84,11 @@ void ReadWriteWav::
 
     QCOMPARE( audiofile2->getInterval(), audiofile->getInterval() );
 
-    Signal::pBuffer b = audiofile->readFixedLengthAllChannels(audiofile->getInterval());
-    Signal::pBuffer b2 = audiofile->readFixedLengthAllChannels(audiofile->getInterval());
+    Signal::pBuffer b = audiofile->readFixedLength(audiofile->getInterval());
+    Signal::pBuffer b2 = audiofile->readFixedLength(audiofile->getInterval());
 
-    QCOMPARE( b->waveform_data()->numberOfBytes(), b2->waveform_data()->numberOfBytes() );
-    int bufferdiff = memcmp(b->waveform_data()->getCpuMemory(), b2->waveform_data()->getCpuMemory(), b2->waveform_data()->numberOfBytes() );
+    QCOMPARE( b->mergeChannelData ()->numberOfBytes(), b2->mergeChannelData ()->numberOfBytes() );
+    int bufferdiff = memcmp(b->mergeChannelData ()->getCpuMemory(), b2->mergeChannelData ()->getCpuMemory(), b2->mergeChannelData ()->numberOfBytes() );
     QVERIFY( 0 == bufferdiff );
     }
     catch (std::exception &x)
@@ -142,17 +142,19 @@ void ReadWriteWav::
         QCOMPARE( normalizedAudiofile->getInterval(), audiofile->getInterval() );
         QCOMPARE( normalizedAudiofile->getInterval(), normalizedAudiofileGold->getInterval() );
 
-        Signal::pBuffer b = normalizedAudiofile->readFixedLengthAllChannels(audiofile->getInterval());
-        Signal::pBuffer b2 = normalizedAudiofileGold->readFixedLengthAllChannels(audiofile->getInterval());
+        Signal::pBuffer b = normalizedAudiofile->readFixedLength(audiofile->getInterval());
+        Signal::pBuffer b2 = normalizedAudiofileGold->readFixedLength(audiofile->getInterval());
 
         TaskTimer t2("ReadWriteWav::writeNormalized i=%d", i);
 
-        QCOMPARE( b->waveform_data()->numberOfBytes(), b2->waveform_data()->numberOfBytes() );
+        Signal::pTimeSeriesData data = b->mergeChannelData ();
+        Signal::pTimeSeriesData data2 = b2->mergeChannelData ();
+        QCOMPARE( data->numberOfBytes(), data2->numberOfBytes() );
         float maxdiff = 0;
 
-        float *p = b->waveform_data()->getCpuMemory();
-        float *p2 = b2->waveform_data()->getCpuMemory();
-        for (unsigned x=0; x<b->waveform_data()->numberOfElements(); ++x )
+        float *p = data->getCpuMemory();
+        float *p2 = data2->getCpuMemory();
+        for (unsigned x=0; x<data->numberOfElements(); ++x )
         {
             float& v = p[x];
             float& v2 = p2[x];

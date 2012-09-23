@@ -23,7 +23,7 @@ private slots:
     void superSampleInterpolation_data();
 
 private:
-    Signal::pBuffer data, precalced, expectedb2;
+    Signal::pMonoBuffer data, precalced, expectedb2;
     int data_N;
 
     float epsilon;
@@ -49,21 +49,21 @@ TestSuperSample::TestSuperSample()
 void TestSuperSample::initTestCase()
 {
     TaskTimer tt("Initiating test signal");
-    data.reset(new Signal::Buffer(data_N, data_N, 1));
+    data.reset(new Signal::MonoBuffer(data_N, data_N, 1));
 
     float* p = data->waveform_data()->getCpuMemory();
     srand(0);
     for (int i=0; i<data_N; ++i)
         p[i] = 2.f*rand()/RAND_MAX - 1.f;
 
-    precalced.reset(new Signal::Buffer(0, 4, 1));
+    precalced.reset(new Signal::MonoBuffer(0, 4, 1));
     float* r = precalced->waveform_data()->getCpuMemory();
     r[0] = -0.72730;
     r[1] = -0.28839;
     r[2] = 0.63661;
     r[3] = 0.57604;
 
-    expectedb2.reset(new Signal::Buffer(0, 2*4, 1));
+    expectedb2.reset(new Signal::MonoBuffer(0, 2*4, 1));
     float* q = expectedb2->waveform_data()->getCpuMemory();
     q[0] = -0.72730;
     q[1] = -0.73860;
@@ -119,7 +119,7 @@ void TestSuperSample::
 {
     QFETCH(int, multiple);
 
-    Signal::pBuffer b;
+    Signal::pMonoBuffer b;
     if (1 == multiple)
     {
         b = precalced;
@@ -130,10 +130,10 @@ void TestSuperSample::
 
     int N = b->waveform_data()->numberOfElements();
 
-    Signal::pBuffer super = Tfr::SuperSample::supersample(b, b->sample_rate*multiple);
+    Signal::pMonoBuffer super = Tfr::SuperSample::supersample(b, b->sample_rate()*multiple);
 
     QCOMPARE( (int)super->waveform_data()->numberOfElements(), multiple*N );
-    QCOMPARE( super->sample_rate, multiple*b->sample_rate );
+    QCOMPARE( super->sample_rate(), multiple*b->sample_rate() );
     QCOMPARE( super->start(), b->start() );
     QCOMPARE( super->length(), b->length() );
 
