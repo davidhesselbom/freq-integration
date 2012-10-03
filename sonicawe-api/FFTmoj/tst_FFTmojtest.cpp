@@ -1,3 +1,24 @@
+/*
+TODO:
+
+- Fixa preprocessorflaggor och defines för allt möjligt som ska kunna variera:
+     - Placeness (för testet alltså. För clamdfft kan läggas till ifsats för om input och output är samma)
+     - Upprepningar
+     - Profiling och inte
+     - Alla storlekar eller bara 2-potenser
+     - Vilka tester som ska köras
+     (- Om facit ska läsas från fil eller räknas ut av fftooura?)
+- Fixa till utskrifterna så de ser prydliga ut
+- Fixa wall clock time-tester
+- Fixa så att inläsning och utskrift sker från och till data-mappen
+- Allokera allt minne från början istf att använda samma minne om och om igen
+- Fixa tidtagning av planskapandet
+- Snygga till testen generellt
+- Implementera resten av compute-funktionerna för clAmdFft
+     - allting clAmdFft har dock lägre prio just nu, det viktigaste är att testen går att köra på nVidia-burkar
+- Kolla upp varför ClAmdFft kraschar vid upprepade anrop på mer än 2^13...
+*/
+
 #include "tfr/fftimplementation.h"
 #include "tfr/fftcufft.h"
 #ifdef USE_OPENCL
@@ -50,11 +71,24 @@ private:
 	ChunkData::Ptr mult(ChunkData::Ptr P, ChunkData::Ptr R);
 	float maxerr(ChunkData::Ptr P, ChunkData::Ptr R);
 	float nrmsd(ChunkData::Ptr P, ChunkData::Ptr R);
+	string techlib;
+
+#ifdef USE_OPENCL
+    #ifdef USE_AMD
+        FftClAmdFft fft;
+    #else
+        FftClFft fft;
+    #endif
+#elif USE_CUDA
+    FftCufft fft;
+#else
+    FftOoura fft;
+#endif
 
 #define maxerrlim 0.00001 //1e-5
 #define nrmsdlim 0.00000001 //1e-8
-#define startSize 1 << 8
-#define endSize 1 << 22
+#define startSize 1 << 13
+#define endSize 1 << 14
 };
 
 FFTmojTest::FFTmojTest()
@@ -185,6 +219,18 @@ float FFTmojTest::nrmsd(ChunkData::Ptr P, ChunkData::Ptr R)
 
 void FFTmojTest::initTestCase()
 {
+#ifdef USE_OPENCL
+    #ifdef USE_AMD
+        FftClAmdFft fft = FftClAmdFft();
+        techlib = "ClAmdFft";
+    #else
+        techlib = "ClFft";
+    #endif
+#elif USE_CUDA
+    techlib = "CuFft";
+#else
+    techlib = "Ooura";
+#endif
     //a.show(); // glew needs an OpenGL context
 }
 
@@ -194,22 +240,6 @@ void FFTmojTest::cleanupTestCase()
 
 void FFTmojTest::testCase1()
 {
-	#ifdef USE_OPENCL
-		#ifdef USE_AMD
-			FftClAmdFft fft = FftClAmdFft();
-		    string techlib = "ClAmdFft";
-		#else
-            FftClFft fft;
-		    string techlib = "ClFft";
-		#endif
-	#elif USE_CUDA
-        FftCufft fft;
-	    string techlib = "CuFft";
-	#else 
-        FftOoura fft;
-	    string techlib = "Ooura";
-	#endif
-
 	ostringstream filename, scriptname;
 	filename << techlib << "Sizes" << ".dat";
 	ofstream outputfile(filename.str().c_str());
@@ -239,22 +269,7 @@ void FFTmojTest::testCase1()
 
 void FFTmojTest::testCase2()
 {
-    //return;
-	#ifdef USE_OPENCL
-		#ifdef USE_AMD
-			FftClAmdFft fft = FftClAmdFft();
-		    string techlib = "ClAmdFft";
-		#else
-            FftClFft fft;
-		    string techlib = "ClFft";
-		#endif
-	#elif USE_CUDA
-        FftCufft fft;
-	    string techlib = "CuFft";
-	#else 
-        FftOoura fft;
-	    string techlib = "Ooura";
-	#endif
+    
 
 	ostringstream sizefile;
 	sizefile << techlib << "Sizes" << ".dat";
@@ -465,23 +480,6 @@ void FFTmojTest::testCase2()
 
 void FFTmojTest::testCase3()
 {
-	return;
-	#ifdef USE_OPENCL
-		#ifdef USE_AMD
-			FftClAmdFft fft = FftClAmdFft();
-		    string techlib = "ClAmdFft";
-		#else
-            FftClFft fft;
-		    string techlib = "ClFft";
-		#endif
-	#elif USE_CUDA
-        FftCufft fft;
-	    string techlib = "CuFft";
-	#else 
-        FftOoura fft;
-	    string techlib = "Ooura";
-	#endif
-
 	ostringstream sizefile;
 	sizefile << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
@@ -520,6 +518,10 @@ void FFTmojTest::testCase3()
         ChunkData::Ptr result(new ChunkData(i));
         complex<float> *r = result->getCpuMemory();
 
+        ostringstream timefile;
+        timefile << techlib << "Times" << i << ".dat";
+        ofstream outputtimes(timefile.str().c_str());
+
 		for (int j = 0; j < i; j++)
 		{
 			tempfloatr = (float)rand()/(float)RAND_MAX;
@@ -528,14 +530,17 @@ void FFTmojTest::testCase3()
 			p[j].imag(tempfloatr);
 		}
 
-        cout << "Doing fft of " << i << " " << (1 << 24)/i << " times..." << endl;
+        cout << "Doing fft of " << i << " " << "1" << " times..." << endl;
 
-		for (int j = 0; j <= (1 << 24)/i; j++)
+		for (int j = 0; j <= 1; j++)
 		{
 			fft.compute(data, result, FftDirection_Forward);
-            r = result->getCpuMemory();
+            //r = result->getCpuMemory();
+            #if defined (USE_OPENCL)
+            outputtimes << fft.getKernelExecTime() << "\n";
+			#endif
 		}
-
+		outputtimes.close();
         cout << "Done!" << endl << endl;
     }
 
