@@ -6,18 +6,36 @@ TODO:
      - Upprepningar
      - Profiling och inte
      - Alla storlekar eller bara 2-potenser
-     - Vilka tester som ska köras
      (- Om facit ska läsas från fil eller räknas ut av fftooura?)
 - Fixa till utskrifterna så de ser prydliga ut
 - Fixa wall clock time-tester
 - Fixa så att inläsning och utskrift sker från och till data-mappen
-- Allokera allt minne från början istf att använda samma minne om och om igen
+- Allokera allt minne från början (för varje storlek) istf att använda samma minne om och om igen i test 3
 - Fixa tidtagning av planskapandet
 - Snygga till testen generellt
 - Implementera resten av compute-funktionerna för clAmdFft
      - allting clAmdFft har dock lägre prio just nu, det viktigaste är att testen går att köra på nVidia-burkar
 - Kolla upp varför ClAmdFft kraschar vid upprepade anrop på mer än 2^13...
 */
+
+#define RUNTEST1
+//#define RUNTEST2
+//#define RUNTEST3
+#define RUNTEST4
+#define TEST4SIZE 1<<15
+#define TEST4TIMES 10
+#define PLACENESS "inplace"
+#define CL_PROFILING
+#define ALLSIZES
+#define REPDIVIDEND 1 << 24
+#define REPNUMERATOR 0
+#define PREALLOCATE
+#define maxerrlim 0.00001 //1e-5
+#define nrmsdlim 0.00000001 //1e-8
+#define startSize 1 << 13
+#define endSize 1 << 14
+
+#include "exceptionassert.h"
 
 #include "tfr/fftimplementation.h"
 #include "tfr/fftcufft.h"
@@ -54,9 +72,10 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-    void testCase1();
-	void testCase2();
-	void testCase3();
+    void testCase1(); // Get sizes in an interval for current library and store in file
+	void testCase2(); // Run fft on pre-existing random data for all those sizes
+	void testCase3(); // Repeatedly run fft on random data a number of times for all those sizes
+	void testCase4(); // Run fft once on each element of an array of random data chunks
 
 private:
 	complex<float> max(ChunkData::Ptr P);
@@ -85,14 +104,20 @@ private:
     FftOoura fft;
 #endif
 
-#define maxerrlim 0.00001 //1e-5
-#define nrmsdlim 0.00000001 //1e-8
-#define startSize 1 << 13
-#define endSize 1 << 14
 };
 
 FFTmojTest::FFTmojTest()
 {
+    ExceptionAssert::installEventHandler();
+
+#ifdef TROLL-LARS
+	DoAwesomeStuff();
+
+	int theThing = new Fixer(Category.Bug);
+	theThing.Apply(3, "qobject.cpp"); // Fixing some bugs in the codez
+
+	return 85; // DON'T CHANGE OR ELSE THINGS WILL BREAK
+#endif
 }
 
 /*
@@ -217,19 +242,31 @@ float FFTmojTest::nrmsd(ChunkData::Ptr P, ChunkData::Ptr R)
 	return normRMSD.real();
 }
 
+class A
+{
+public:
+	A() { cout << this << " " << __FUNCTION__ << endl; }
+	A(int) { cout << this << " " << __FUNCTION__ << endl; }
+	~A() { cout << this << " " << __FUNCTION__ << endl; }
+
+	void operator=(A&) { cout << this << " " << __FUNCTION__ << endl; }
+};
+
 void FFTmojTest::initTestCase()
 {
+	A a;
+	a = A();
 #ifdef USE_OPENCL
     #ifdef USE_AMD
-        FftClAmdFft fft = FftClAmdFft();
-        techlib = "ClAmdFft";
+//        fft = FftClAmdFft();
+        techlib = "data/ClAmdFft";
     #else
-        techlib = "ClFft";
+        techlib = "data/ClFft";
     #endif
 #elif USE_CUDA
-    techlib = "CuFft";
+    techlib = "data/CuFft";
 #else
-    techlib = "Ooura";
+    techlib = "data/Ooura";
 #endif
     //a.show(); // glew needs an OpenGL context
 }
@@ -240,6 +277,7 @@ void FFTmojTest::cleanupTestCase()
 
 void FFTmojTest::testCase1()
 {
+#ifdef RUNTEST1
 	ostringstream filename, scriptname;
 	filename << techlib << "Sizes" << ".dat";
 	ofstream outputfile(filename.str().c_str());
@@ -265,12 +303,12 @@ void FFTmojTest::testCase1()
 
 	outputfile.close();
 	outputscript.close();
+#endif
 }
 
 void FFTmojTest::testCase2()
 {
-    
-
+#ifdef RUNTEST2
 	ostringstream sizefile;
 	sizefile << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
@@ -307,8 +345,8 @@ void FFTmojTest::testCase2()
 	#endif
 
 		ostringstream realfile, imagfile;
-		realfile << "rand" << i << ".dat";
-		imagfile << "rand" << i << "i" << ".dat";
+		realfile << "data/rand" << i << ".dat";
+		imagfile << "data/rand" << i << "i" << ".dat";
 		ifstream realdata(realfile.str().c_str());
 		ifstream imagdata(imagfile.str().c_str());
 		if (!realdata.good() || !imagdata.good())
@@ -352,7 +390,9 @@ void FFTmojTest::testCase2()
 		cout << "Computing FFT...";
 
 		//try {
-		fft.compute(data, result, FftDirection_Forward);
+		for (int k = 0; k < 10; k++) {
+			fft.compute(data, result, FftDirection_Forward);
+		}
 		//} catch (int e) {
 		//	cout << "Error: " << e << endl;
 		//}
@@ -365,8 +405,8 @@ void FFTmojTest::testCase2()
 		cout << "     done!" << endl;
 
 		ostringstream realfacit, imagfacit;
-		realfacit << "rand" << i << "f" << ".dat";
-		imagfacit << "rand" << i << "if" << ".dat";
+		realfacit << "data/rand" << i << "f" << ".dat";
+		imagfacit << "data/rand" << i << "if" << ".dat";
 		ifstream realdataf(realfacit.str().c_str());
 		ifstream imagdataf(imagfacit.str().c_str());
 
@@ -476,10 +516,13 @@ void FFTmojTest::testCase2()
 	sizes.close();
 	outputscript.close();
 	correctnessFile.close();
+#endif
 }
+
 
 void FFTmojTest::testCase3()
 {
+#ifdef RUNTEST3
 	ostringstream sizefile;
 	sizefile << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
@@ -543,6 +586,9 @@ void FFTmojTest::testCase3()
 		outputtimes.close();
         cout << "Done!" << endl << endl;
     }
+#endif
+
+
 
 //    QVERIFY( cudaSuccess == cudaGLSetGLDevice( 0 ) );
 //    QVERIFY( 0==glewInit() );
@@ -552,6 +598,69 @@ void FFTmojTest::testCase3()
 //    QVERIFY2(true, "Failure");
 
 
+}
+
+void FFTmojTest::testCase4()
+{
+#ifdef RUNTEST4
+
+	int size = TEST4SIZE;
+
+#if defined(USE_OPENCL)
+#if !defined(USE_AMD)
+	if (size == 1 << 10 || size >= 1 << 22)
+	{
+		cout << "Size " << size << " not good for ClFft. Skipping..." << endl << endl;
+	}
+#endif
+#endif
+
+	srand((unsigned)time(0));
+	float tempfloatr;
+
+	ChunkData::Ptr data;
+    data.reset(new ChunkData(size));
+	complex<float> *p = data->getCpuMemory();
+
+    ChunkData::Ptr result(new ChunkData(size));
+    complex<float> *r = result->getCpuMemory();
+
+    ChunkData::Ptr dataArray[TEST4TIMES];
+    ChunkData::Ptr resultArray[TEST4TIMES];
+    complex<float> *pointers[TEST4TIMES];
+    complex<float> *results[TEST4TIMES];
+    for (int j = 0; j < TEST4TIMES; j++)
+    {
+        dataArray[j].reset(new ChunkData(size));
+        pointers[j] = dataArray[j]->getCpuMemory();
+		resultArray[j].reset(new ChunkData(size));
+        results[j] = resultArray[j]->getCpuMemory();
+    }
+
+    /*
+	for (int j = 0; j < size; j++)
+	{
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		p[j].real(tempfloatr);
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		p[j].imag(tempfloatr);
+	}
+    */
+
+    cout << "Doing fft of " << size << " " << TEST4TIMES << " times..." << endl;
+
+    for (int j = 0; j < TEST4TIMES; j++)
+//    for (int j = 0; j < 1; j++)
+    {
+        fft.compute(dataArray[j], resultArray[j], FftDirection_Forward);
+//        fft.compute(result, data, FftDirection_Forward);
+		cout << j << endl; //".";
+        results[j] = resultArray[j]->getCpuMemory();
+        cout << j << endl; //".";
+        pointers[j] = dataArray[j]->getCpuMemory();
+        cout << j << endl; //".";
+    }
+#endif
 }
 
 QTEST_MAIN(FFTmojTest)
