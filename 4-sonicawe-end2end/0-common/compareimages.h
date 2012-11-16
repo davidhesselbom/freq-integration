@@ -30,10 +30,6 @@ public:
     void saveImage(Sawe::pProject p);
     void saveWindowImage(Sawe::pProject p);
     void verifyResult();
-
-private:
-    void saveImage(QGLWidget *glwidget);
-    void saveWindowImage(QWidget* mainwindow, QGLWidget *glwidget);
 };
 
 

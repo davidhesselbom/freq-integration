@@ -1,6 +1,7 @@
 #include "compareimages.h"
 
 #include "sawe/configuration.h"
+#include "tools/support/printscreen.h"
 
 #include <QtTest/QtTest>
 #include <QGLWidget>
@@ -59,54 +60,14 @@ CompareImages::
 void CompareImages::
         saveImage(Sawe::pProject p)
 {
-    saveImage(p->tools().render_view()->glwidget);
+    Tools::Support::PrintScreen(p.get ()).saveImage ().save(resultFileName);
 }
 
 
 void CompareImages::
         saveWindowImage(Sawe::pProject p)
 {
-    saveWindowImage(p->mainWindowWidget(), p->tools().render_view()->glwidget);
-}
-
-
-void CompareImages::
-        saveImage(QGLWidget *glwidget)
-{
-    TaskTimer ti("CompareImages::saveImage");
-
-    glwidget->swapBuffers();
-    QImage glimage = glwidget->grabFrameBuffer();
-    glimage.save(resultFileName);
-}
-
-
-void CompareImages::
-        saveWindowImage(QWidget* mainwindow, QGLWidget *glwidget)
-{
-    TaskTimer ti("CompareImages::saveWindowImage");
-
-    QPixmap pixmap(mainwindow->size());
-    QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
-    QPainter painter(&pixmap);
-
-    // update layout by calling render
-    mainwindow->activateWindow();
-    mainwindow->raise();
-    mainwindow->render(&painter);
-
-    // draw OpenGL window
-    QPoint p2 = glwidget->mapTo( mainwindow, QPoint() );
-    glwidget->swapBuffers();
-    QImage glimage = glwidget->grabFrameBuffer();
-    painter.drawImage(p2, glimage);
-
-#ifdef Q_OS_LINUX
-    // draw Qt widgets that are on top of the opengl window
-    mainwindow->render(&painter);
-#endif
-
-    pixmap.save(resultFileName);
+    Tools::Support::PrintScreen(p.get ()).saveImage ().save(resultFileName);
 }
 
 
