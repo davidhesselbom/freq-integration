@@ -67,7 +67,7 @@ void CompareImages::
 void CompareImages::
         saveWindowImage(Sawe::pProject p)
 {
-    Tools::Support::PrintScreen(p.get ()).saveImage ().save(resultFileName);
+    Tools::Support::PrintScreen(p.get ()).saveWindowImage ().save(resultFileName);
 }
 
 
