@@ -18,6 +18,12 @@ TODO:
 - Kolla upp varför ClAmdFft kraschar vid upprepade anrop på mer än 2^13...
 */
 
+#define NOGUI
+#ifdef _MSC_VER
+#include <stdlib.h> //  error C2381: 'exit' : redefinition; __declspec(noreturn) differs
+#include <time.h>
+#endif
+
 #define RUNTEST1
 //#define RUNTEST2
 //#define RUNTEST3
@@ -32,8 +38,8 @@ TODO:
 #define PREALLOCATE
 #define maxerrlim 0.00001 //1e-5
 #define nrmsdlim 0.00000001 //1e-8
-#define startSize 1 << 13
-#define endSize 1 << 14
+#define startSize 1 << 8
+#define endSize 1 << 22
 
 #include "exceptionassert.h"
 
@@ -49,11 +55,10 @@ TODO:
     #include "tfr/fftooura.h"
 #endif
 
-#include "sawe/project_header.h"
+//#include "sawe/project_header.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
-#include <QGLWidget>
 #include <fstream>
 #include <iostream>
 
@@ -66,8 +71,6 @@ class FFTmojTest : public QObject
 
 public:
     FFTmojTest();
-
-    QGLWidget a;
 
 private Q_SLOTS:
     void initTestCase();
@@ -110,7 +113,7 @@ FFTmojTest::FFTmojTest()
 {
     ExceptionAssert::installEventHandler();
 
-#ifdef TROLL-LARS
+#ifdef TROLLLARS
 	DoAwesomeStuff();
 
 	int theThing = new Fixer(Category.Bug);
@@ -254,8 +257,8 @@ public:
 
 void FFTmojTest::initTestCase()
 {
-	A a;
-	a = A();
+//	A a;
+//	a = A();
 #ifdef USE_OPENCL
     #ifdef USE_AMD
 //        fft = FftClAmdFft();
@@ -284,9 +287,14 @@ void FFTmojTest::testCase1()
 	scriptname << techlib << "Sizes" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 
+	int sumSize = 0;
+	int numSize = 0;
 	int i = startSize;
 	while (i <= endSize)
 	{
+		sumSize += i;
+		numSize++;
+
 		outputfile << i << "\n";
 		outputscript << "a = rand(" << i << ", 1);" << "\n";
 		outputscript << "save rand" << i << ".dat a;" << "\n";
@@ -303,6 +311,10 @@ void FFTmojTest::testCase1()
 
 	outputfile.close();
 	outputscript.close();
+
+	cout << "Number of sizes: " << numSize << endl;
+	cout << "Sum of sizes: " << sumSize << endl;
+
 #endif
 }
 

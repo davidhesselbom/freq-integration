@@ -9,6 +9,7 @@
 
 QT += testlib
 QT += opengl
+QT -= gui
 
 CONFIG   += console
 win32:CONFIG += debug_and_release
@@ -35,7 +36,7 @@ MACLIB = $$AUXLIB/sonicawe-maclib
 GPUMISC = $$AUXLIB/gpumisc
 SONICAWE = ../../../../src
 
-SOURCES += *.cpp \
+SOURCES += \
     $$SONICAWE/tfr/fftooura.cpp \
     $$SONICAWE/tfr/fft4g.c \
     $$SONICAWE/tfr/fftimplementation.cpp \
@@ -43,6 +44,7 @@ SOURCES += *.cpp \
     $$SONICAWE/signal/*buffer.cpp \
     $$SONICAWE/tfr/complexbuffer.cpp \
     $$SONICAWE/signal/intervals.cpp \
+    tst_FFTmojtest.cpp \
 
 HEADERS += \
     $$SONICAWE/tfr/fftooura.h \
@@ -75,7 +77,7 @@ win32 {
         /NODEFAULTLIB:MSVCRT
     QMAKE_LFLAGS_RELEASE += \
         /NODEFAULTLIB:LIBCPMT \ # LIBCPMT is linked by boost_serialization but we don't want it to, this row is required to link successfully
-        /NODEFAULTLIB:LIBCMT # some other lib links LIBCMT too, but LINK.EXE ignores it even without explicit NODEFAULTLIB
+        /NODEFAULTLIB:LIBCMT\ # some other lib links LIBCMT too, but LINK.EXE ignores it even without explicit NODEFAULTLIB
 }
 
 
