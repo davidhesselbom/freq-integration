@@ -6,7 +6,7 @@ TODO:
      - Upprepningar
      - Profiling och inte
      - Alla storlekar eller bara 2-potenser
-     (- Om facit ska läsas från fil eller räknas ut av fftooura?)
+     (- Om answers ska läsas från fil eller räknas ut av fftooura?)
 - Fixa till utskrifterna så de ser prydliga ut
 - Fixa wall clock time-tester
 - Fixa så att inläsning och utskrift sker från och till data-mappen
@@ -15,31 +15,54 @@ TODO:
 - Snygga till testen generellt
 - Implementera resten av compute-funktionerna för clAmdFft
      - allting clAmdFft har dock lägre prio just nu, det viktigaste är att testen går att köra på nVidia-burkar
-- Kolla upp varför ClAmdFft kraschar vid upprepade anrop på mer än 2^13...
+*/
+
+/*TODO2:
+
+Vad ska egentligen hända i det här testet?
+
+- Ta reda på vilka storlekar som finns, och spara till fil (test1, finns redan)
+- För alla storlekar i filen, kör en batchad FFT på 128MB data en gång och jämför resultatet med Ooura
+- För alla storlekar i filen, kör en batchad FFT på 128MB något antal gånger och mät hur lång tid det tar
+- Alla dessa gånger, mät kernel-bakningstiden
+- Se till att buffern skapas i clAmdFft
+- Se till att padding skapas när det behövs
+- Kan MAXERR och NRMSD räknas ut på hela vektorn samtidigt?
+- Hur kollar jag att clAmdFft räknar rätt för storlekar som inte går att köra med Ooura?
+
 */
 
 #define NOGUI
 #ifdef _MSC_VER
 #include <stdlib.h> //  error C2381: 'exit' : redefinition; __declspec(noreturn) differs
 #include <time.h>
+#include "TaskTimer.h"
 #endif
+
+#define TIME_STFT
 
 #define RUNTEST1
 //#define RUNTEST2
 //#define RUNTEST3
-#define RUNTEST4
-#define TEST4SIZE 1<<15
-#define TEST4TIMES 10
+//#define RUNTEST4
+//#define RUNTEST5
+#define RUNTEST5A
+//#define RUNTEST6
+//#define RUNTEST7
+//#define RUNTEST8
+#define TEST4SIZE 1<<15 // 2 ^ 15
+#define TEST4TIMES 1
 #define PLACENESS "inplace"
+#define FFTINPLACE
 #define CL_PROFILING
 #define ALLSIZES
-#define REPDIVIDEND 1 << 24
-#define REPNUMERATOR 0
+#define repDividend 1<<24 // 2 ^ 24
+#define repNumerator 0
 #define PREALLOCATE
 #define maxerrlim 0.00001 //1e-5
 #define nrmsdlim 0.00000001 //1e-8
-#define startSize 1 << 8
-#define endSize 1 << 22
+#define startSize 1<<8 // 2 ^ 8
+#define endSize 1<<22 // 2 ^ 22
 
 #include "exceptionassert.h"
 
@@ -79,6 +102,13 @@ private Q_SLOTS:
 	void testCase2(); // Run fft on pre-existing random data for all those sizes
 	void testCase3(); // Repeatedly run fft on random data a number of times for all those sizes
 	void testCase4(); // Run fft once on each element of an array of random data chunks
+	void testCase5(); // Create plans for all the sizes and benchmark baking times
+	void testCase5A(); // Same, but skip batch resize and baking
+	void testCase6(); // Same, but changing the size of the existing plan instead of creating new ones
+	// Causes crashes that I will have to investigate later if ever
+	void testCase7(); // Run the fft on 128MB of random data for all sizes in size file, 
+		// compare with Ooura (maxerr and nrmsd), store results and kernel baking times
+	void testCase8(); // Same as 6, but repeat X times, and store kernel execution and baking times
 
 private:
 	complex<float> max(ChunkData::Ptr P);
@@ -402,7 +432,7 @@ void FFTmojTest::testCase2()
 		cout << "Computing FFT...";
 
 		//try {
-		for (int k = 0; k < 10; k++) {
+		for (int k = 0; k < TEST4TIMES; k++) {
 			fft.compute(data, result, FftDirection_Forward);
 		}
 		//} catch (int e) {
@@ -416,23 +446,23 @@ void FFTmojTest::testCase2()
 
 		cout << "     done!" << endl;
 
-		ostringstream realfacit, imagfacit;
-		realfacit << "data/rand" << i << "f" << ".dat";
-		imagfacit << "data/rand" << i << "if" << ".dat";
-		ifstream realdataf(realfacit.str().c_str());
-		ifstream imagdataf(imagfacit.str().c_str());
+		ostringstream realanswers, imaganswers;
+		realanswers << "data/rand" << i << "f" << ".dat";
+		imaganswers << "data/rand" << i << "if" << ".dat";
+		ifstream realdataf(realanswers.str().c_str());
+		ifstream imagdataf(imaganswers.str().c_str());
 
 		if (!realdataf.good() || !imagdataf.good())
 		{
-			cout << "Facit files missing!" << endl << "Skipping..." << endl;
+			cout << "answers files missing!" << endl << "Skipping..." << endl;
 			continue;
 		}
 
-		ChunkData::Ptr facit;
-        facit.reset(new ChunkData(i));
-		complex<float> *f = facit->getCpuMemory();
+		ChunkData::Ptr answers;
+        answers.reset(new ChunkData(i));
+		complex<float> *f = answers->getCpuMemory();
 
-		cout << "Reading " << i << " data units from facit...";
+		cout << "Reading " << i << " data units from answers...";
 
 		for (int j = 0; j < 5; j++)
 		{
@@ -452,8 +482,8 @@ void FFTmojTest::testCase2()
 
 		cout << " done!" << endl;
 		cout << "Computing MAXERR and NRMSD...";
-		float maxerror = maxerr(facit, result);
-		float nRSMD = nrmsd(facit, result);
+		float maxerror = maxerr(answers, result);
+		float nRSMD = nrmsd(answers, result);
 		cout << " done!" << endl;
 
 		correctnessFile << i << " " << maxerror << " " << nRSMD << endl;
@@ -518,7 +548,7 @@ void FFTmojTest::testCase2()
 		outputscript << "result = " << techlib << "ResultsReal + " << techlib << "ResultsImag * i;" << "\n";
 		outputscript << "load " << "rand" << i << "f" << ".dat;" << "\n";
 		outputscript << "load " << "rand" << i << "if" << ".dat;" << "\n";
-		outputscript << "facit = a + b * i;" << "\n";
+		outputscript << "answers = a + b * i;" << "\n";
 		outputscript << "length(result)" << "\n";
 		outputscript << "comparison" << "\n";
 	#endif
@@ -535,6 +565,7 @@ void FFTmojTest::testCase2()
 void FFTmojTest::testCase3()
 {
 #ifdef RUNTEST3
+	int repDiv = repDividend;
 	ostringstream sizefile;
 	sizefile << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
@@ -573,9 +604,15 @@ void FFTmojTest::testCase3()
         ChunkData::Ptr result(new ChunkData(i));
         complex<float> *r = result->getCpuMemory();
 
-        ostringstream timefile;
-        timefile << techlib << "Times" << i << ".dat";
-        ofstream outputtimes(timefile.str().c_str());
+        ostringstream wallTimeFile;
+        wallTimeFile << techlib << "WallTimes" << i << ".dat";
+        ofstream outputWallTimes(wallTimeFile.str().c_str());
+
+		#if defined(USE_OPENCL)
+		ostringstream kernelTimeFile;
+        kernelTimeFile << techlib << "KernelTimes" << i << ".dat";
+	    ofstream outputKernelTimes(kernelTimeFile.str().c_str());
+		#endif
 
 		for (int j = 0; j < i; j++)
 		{
@@ -585,17 +622,27 @@ void FFTmojTest::testCase3()
 			p[j].imag(tempfloatr);
 		}
 
-        cout << "Doing fft of " << i << " " << "1" << " times..." << endl;
+		repDiv = repDividend;
+		repDiv = repDiv/i;
+		repDiv = (repDiv > 1<<8) ? 1<<8 : repDiv;
+		repDiv = (repDiv < 1<<4) ? 1<<4 : repDiv;
 
-		for (int j = 0; j <= 1; j++)
+        cout << "Doing fft of " << i << " " << 1 << " times..." << endl;
+
+		for (int j = 0; j < 1; j++)
 		{
 			fft.compute(data, result, FftDirection_Forward);
-            //r = result->getCpuMemory();
+            r = result->getCpuMemory();
+			outputWallTimes << fft.getWallExecTime() << "\n";
             #if defined (USE_OPENCL)
-            outputtimes << fft.getKernelExecTime() << "\n";
+            outputKernelTimes << fft.getKernelExecTime() << "\n";
 			#endif
 		}
-		outputtimes.close();
+
+		outputWallTimes.close();
+		#if defined (USE_OPENCL)
+		outputKernelTimes.close();	
+		#endif
         cout << "Done!" << endl << endl;
     }
 #endif
@@ -672,6 +719,218 @@ void FFTmojTest::testCase4()
         pointers[j] = dataArray[j]->getCpuMemory();
         cout << j << endl; //".";
     }
+#endif
+}
+
+void FFTmojTest::testCase5()
+{
+#ifdef RUNTEST5
+	ostringstream sizefile;
+	sizefile << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	ostringstream plantimesfile;
+	plantimesfile << techlib << "PlanTimes" << ".dat";
+	ofstream plantimes(plantimesfile.str().c_str());
+
+	int size = 0;
+	int i = 0;
+	int init = 0;
+	sizes >> size;
+	init = size;
+	float createTime = 0;
+	float bakeTime = 0;
+	float reBatchBakeTime = 0;
+	float reSizeBakeTime = 0;
+	int batchSize = 0;
+
+	//fft.createPlan(128);
+	//fft.bake();
+	//fft.setSize(size);
+
+	//{	
+	//	TIME_STFT TaskTimer tt("Baking plan for %i", size);
+	//	fft.bake();
+	//	reSizeBakeTime = fft.getLastBakeTime();
+	//	tt.elapsedTime();
+	//}
+
+	//fft.clearPlans();
+	
+	while (i <= endSize)
+	{
+		i = size;
+
+		{
+			TIME_STFT TaskTimer tt("Creating plan for %i", size);
+			fft.createPlan(size);
+			createTime = tt.elapsedTime();
+		}
+
+		{
+			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
+			cout << "Baking fresh of " << size << endl;
+			fft.bake();
+			bakeTime = fft.getLastBakeTime();
+		}
+
+		batchSize = (2<<22)/size;
+		fft.setBatchSize(batchSize);
+		
+		{
+			//TIME_STFT TaskTimer tt("Baking plan for %i and batch %i", size, batchSize);
+			cout << "Baking batch resize of " << batchSize << endl;
+			fft.bake();
+			reBatchBakeTime = fft.getLastBakeTime();
+		}
+
+		plantimes << size << " " << createTime << " " << bakeTime;
+		plantimes << " " << reBatchBakeTime << " " << reSizeBakeTime << endl;
+
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+		{
+			break;
+		}
+
+		//fft.setSize(size);
+		//fft.setBatchSize(1);
+
+		//{
+		//	//TIME_STFT TaskTimer tt("Baking plan for %i", size);
+		//	cout << "Baking resized to " << size << endl;
+		//	fft.bake();
+		//	reSizeBakeTime = fft.getLastBakeTime();
+		//}
+
+		fft.clearPlans();
+	}
+
+	sizes.close();
+	plantimes.close();
+#endif
+}
+
+void FFTmojTest::testCase5A()
+{
+#ifdef RUNTEST5A
+	ostringstream sizefile;
+	sizefile << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	ostringstream plantimesfile;
+	plantimesfile << techlib << "PlanTimes" << ".dat";
+	ofstream plantimes(plantimesfile.str().c_str());
+
+	int size = 0;
+	int i = 0;
+	sizes >> size;
+	float createTime = 0;
+
+	//fft.createPlan(128);
+	//fft.bake();
+	//fft.setSize(size);
+
+	//{	
+	//	TIME_STFT TaskTimer tt("Baking plan for %i", size);
+	//	fft.bake();
+	//	reSizeBakeTime = fft.getLastBakeTime();
+	//	tt.elapsedTime();
+	//}
+
+	//fft.clearPlans();
+	
+	while (i <= endSize)
+	{
+		i = size;
+
+		{
+			TIME_STFT TaskTimer tt("Creating plan for %i", size);
+			fft.createPlan(size);
+			createTime = tt.elapsedTime();
+		}
+
+		plantimes << size << " " << createTime << endl;
+
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+		{
+			break;
+		}
+
+		//fft.clearPlans();
+	}
+
+	sizes.close();
+	plantimes.close();
+#endif
+}
+
+
+void FFTmojTest::testCase6()
+{
+#ifdef RUNTEST6
+	ostringstream sizefile;
+	sizefile << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	ostringstream plantimesfile;
+	plantimesfile << techlib << "PlanReBakeTimes" << ".dat";
+	ofstream plantimes(plantimesfile.str().c_str());
+
+	int size = 0;
+	int i = 0;
+	int init = 0;
+	sizes >> size;
+	init = size;
+	float createTime = 0;
+	float bakeTime = 0;
+	float reBatchBakeTime = 0;
+	float reSizeBakeTime = 0;
+	int batchSize = 0;
+
+	fft.createPlan(128);
+	fft.bake();
+
+	while (i <= endSize)
+	{
+		i = size;
+
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+		{
+			break;
+		}
+
+		fft.setSize(size);
+		
+		{
+			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
+			cout << "Baking resized to " << size << endl;
+			fft.bake();
+			reSizeBakeTime = fft.getLastBakeTime();
+		}
+
+		plantimes << size << " " << reSizeBakeTime << endl;
+
+	}
+
+	sizes.close();
+	plantimes.close();
+#endif
+}
+
+void FFTmojTest::testCase7()
+{
+#ifdef RUNTEST7
+
+#endif
+}
+
+void FFTmojTest::testCase8()
+{
+#ifdef RUNTEST8
+
 #endif
 }
 
