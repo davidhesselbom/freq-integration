@@ -41,15 +41,19 @@ Vad ska egentligen hända i det här testet?
 
 #define TIME_STFT
 
-#define RUNTEST1
+//#define RUNTEST1
 //#define RUNTEST2
 //#define RUNTEST3
 //#define RUNTEST4
 //#define RUNTEST5
-#define RUNTEST5A
+//#define RUNTEST5A
 //#define RUNTEST6
+//#define RUNTEST6N
 //#define RUNTEST7
 //#define RUNTEST8
+#define RUNTEST9
+#define RUNTEST10
+#define RUNTEST11
 #define TEST4SIZE 1<<15 // 2 ^ 15
 #define TEST4TIMES 1
 #define PLACENESS "inplace"
@@ -104,11 +108,14 @@ private Q_SLOTS:
 	void testCase4(); // Run fft once on each element of an array of random data chunks
 	void testCase5(); // Create plans for all the sizes and benchmark baking times
 	void testCase5A(); // Same, but skip batch resize and baking
-	void testCase6(); // Same, but changing the size of the existing plan instead of creating new ones
-	// Causes crashes that I will have to investigate later if ever
+	void testCase6(); // Same, but changing the size of copy of existing plan instead of creating new ones
+	void testCase6n(); // Same, but benchmarks baking plan of 1920000 modified from all other sizes
 	void testCase7(); // Run the fft on 128MB of random data for all sizes in size file, 
 		// compare with Ooura (maxerr and nrmsd), store results and kernel baking times
 	void testCase8(); // Same as 6, but repeat X times, and store kernel execution and baking times
+	void testCase9(); // Create a file with 2 columns of 22 random floats each for later use. 
+	void testCase10(); // Read input from file, create input vectors, run fft, store results in files.
+	void testCase11(); // Generate matlab script for precision calculations.
 
 private:
 	complex<float> max(ChunkData::Ptr P);
@@ -278,11 +285,11 @@ float FFTmojTest::nrmsd(ChunkData::Ptr P, ChunkData::Ptr R)
 class A
 {
 public:
-	A() { cout << this << " " << __FUNCTION__ << endl; }
-	A(int) { cout << this << " " << __FUNCTION__ << endl; }
-	~A() { cout << this << " " << __FUNCTION__ << endl; }
+	A() { cout << this << " " << __FUNCTION__ << "\n"; }
+	A(int) { cout << this << " " << __FUNCTION__ << "\n"; }
+	~A() { cout << this << " " << __FUNCTION__ << "\n"; }
 
-	void operator=(A&) { cout << this << " " << __FUNCTION__ << endl; }
+	void operator=(A&) { cout << this << " " << __FUNCTION__ << "\n"; }
 };
 
 void FFTmojTest::initTestCase()
@@ -292,14 +299,14 @@ void FFTmojTest::initTestCase()
 #ifdef USE_OPENCL
     #ifdef USE_AMD
 //        fft = FftClAmdFft();
-        techlib = "data/ClAmdFft";
+        techlib = "ClAmdFft";
     #else
-        techlib = "data/ClFft";
+        techlib = "ClFft";
     #endif
 #elif USE_CUDA
-    techlib = "data/CuFft";
+    techlib = "CuFft";
 #else
-    techlib = "data/Ooura";
+    techlib = "Ooura";
 #endif
     //a.show(); // glew needs an OpenGL context
 }
@@ -312,9 +319,9 @@ void FFTmojTest::testCase1()
 {
 #ifdef RUNTEST1
 	ostringstream filename, scriptname;
-	filename << techlib << "Sizes" << ".dat";
+	filename << "data/" << techlib << "Sizes" << ".dat";
 	ofstream outputfile(filename.str().c_str());
-	scriptname << techlib << "Sizes" << ".m";
+	scriptname << "data/" << techlib << "Sizes" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 
 	int sumSize = 0;
@@ -342,8 +349,8 @@ void FFTmojTest::testCase1()
 	outputfile.close();
 	outputscript.close();
 
-	cout << "Number of sizes: " << numSize << endl;
-	cout << "Sum of sizes: " << sumSize << endl;
+	cout << "Number of sizes: " << numSize << "\n";
+	cout << "Sum of sizes: " << sumSize << "\n";
 
 #endif
 }
@@ -352,15 +359,15 @@ void FFTmojTest::testCase2()
 {
 #ifdef RUNTEST2
 	ostringstream sizefile;
-	sizefile << techlib << "Sizes" << ".dat";
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
 
 	ostringstream scriptname;
-	scriptname << techlib << "Comparison" << ".m";
+	scriptname << "data/" << techlib << "Comparison" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 
 	ostringstream correctnessName;
-	correctnessName << techlib << "Correctness" << ".dat";
+	correctnessName << "data/" << techlib << "Correctness" << ".dat";
 	ofstream correctnessFile(correctnessName.str().c_str());
 
 	srand((unsigned)time(0));
@@ -380,7 +387,7 @@ void FFTmojTest::testCase2()
 	#if !defined(USE_AMD)
 		if (size == 1 << 10 || size == 1 << 22)
 		{
-			cout << "Size " << size << " not good for ClFft. Skipping..." << endl << endl;
+			cout << "Size " << size << " not good for ClFft. Skipping..." << "\n" << "\n";
 			continue;
 		}
 	#endif
@@ -393,7 +400,7 @@ void FFTmojTest::testCase2()
 		ifstream imagdata(imagfile.str().c_str());
 		if (!realdata.good() || !imagdata.good())
 		{
-			cout << "Data files missing!" << endl << "Skipping..." << endl;
+			cout << "Data files missing!" << "\n" << "Skipping..." << "\n";
 			continue;
 		}
 		string tempstring;
@@ -424,10 +431,10 @@ void FFTmojTest::testCase2()
 		realdata.close();
 		imagdata.close();
 
-		cout << "  done!" << endl;
+		cout << "  done!" << "\n";
 
 		cout << "(p[0]: " << p[0].real() << ", " << p[0].imag();
-		cout << ", p[" << i-1 << "]: " << p[i-1].real() << ", " << p[i-1].imag() << ")" << endl;
+		cout << ", p[" << i-1 << "]: " << p[i-1].real() << ", " << p[i-1].imag() << ")" << "\n";
 
 		cout << "Computing FFT...";
 
@@ -436,15 +443,15 @@ void FFTmojTest::testCase2()
 			fft.compute(data, result, FftDirection_Forward);
 		}
 		//} catch (int e) {
-		//	cout << "Error: " << e << endl;
+		//	cout << "Error: " << e << "\n";
 		//}
 
-		cout << "                        done!" << endl;
+		cout << "                        done!" << "\n";
 		cout << "Reading results back into memory...";
 
 		complex<float> *r = result->getCpuMemory();
 
-		cout << "     done!" << endl;
+		cout << "     done!" << "\n";
 
 		ostringstream realanswers, imaganswers;
 		realanswers << "data/rand" << i << "f" << ".dat";
@@ -454,7 +461,7 @@ void FFTmojTest::testCase2()
 
 		if (!realdataf.good() || !imagdataf.good())
 		{
-			cout << "answers files missing!" << endl << "Skipping..." << endl;
+			cout << "answers files missing!" << "\n" << "Skipping..." << "\n";
 			continue;
 		}
 
@@ -480,41 +487,41 @@ void FFTmojTest::testCase2()
 		realdataf.close();
 		imagdataf.close();
 
-		cout << " done!" << endl;
+		cout << " done!" << "\n";
 		cout << "Computing MAXERR and NRMSD...";
 		float maxerror = maxerr(answers, result);
 		float nRSMD = nrmsd(answers, result);
-		cout << " done!" << endl;
+		cout << " done!" << "\n";
 
-		correctnessFile << i << " " << maxerror << " " << nRSMD << endl;
+		correctnessFile << i << " " << maxerror << " " << nRSMD << "\n";
 
 		cout << "MAXERR is " << maxerror;
 		if (maxerror > maxerrlim)
-			cout << " > " << maxerrlim << ": FAIL!" << endl;
+			cout << " > " << maxerrlim << ": FAIL!" << "\n";
 		else
-			cout << " < " << maxerrlim << ": WIN!" << endl;
+			cout << " < " << maxerrlim << ": WIN!" << "\n";
 
 		cout << "NRMSD is " << nRSMD;
 		if (nRSMD > nrmsdlim)
-			cout << " > " << nrmsdlim << ": FAIL!" << endl;
+			cout << " > " << nrmsdlim << ": FAIL!" << "\n";
 		else
-			cout << " < " << nrmsdlim << ": WIN!" << endl;
+			cout << " < " << nrmsdlim << ": WIN!" << "\n";
 
 		//QVERIFY(maxerror < maxerrlim);
 		//QVERIFY(nRSMD < nrmsdlim);
 
 	#if defined(DUMP_RESULTS)
 
-		cout << "    done!" << endl;
+		cout << "    done!" << "\n";
 
 		cout << "Dumping results to file...";
 
 		ostringstream realresults;
-		realresults << techlib << "Results" << i << ".dat";
+		realresults << "data/" << techlib << "Results" << i << ".dat";
 		ofstream outputreal(realresults.str().c_str());
 
 		outputreal << "# Created by FFTmojtest" << "\n";
-		outputreal << "# name: " << techlib << "Results" << "Real" << "\n";
+		outputreal << "# name: " << "data/" << techlib << "Results" << "Real" << "\n";
 		outputreal << "# type: matrix" << "\n";
 		outputreal << "# rows: " << i << "\n";
 		outputreal << "# columns: 1" << "\n";
@@ -527,11 +534,11 @@ void FFTmojTest::testCase2()
 		outputreal.close();
 
 		ostringstream imagresults;
-		imagresults << techlib << "Results" << i << "i" << ".dat";
+		imagresults << "data/" << techlib << "Results" << i << "i" << ".dat";
 		ofstream outputimag(imagresults.str().c_str());
 
 		outputimag << "# Created by FFTmojtest" << "\n";
-		outputimag << "# name: " << techlib << "Results" << "Imag" << "\n";
+		outputimag << "# name: " << "data/" << techlib << "Results" << "Imag" << "\n";
 		outputimag << "# type: matrix" << "\n";
 		outputimag << "# rows: " << i << "\n";
 		outputimag << "# columns: 1" << "\n";
@@ -543,16 +550,16 @@ void FFTmojTest::testCase2()
 
 		outputimag.close();
 
-		outputscript << "load " << techlib << "Results" << i << ".dat;" << "\n";
-		outputscript << "load " << techlib << "Results" << i << "i" << ".dat;" << "\n";
-		outputscript << "result = " << techlib << "ResultsReal + " << techlib << "ResultsImag * i;" << "\n";
+		outputscript << "load " << "data/" << techlib << "Results" << i << ".dat;" << "\n";
+		outputscript << "load " << "data/" << techlib << "Results" << i << "i" << ".dat;" << "\n";
+		outputscript << "result = " << "data/" << techlib << "ResultsReal + " << "data/" << techlib << "ResultsImag * i;" << "\n";
 		outputscript << "load " << "rand" << i << "f" << ".dat;" << "\n";
 		outputscript << "load " << "rand" << i << "if" << ".dat;" << "\n";
 		outputscript << "answers = a + b * i;" << "\n";
 		outputscript << "length(result)" << "\n";
 		outputscript << "comparison" << "\n";
 	#endif
-		cout << endl;
+		cout << "\n";
 	}
 
 	sizes.close();
@@ -567,11 +574,11 @@ void FFTmojTest::testCase3()
 #ifdef RUNTEST3
 	int repDiv = repDividend;
 	ostringstream sizefile;
-	sizefile << techlib << "Sizes" << ".dat";
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
 
 	ostringstream scriptname;
-	scriptname << techlib << "Comparison" << ".m";
+	scriptname << "data/" << techlib << "Comparison" << ".m";
 	ofstream outputscript(scriptname.str().c_str());
 	srand((unsigned)time(0));
 
@@ -590,7 +597,7 @@ void FFTmojTest::testCase3()
 	#if !defined(USE_AMD)
 		if (size == 1 << 10 || size == 1 << 22)
 		{
-			cout << "Size " << size << " not good for ClFft. Skipping..." << endl << endl;
+			cout << "Size " << size << " not good for ClFft. Skipping..." << "\n" << "\n";
 			continue;
 		}
 	#endif
@@ -605,12 +612,12 @@ void FFTmojTest::testCase3()
         complex<float> *r = result->getCpuMemory();
 
         ostringstream wallTimeFile;
-        wallTimeFile << techlib << "WallTimes" << i << ".dat";
+        wallTimeFile << "data/" << techlib << "WallTimes" << i << ".dat";
         ofstream outputWallTimes(wallTimeFile.str().c_str());
 
 		#if defined(USE_OPENCL)
 		ostringstream kernelTimeFile;
-        kernelTimeFile << techlib << "KernelTimes" << i << ".dat";
+        kernelTimeFile << "data/" << techlib << "KernelTimes" << i << ".dat";
 	    ofstream outputKernelTimes(kernelTimeFile.str().c_str());
 		#endif
 
@@ -627,7 +634,7 @@ void FFTmojTest::testCase3()
 		repDiv = (repDiv > 1<<8) ? 1<<8 : repDiv;
 		repDiv = (repDiv < 1<<4) ? 1<<4 : repDiv;
 
-        cout << "Doing fft of " << i << " " << 1 << " times..." << endl;
+        cout << "Doing fft of " << i << " " << 1 << " times..." << "\n";
 
 		for (int j = 0; j < 1; j++)
 		{
@@ -643,7 +650,7 @@ void FFTmojTest::testCase3()
 		#if defined (USE_OPENCL)
 		outputKernelTimes.close();	
 		#endif
-        cout << "Done!" << endl << endl;
+        cout << "Done!" << "\n" << "\n";
     }
 #endif
 
@@ -669,7 +676,7 @@ void FFTmojTest::testCase4()
 #if !defined(USE_AMD)
 	if (size == 1 << 10 || size >= 1 << 22)
 	{
-		cout << "Size " << size << " not good for ClFft. Skipping..." << endl << endl;
+		cout << "Size " << size << " not good for ClFft. Skipping..." << "\n" << "\n";
 	}
 #endif
 #endif
@@ -706,18 +713,18 @@ void FFTmojTest::testCase4()
 	}
     */
 
-    cout << "Doing fft of " << size << " " << TEST4TIMES << " times..." << endl;
+    cout << "Doing fft of " << size << " " << TEST4TIMES << " times..." << "\n";
 
     for (int j = 0; j < TEST4TIMES; j++)
 //    for (int j = 0; j < 1; j++)
     {
         fft.compute(dataArray[j], resultArray[j], FftDirection_Forward);
 //        fft.compute(result, data, FftDirection_Forward);
-		cout << j << endl; //".";
+		cout << j << "\n"; //".";
         results[j] = resultArray[j]->getCpuMemory();
-        cout << j << endl; //".";
+        cout << j << "\n"; //".";
         pointers[j] = dataArray[j]->getCpuMemory();
-        cout << j << endl; //".";
+        cout << j << "\n"; //".";
     }
 #endif
 }
@@ -726,11 +733,11 @@ void FFTmojTest::testCase5()
 {
 #ifdef RUNTEST5
 	ostringstream sizefile;
-	sizefile << techlib << "Sizes" << ".dat";
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
 
 	ostringstream plantimesfile;
-	plantimesfile << techlib << "PlanTimes" << ".dat";
+	plantimesfile << "data/" << techlib << "PlanTimes" << ".dat";
 	ofstream plantimes(plantimesfile.str().c_str());
 
 	int size = 0;
@@ -769,7 +776,7 @@ void FFTmojTest::testCase5()
 
 		{
 			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
-			cout << "Baking fresh of " << size << endl;
+			cout << "Baking fresh of " << size << "\n";
 			fft.bake();
 			bakeTime = fft.getLastBakeTime();
 		}
@@ -779,13 +786,13 @@ void FFTmojTest::testCase5()
 		
 		{
 			//TIME_STFT TaskTimer tt("Baking plan for %i and batch %i", size, batchSize);
-			cout << "Baking batch resize of " << batchSize << endl;
+			cout << "Baking batch resize of " << batchSize << "\n";
 			fft.bake();
 			reBatchBakeTime = fft.getLastBakeTime();
 		}
 
 		plantimes << size << " " << createTime << " " << bakeTime;
-		plantimes << " " << reBatchBakeTime << " " << reSizeBakeTime << endl;
+		plantimes << " " << reBatchBakeTime << " " << reSizeBakeTime << "\n";
 
 		sizes >> size;
 		if (size == i) //better to check if EOF, but yeah
@@ -798,7 +805,7 @@ void FFTmojTest::testCase5()
 
 		//{
 		//	//TIME_STFT TaskTimer tt("Baking plan for %i", size);
-		//	cout << "Baking resized to " << size << endl;
+		//	cout << "Baking resized to " << size << "\n";
 		//	fft.bake();
 		//	reSizeBakeTime = fft.getLastBakeTime();
 		//}
@@ -815,11 +822,11 @@ void FFTmojTest::testCase5A()
 {
 #ifdef RUNTEST5A
 	ostringstream sizefile;
-	sizefile << techlib << "Sizes" << ".dat";
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
 
 	ostringstream plantimesfile;
-	plantimesfile << techlib << "PlanTimes" << ".dat";
+	plantimesfile << "data/" << techlib << "PlanTimes" << ".dat";
 	ofstream plantimes(plantimesfile.str().c_str());
 
 	int size = 0;
@@ -850,7 +857,7 @@ void FFTmojTest::testCase5A()
 			createTime = tt.elapsedTime();
 		}
 
-		plantimes << size << " " << createTime << endl;
+		plantimes << size << " " << createTime << "\n";
 
 		sizes >> size;
 		if (size == i) //better to check if EOF, but yeah
@@ -871,11 +878,11 @@ void FFTmojTest::testCase6()
 {
 #ifdef RUNTEST6
 	ostringstream sizefile;
-	sizefile << techlib << "Sizes" << ".dat";
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
 
 	ostringstream plantimesfile;
-	plantimesfile << techlib << "PlanReBakeTimes" << ".dat";
+	plantimesfile << "data/" << techlib << "PlanReBakeTimes" << ".dat";
 	ofstream plantimes(plantimesfile.str().c_str());
 
 	int size = 0;
@@ -906,12 +913,76 @@ void FFTmojTest::testCase6()
 		
 		{
 			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
-			cout << "Baking resized to " << size << endl;
+			cout << "Baking resized to " << size << "\n";
 			fft.bake();
 			reSizeBakeTime = fft.getLastBakeTime();
 		}
 
-		plantimes << size << " " << reSizeBakeTime << endl;
+		plantimes << size << " " << reSizeBakeTime << "\n";
+
+	}
+
+	sizes.close();
+	plantimes.close();
+#endif
+}
+
+void FFTmojTest::testCase6n()
+{
+#ifdef RUNTEST6N
+	ostringstream sizefile;
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	ostringstream plantimesfile;
+	plantimesfile << "data/" << techlib << "PlanRe1920000BakeTimes" << ".dat";
+	ofstream plantimes(plantimesfile.str().c_str());
+
+	int size = 0;
+	int i = 0;
+	int init = 0;
+	sizes >> size;
+	init = size;
+	float createTime = 0;
+	float bakeTime = 0;
+	float re1920000BakeTime = 0;
+	float reSizeBakeTime = 0;
+	int batchSize = 0;
+
+	fft.createPlan(128);
+	fft.bake();
+
+	while (i <= endSize)
+	{
+		i = size;
+
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+		{
+			break;
+		}
+		if (size == 1920000)
+			continue;
+
+		fft.setSize(size);
+		
+		{
+			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
+			cout << "Baking resized to " << size << "\n";
+			fft.bake();
+			reSizeBakeTime = fft.getLastBakeTime();
+		}
+
+		fft.setSize(1920000);
+		
+		{
+			//TIME_STFT TaskTimer tt("Baking plan for %i", size);
+			cout << "Baking resized to " << size << "\n";
+			fft.bake();
+			re1920000BakeTime = fft.getLastBakeTime();
+		}
+
+		plantimes << size << " " << reSizeBakeTime << " " << re1920000BakeTime << "\n";
 
 	}
 
@@ -930,6 +1001,151 @@ void FFTmojTest::testCase7()
 void FFTmojTest::testCase8()
 {
 #ifdef RUNTEST8
+	
+#endif
+}
+
+void FFTmojTest::testCase9()
+{
+#ifdef RUNTEST9
+
+	//srand(259872697194);
+	srand(698745798351);
+
+	float tempfloatr;
+
+	ostringstream randomness;
+	randomness << "data/" << "randomfile" << ".dat";
+	ofstream randomfile(randomness.str().c_str());
+
+	cout << "Storing " << (1<<22) << " data units to file...";	
+
+	for (int i = 0; i < (1<<22); i++)
+	{
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		randomfile << tempfloatr << " ";
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		randomfile << tempfloatr << "\n";
+	}
+
+	randomfile.close();
+
+#endif
+}
+
+void FFTmojTest::testCase10()
+{
+#ifdef RUNTEST10
+	ostringstream sizefile;
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+		
+	float tempfloatr;
+
+	int size = 0;
+	int i = 0;
+	while (i <= endSize)
+	{
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+			break;
+
+		else
+			i = size;
+	
+		ChunkData::Ptr data;
+        data.reset(new ChunkData(i));
+		complex<float> *p = data->getCpuMemory();
+
+        ChunkData::Ptr result(new ChunkData(i));
+
+		//srand(259872697194);
+		srand(698745798351);
+
+		float tempfloatr;
+		
+		for (int j = 0; j < i; j++)
+		{
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].real(tempfloatr);
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].imag(tempfloatr);
+		}
+
+		cout << "Computing FFT...";
+
+		fft.compute(data, result, FftDirection_Forward);
+
+		cout << "                        done!" << "\n";
+		cout << "Reading results back into memory...";
+
+		complex<float> *r = result->getCpuMemory();
+
+		cout << "     done!" << "\n";
+
+		cout << "dumping results... ";
+
+		ostringstream resultsname;
+		resultsname << "data/" << techlib << "Results" << i << ".dat";
+		ofstream resultsout(resultsname.str().c_str());
+
+		for (int j = 0; j < i; j++)
+		{
+			resultsout << r[j].real() << " ";
+			resultsout << r[j].imag() << "\n";
+		}
+
+		resultsout.close();
+		cout << " done!";
+	}
+#endif
+}
+
+void FFTmojTest::testCase11()
+{
+#ifdef RUNTEST11
+
+	ostringstream sizefile;
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	ostringstream scriptname;
+	scriptname << "data/" << techlib << "Precision.m";
+	ofstream scriptfile(scriptname.str().c_str());
+
+	int size = 0;
+	int index = 0;
+	int i = 0;
+
+	while (i <= endSize)
+	{
+		index++;
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+			break;
+
+		else
+			i = size;
+
+		//scriptfile << "fid = fopen(\"" << techlib << "Results" << i << ".dat\", \"r\");" << "\n";
+		//scriptfile << techlib << "Results" << i << " = fscanf(fid, '%f', [2, inf]).'; fclose(fid);" << "\n";
+		scriptfile << "tic;" << "\n";
+		scriptfile << "load " << techlib << "Results" << i << ".dat -ascii;" << "\n";
+		scriptfile << "result = " << techlib << "Results" << i << "(:,1) + " << techlib << "Results" << i << "(:,2)*i;" << "\n";
+		scriptfile << "clear " << techlib << "Results" << i << ";" << "\n";
+		scriptfile << "fftnum = fft(randomfile(1:" << i << ",1) + randomfile(1:" << i << ",2)*i);" << "\n";
+		scriptfile << techlib << "error(" << index << ",1) = " << i << ";" << "\n";
+		scriptfile << techlib << "error(" << index << ",2) = max(abs(fftnum - result)) / (max(fftnum) - min(fftnum));" << "\n";
+		scriptfile << techlib << "error(" << index << ",3) = sqrt(mean(abs(fftnum - result).^2)) / (max(fftnum) - min(fftnum));" << "\n";
+		scriptfile << techlib << "error(" << index << ",:)" << "\n";
+		scriptfile << "clear fftnum;" << "\n";
+		scriptfile << "toc;" << "\n\n";
+	}
+	
+	scriptfile << "\n" << "save " << techlib << "Error.dat " << techlib << "error;" << "\n";
+
+	scriptfile.close();
+	sizes.close();
 
 #endif
 }

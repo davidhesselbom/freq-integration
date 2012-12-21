@@ -25,6 +25,9 @@ macx:QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-m
 unix:QMAKE_CXXFLAGS_RELEASE += -fopenmp
 unix:QMAKE_LFLAGS_RELEASE += -fopenmp
 win32:QMAKE_CXXFLAGS_RELEASE += /openmp
+win32:QMAKE_CXXFLAGS += /Ox /Oi /Og /Ot /Ob2 /GL /GF /arch:SSE2 /fp:fast /MP
+win32:QMAKE_LFLAGS += /LTCG /DEBUG
+
 
 
 ####################
