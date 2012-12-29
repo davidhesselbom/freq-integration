@@ -1,1 +1,0 @@
-This test generates m files which in turn generate random data and stores in files which are then read by this same test for verifying the results of the fft computations. If these files are not found, the test will tell you so and skip any computations for which there is no data.
