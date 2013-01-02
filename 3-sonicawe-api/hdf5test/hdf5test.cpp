@@ -42,6 +42,6 @@ int main(int, char *[])
     {
         cout << "Error: " << vartype(x) << endl
                   << "Details: " << x.what() << endl;
-        return -1;
+        return 1;
     }
 }
