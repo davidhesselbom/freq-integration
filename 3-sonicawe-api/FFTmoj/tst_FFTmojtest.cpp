@@ -51,9 +51,10 @@ Vad ska egentligen hända i det här testet?
 //#define RUNTEST6N
 //#define RUNTEST7
 //#define RUNTEST8
-#define RUNTEST9
-#define RUNTEST10
-#define RUNTEST11
+//#define RUNTEST9
+//#define RUNTEST10
+//#define RUNTEST11
+#define RUNTEST12
 #define TEST4SIZE 1<<15 // 2 ^ 15
 #define TEST4TIMES 1
 #define PLACENESS "inplace"
@@ -88,8 +89,12 @@ Vad ska egentligen hända i det här testet?
 #include <QtCore/QCoreApplication>
 #include <fstream>
 #include <iostream>
+#include "adapters/hdf5.h"
+#include "signal/buffer.h"
 
 using namespace std;
+using namespace Signal;
+using namespace Adapters;
 using namespace Tfr;
 
 class FFTmojTest : public QObject
@@ -116,6 +121,7 @@ private Q_SLOTS:
 	void testCase9(); // Create a file with 2 columns of 22 random floats each for later use. 
 	void testCase10(); // Read input from file, create input vectors, run fft, store results in files.
 	void testCase11(); // Generate matlab script for precision calculations.
+	void testCase12(); // Generate hdf5 files from results files in testCase10.
 
 private:
 	complex<float> max(ChunkData::Ptr P);
@@ -1147,6 +1153,30 @@ void FFTmojTest::testCase11()
 	scriptfile.close();
 	sizes.close();
 
+#endif
+}
+
+void FFTmojTest::testCase12()
+{
+#ifdef RUNTEST12
+    try
+    {
+        pBuffer data_;
+        data_.reset ( new Buffer(Interval(0, 10), 1, 1));
+        float* p = data_->getChannel (0)->waveform_data ()->getCpuMemory ();
+        for (int i=0; i<data_->number_of_samples (); ++i)
+            p[i] = i*10;
+
+        const char* filename = "hdf5test.h5";
+        Hdf5Buffer::saveBuffer ( filename, *data_, 0);
+
+        cout << "OK" << endl;
+    }
+    catch (const exception& x)
+    {
+        cout << "Error: " << vartype(x) << endl
+                  << "Details: " << x.what() << endl;
+    }
 #endif
 }
 
