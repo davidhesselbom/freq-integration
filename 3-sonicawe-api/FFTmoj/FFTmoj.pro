@@ -19,6 +19,8 @@ CONFIG += $${qtfeatures}sawetestlib
 
 SOURCES += *.cpp
 
+GPUMISC = ../../../../lib/gpumisc/
+SONICAWE = ../../../../src/
 
 # #######################################################################
 # OpenCL
