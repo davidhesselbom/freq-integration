@@ -41,7 +41,7 @@ Vad ska egentligen hända i det här testet?
 
 #define TIME_STFT
 
-//#define RUNTEST1
+#define RUNTEST1
 //#define RUNTEST2
 //#define RUNTEST3
 //#define RUNTEST4
@@ -52,7 +52,7 @@ Vad ska egentligen hända i det här testet?
 //#define RUNTEST7
 //#define RUNTEST8
 //#define RUNTEST9
-//#define RUNTEST10
+#define RUNTEST10
 //#define RUNTEST11
 #define RUNTEST12
 #define TEST4SIZE 1<<15 // 2 ^ 15
@@ -392,7 +392,8 @@ void FFTmojTest::testCase2()
 
 	#if defined(USE_OPENCL)
 	#if !defined(USE_AMD)
-		if (size == 1 << 10 || size == 1 << 22)
+		//if (size == 1 << 10 || size == 1 << 22)
+		if (size == 1 << 22)
 		{
 			cout << "Size " << size << " not good for ClFft. Skipping..." << "\n" << "\n";
 			continue;
@@ -1016,9 +1017,6 @@ void FFTmojTest::testCase9()
 {
 #ifdef RUNTEST9
 
-	//srand(259872697194);
-	srand(698745798351);
-
 	float tempfloatr;
 
 	ostringstream randomness;
@@ -1036,6 +1034,37 @@ void FFTmojTest::testCase9()
 	}
 
 	randomfile.close();
+
+	try
+    {
+        pBuffer data_;
+        data_.reset ( new Buffer(Interval(0, 1<<22), 1, 2));
+        float* re = data_->getChannel (0)->waveform_data ()->getCpuMemory ();
+		float* im = data_->getChannel (1)->waveform_data ()->getCpuMemory ();
+
+		srand(259872697194);
+		//srand(698745798351);
+		float tempfloatr;
+		
+		for (int i=0; i<data_->number_of_samples (); ++i)
+		{
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			re[i] = tempfloatr;
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			im[i] = tempfloatr;
+		}
+
+        const char* filename = "data/randomfile.h5";
+        Hdf5Buffer::saveBuffer ( filename, *data_, 0);
+
+        cout << "OK" << endl;
+    }
+    catch (const exception& x)
+    {
+        cout << "Error: " << vartype(x) << endl
+                  << "Details: " << x.what() << endl;
+    }
+
 
 #endif
 }
@@ -1066,8 +1095,8 @@ void FFTmojTest::testCase10()
 
         ChunkData::Ptr result(new ChunkData(i));
 
-		//srand(259872697194);
-		srand(698745798351);
+		srand(259872697194);
+		//srand(698745798351);
 
 		float tempfloatr;
 		
@@ -1160,7 +1189,8 @@ void FFTmojTest::testCase11()
 void FFTmojTest::testCase12()
 {
 #ifdef RUNTEST12
-    try
+
+	/*try
     {
         pBuffer data_;
         data_.reset ( new Buffer(Interval(0, 10), 1, 2));
@@ -1181,7 +1211,56 @@ void FFTmojTest::testCase12()
     {
         cout << "Error: " << vartype(x) << endl
                   << "Details: " << x.what() << endl;
-    }
+    }*/
+
+	ostringstream sizefile;
+	sizefile << "data/" << techlib << "Sizes" << ".dat";
+	ifstream sizes(sizefile.str().c_str());
+
+	int size = 0;
+	int i = 0;
+	while (i <= endSize)
+	{
+		sizes >> size;
+		if (size == i) //better to check if EOF, but yeah
+			break;
+
+		else
+			i = size;
+
+		try
+		{
+			pBuffer data_;
+			data_.reset ( new Buffer(Interval(0, i), 1, 2));
+			float* re = data_->getChannel (0)->waveform_data ()->getCpuMemory ();
+			float* im = data_->getChannel (1)->waveform_data ()->getCpuMemory ();
+
+			ostringstream resultsname;
+			resultsname << "data/" << techlib << "Results" << i << ".dat";
+			ifstream resultsin(resultsname.str().c_str());
+
+			for (int j=0; j<data_->number_of_samples (); ++j)
+			{
+				resultsin >> re[j];
+				resultsin >> im[j];
+			}
+
+			resultsin.close();
+
+			ostringstream h5name;
+			h5name << "data/" << techlib << "Results" << i << ".h5";
+
+			Hdf5Buffer::saveBuffer ( h5name.str().c_str(), *data_, 0);
+
+			cout << "OK" << endl;
+		}
+		catch (const exception& x)
+		{
+			cout << "Error: " << vartype(x) << endl
+					  << "Details: " << x.what() << endl;
+		}
+	}
+
 #endif
 }
 
