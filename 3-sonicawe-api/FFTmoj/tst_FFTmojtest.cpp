@@ -91,6 +91,7 @@ Vad ska egentligen hända i det här testet?
 #include <iostream>
 #include "adapters/hdf5.h"
 #include "signal/buffer.h"
+#include "tfr/stft.h"
 
 using namespace std;
 using namespace Signal;
@@ -1162,10 +1163,14 @@ void FFTmojTest::testCase12()
     try
     {
         pBuffer data_;
-        data_.reset ( new Buffer(Interval(0, 10), 1, 1));
-        float* p = data_->getChannel (0)->waveform_data ()->getCpuMemory ();
+        data_.reset ( new Buffer(Interval(0, 10), 1, 2));
+        float* re = data_->getChannel (0)->waveform_data ()->getCpuMemory ();
+		float* im = data_->getChannel (1)->waveform_data ()->getCpuMemory ();
         for (int i=0; i<data_->number_of_samples (); ++i)
-            p[i] = i*10;
+		{
+            re[i] = i*10;
+			im[i] = i*100;
+		}
 
         const char* filename = "hdf5test.h5";
         Hdf5Buffer::saveBuffer ( filename, *data_, 0);
