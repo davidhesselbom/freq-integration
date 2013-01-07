@@ -19,7 +19,6 @@ CONFIG += $${qtfeatures}sawetestlib
 
 SOURCES += *.cpp
 
-GPUMISC = ../../../../lib/gpumisc/
 SONICAWE = ../../../../src/
 
 # #######################################################################
@@ -60,18 +59,9 @@ macx {
 }
 
 useopenclamdapple {
+CONFIG += useopencl
 DEFINES += USE_OPENCL
 OBJECTS_DIR = $${OBJECTS_DIR}openclamdapple/
-
-SOURCES += \
-    $$GPUMISC/openclcontext.cpp \
-    $$GPUMISC/openclmemorystorage.cpp \
-    $$SONICAWE/tfr/clfft/*.cpp
-
-HEADERS += \
-    $$GPUMISC/openclcontext.h \
-    $$GPUMISC/openclmemorystorage.h \
-    $$SONICAWE/tfr/clfft/*.h
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
@@ -102,16 +92,6 @@ DEFINES += USE_OPENCL
 DEFINES += USE_AMD
 OBJECTS_DIR = $${OBJECTS_DIR}openclamdamd/
 
-SOURCES += \
-    $$GPUMISC/openclcontext.cpp \
-    $$GPUMISC/openclmemorystorage.cpp \
-    $$SONICAWE/tfr/clamdfft/*.cpp \
-
-HEADERS += \
-    $$GPUMISC/openclcontext.h \
-    $$GPUMISC/openclmemorystorage.h \
-    $$SONICAWE/tfr/clamdfft/*.h \
-
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
 
@@ -119,11 +99,9 @@ win32 {
     # use OpenCL headers from AMD APP Computing SDK
     INCLUDEPATH += \
     "$(AMDAPPSDKROOT)include" \
-    $$WINLIB/clamdfft/include \
 
     LIBS += \
     -L"$(AMDAPPSDKROOT)lib/x86" \
-    -l$$WINLIB/clamdfft/lib32/import/clAmdFft.Runtime \
 
 }
 
