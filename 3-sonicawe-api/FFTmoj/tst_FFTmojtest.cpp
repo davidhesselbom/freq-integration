@@ -25,12 +25,35 @@ Vad ska egentligen hända i det här testet?
 - För alla storlekar i filen, kör en batchad FFT på 128MB data en gång och jämför resultatet med Ooura
 - För alla storlekar i filen, kör en batchad FFT på 128MB något antal gånger och mät hur lång tid det tar
 - Alla dessa gånger, mät kernel-bakningstiden
-- Se till att buffern skapas i clAmdFft
 - Se till att padding skapas när det behövs
-- Kan MAXERR och NRMSD räknas ut på hela vektorn samtidigt?
-- Hur kollar jag att clAmdFft räknar rätt för storlekar som inte går att köra med Ooura?
 
 */
+
+/*TODO3:
+
+Kolla upp om saker och ting verkligen är inplace eller inte.
+
+Ta bort alla test som inte längre behövs och gör ett test som gör typ allting:
+	Läs in alla storlekar från filen och spara i en vektor så att man kan göra "progress-mätare" (i/n och % klart)
+	Skapa randomdata och spara till h5
+	For varje storlek, 
+		Walltime:
+			skapa plans
+			baka plans
+			kör FFT på randomdata
+		Walltime 2:
+			kör FFT på randomdata
+		Spara kernelexectid i nån vektor
+		Spara resultat till h5
+	Spara kernelexectider till fil
+
+Framtidsplaner: gör ett test som testar, för alla en storlek och alla batchstorlekar från 1 till så många som går, 
+och mät tid för varje batchstorlek. När allt funkar, gör så att testet kör på alla storlekar istället.
+( för varje storlek finns förmodligen en optimal storlek för batchen för en viss hårdvara, och den är nog != max.
+  Finns det flera, lokala max, eller finns det bara en? Testa först för tvåpotenser och kolla om det finns något mönster! )
+Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wall clock time för input om 128MB data.
+
+*/ 
 
 #define NOGUI
 #ifdef _MSC_VER
@@ -52,15 +75,15 @@ Vad ska egentligen hända i det här testet?
 //#define RUNTEST7
 //#define RUNTEST8
 //#define RUNTEST9
-#define RUNTEST10
+//#define RUNTEST10
 //#define RUNTEST11
-#define RUNTEST12
+//#define RUNTEST12
 #define TEST4SIZE 1<<15 // 2 ^ 15
 #define TEST4TIMES 1
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
-#define ALLSIZES
+//#define ONLYPOWERSOF2
 #define repDividend 1<<24 // 2 ^ 24
 #define repNumerator 0
 #define PREALLOCATE
