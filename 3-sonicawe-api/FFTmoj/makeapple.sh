@@ -2,4 +2,4 @@ qmake CONFIG+=useopenclamdapple
 cd ../../../../src
 qmake CONFIG+=useopenclamdapple CONFIG+=testlib
 cd ../lib/gpumisc
-qmake CONFIG+=useopenclamd
+qmake CONFIG+=useopenclamdapple
