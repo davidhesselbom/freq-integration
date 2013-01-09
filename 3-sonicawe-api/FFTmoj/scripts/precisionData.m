@@ -30,6 +30,16 @@ function [precision] = getPrecision(lib, RandomData)
 			%sprintf("Lib: %s, Size: %i, ID: %i", lib, size, sizeid)
 			result = geth5(sprintf("../data/%sResults%i.h5", lib, size));
 			tempfft = fft(RandomData(1:size));
+			format long;
+			%disp(tempfft(1))
+			%disp(result(1))
+			tempfft(1) = single(0);
+			result(1) = single(0);
+			%tempfft(1) = tempfft(1)/length(tempfft);
+			%result(1) = result(1)/length(result);
+			%disp(tempfft(1))
+			%disp(result(1))
+			%error
 			precision(sizeid, 1) = maxerr(tempfft, result);
 			precision(sizeid, 2) = nrmsd(tempfft, result);
 			timeleft = (toc/(progress/100))-toc;
@@ -41,7 +51,7 @@ function [precision] = getPrecision(lib, RandomData)
 end
 
 function output = nrmsd(X, x)
-	output = norm(X-x)/norm(X-mean(x));
+	output = norm(X-x)/norm(X-mean(X));
 end
 
 function output = maxerr(X, x)
@@ -50,5 +60,6 @@ end
 
 function data = geth5(filename)
 	data = sawe_loadstruct(filename);
-	data = data.samples(:,1) + data.samples(:,2)*i;
+	data = data.chunk;
+	data = single(data);
 end
