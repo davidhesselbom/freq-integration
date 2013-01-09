@@ -1131,6 +1131,15 @@ void FFTmojTest::testCase10()
 			p[j].imag(tempfloatr);
 		}
 
+		if (size == 1<<22)
+		{
+			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+			chunk->transform_data = data;
+			ostringstream randomdataname;
+			randomdataname << "data/" << "RandomData" << ".h5";;
+			Hdf5Chunk::saveChunk(randomdataname.str().c_str(), *chunk );
+		}
+
 		cout << "Computing FFT...";
 
 		fft.compute(data, result, FftDirection_Forward);
@@ -1145,16 +1154,22 @@ void FFTmojTest::testCase10()
 		cout << "dumping results... ";
 
 		ostringstream resultsname;
-		resultsname << "data/" << techlib << "Results" << i << ".dat";
-		ofstream resultsout(resultsname.str().c_str());
+		resultsname << "data/" << techlib << "Results" << i << ".h5";
+		Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+		chunk->transform_data = result;
+		Hdf5Chunk::saveChunk( resultsname.str().c_str(), *chunk);
 
-		for (int j = 0; j < i; j++)
-		{
-			resultsout << r[j].real() << " ";
-			resultsout << r[j].imag() << "\n";
-		}
+		//ostringstream resultsname;
+		//resultsname << "data/" << techlib << "Results" << i << ".dat";
+		//ofstream resultsout(resultsname.str().c_str());
 
-		resultsout.close();
+		//for (int j = 0; j < i; j++)
+		//{
+		//	resultsout << r[j].real() << " ";
+		//	resultsout << r[j].imag() << "\n";
+		//}
+
+		//resultsout.close();
 		cout << " done!";
 	}
 #endif
