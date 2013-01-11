@@ -33,15 +33,15 @@ function [precision] = getPrecision(lib, RandomData)
 			format long;
 			%disp(tempfft(1))
 			%disp(result(1))
-			tempfft(1) = single(0);
-			result(1) = single(0);
+			%tempfft(1) = single(0);
+			%result(1) = single(0);
 			%tempfft(1) = tempfft(1)/length(tempfft);
 			%result(1) = result(1)/length(result);
 			%disp(tempfft(1))
 			%disp(result(1))
 			%error
-			precision(sizeid, 1) = maxerr(tempfft, result);
-			precision(sizeid, 2) = nrmsd(tempfft, result);
+			precision(sizeid, 1) = maxerr(tempfft(2:end), result(2:end));
+			precision(sizeid, 2) = nrmsd(tempfft(2:end), result(2:end));
 			timeleft = (toc/(progress/100))-toc;
 			disp(sprintf("Done: %4i/%i (%3.1f%%, %im%.2is elapsed, %im%.2is remaining)", sizeid, columns(sizevar), progress, toc/60, mod(toc, 60), timeleft/60, mod(timeleft, 60)))
 		end
