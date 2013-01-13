@@ -33,6 +33,8 @@ Vad ska egentligen hända i det här testet?
 
 Kolla upp om saker och ting verkligen är inplace eller inte.
 
+Fixa problemet att plans inte kastas bort utan fyller upp minnet tills det tar slut
+
 Ta bort alla test som inte längre behövs och gör ett test som gör typ allting:
 	Läs in alla storlekar från filen och spara i en vektor så att man kan göra "progress-mätare" (i/n och % klart)
 	Skapa randomdata och spara till h5
@@ -75,7 +77,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 //#define RUNTEST7
 //#define RUNTEST8
 //#define RUNTEST9
-//#define RUNTEST10
+#define RUNTEST10
 //#define RUNTEST11
 //#define RUNTEST12
 #define TEST4SIZE 1<<15 // 2 ^ 15
@@ -1098,32 +1100,62 @@ void FFTmojTest::testCase10()
 	ostringstream sizefile;
 	sizefile << "data/" << techlib << "Sizes" << ".dat";
 	ifstream sizes(sizefile.str().c_str());
-		
-	float tempfloatr;
 
+	std::vector<int> sizevec;
 	int size = 0;
 	int i = 0;
-	while (i <= endSize)
+
+	int sumsize = 0;
+	while (sizes.good())
 	{
 		sizes >> size;
-		if (size == i) //better to check if EOF, but yeah
+		if (i == size)
 			break;
+		i = size;
+		sizevec.push_back(size);
+		sumsize+=size;
+	}
+	cout << "FYI sizevec[0] = " << sizevec[0] << ", size = " << sizevec.size() << endl;
+	sizes.close();
+	
+	int numsize = sizevec.size();
 
-		else
-			i = size;
+	#ifdef USE_AMD
+	ostringstream bakefile;
+	bakefile << "data/" << techlib << "BakeTimes" << ".dat";
+	ofstream baketimes(bakefile.str().c_str());
+	#endif
+
+	size = 0;
+
+	int sizeacc = 0;
+	float bakeacc = 0;
+	
+	
+	TIME_STFT TaskTimer ttx("Running FFT!");
+	for (i = 0; i < sizevec.size(); i++)
+	{
+		#ifdef USE_AMD
+		if (i%100 == 0 && i != 0)
+		{
+			fft.reset();
+		}
+		#endif
+		size = sizevec[i];
+		sizeacc+=size;
 	
 		ChunkData::Ptr data;
-        data.reset(new ChunkData(i));
+        data.reset(new ChunkData(size));
 		complex<float> *p = data->getCpuMemory();
 
-        ChunkData::Ptr result(new ChunkData(i));
+        ChunkData::Ptr result(new ChunkData(size));
 
-		srand(259872697194);
+		srand(2);
 		//srand(698745798351);
 
 		float tempfloatr;
 		
-		for (int j = 0; j < i; j++)
+		for (int j = 0; j < size; j++)
 		{
 			tempfloatr = (float)rand()/(float)RAND_MAX;
 			p[j].real(tempfloatr);
@@ -1131,7 +1163,7 @@ void FFTmojTest::testCase10()
 			p[j].imag(tempfloatr);
 		}
 
-		if (size == 1<<22)
+		if (size == endSize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 			chunk->transform_data = data;
@@ -1144,6 +1176,12 @@ void FFTmojTest::testCase10()
 
 		fft.compute(data, result, FftDirection_Forward);
 
+		#ifdef USE_AMD
+		float bake = fft.getLastBakeTime();
+		baketimes << size << " " << bake << endl;
+		bakeacc += bake;
+		#endif
+
 		cout << "                        done!" << "\n";
 		cout << "Reading results back into memory...";
 
@@ -1154,24 +1192,31 @@ void FFTmojTest::testCase10()
 		cout << "dumping results... ";
 
 		ostringstream resultsname;
-		resultsname << "data/" << techlib << "Results" << i << ".h5";
+		resultsname << "data/" << techlib << "Results" << size << ".h5";
 		Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 		chunk->transform_data = result;
 		Hdf5Chunk::saveChunk( resultsname.str().c_str(), *chunk);
 
-		//ostringstream resultsname;
-		//resultsname << "data/" << techlib << "Results" << i << ".dat";
-		//ofstream resultsout(resultsname.str().c_str());
-
-		//for (int j = 0; j < i; j++)
-		//{
-		//	resultsout << r[j].real() << " ";
-		//	resultsout << r[j].imag() << "\n";
-		//}
-
-		//resultsout.close();
-		cout << " done!";
+		cout << " done!" << endl;
+		
+		float progress = (float)sizeacc / (float)sumsize;
+		#ifdef USE_AMD
+		float bakeavg = bakeacc / (float)(i+1);
+		#endif
+		float elapsed = ttx.elapsedTime();
+		int toc = (int)elapsed;
+		#ifdef USE_AMD
+		cout << "Bakeavg: " << bakeavg << " Done: " << ((float)(i+1)/(float)numsize) << endl;
+		int timeleft = (bakeavg/((float)(i+1)/(float)numsize))-elapsed;
+		#else
+		int timeleft = (elapsed/progress)-elapsed;
+		#endif
+		printf("\n\nDone: %4i/%i, %i/%i (%3.1f%%, %.2i:%.2i:%.2i elapsed, %.2i:%.2i:%.2is remaining)\n\n", i+1, numsize, sizeacc, sumsize, progress*100, toc/3600, toc/60, toc%60, timeleft/3600, timeleft/60, timeleft%60);
 	}
+			
+	#ifdef USE_AMD
+	baketimes.close();
+	#endif
 #endif
 }
 
