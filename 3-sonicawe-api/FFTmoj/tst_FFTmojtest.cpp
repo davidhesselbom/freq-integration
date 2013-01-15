@@ -80,6 +80,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define RUNTEST10
 //#define RUNTEST11
 //#define RUNTEST12
+//#define RUNTEST13
 #define TEST4SIZE 1<<15 // 2 ^ 15
 #define TEST4TIMES 1
 #define PLACENESS "inplace"
@@ -148,6 +149,7 @@ private Q_SLOTS:
 	void testCase10(); // Read input from file, create input vectors, run fft, store results in files.
 	void testCase11(); // Generate matlab script for precision calculations.
 	void testCase12(); // Generate hdf5 files from results files in testCase10.
+	void testCase13(); // Benchmark, for all batch sizes of a given size the, kernel execution time.
 
 private:
 	complex<float> max(ChunkData::Ptr P);
@@ -1136,9 +1138,9 @@ void FFTmojTest::testCase10()
 	for (i = 0; i < sizevec.size(); i++)
 	{
 		#ifdef USE_AMD
-		if (i%100 == 0 && i != 0)
+//		if (i% == 400 && i != 0)
 		{
-			//fft.reset();
+			fft.reset();
 		}
 		#endif
 		size = sizevec[i];
@@ -1344,6 +1346,40 @@ void FFTmojTest::testCase12()
 		}
 	}
 
+#endif
+}
+
+
+
+void FFTmojTest::testCase13()
+{
+#ifdef RUNTEST13
+	int maxtotal = 1<<22;
+	int size = 1<<8;
+
+	ostringstream kexfile;
+	kexfile << "data/" << techlib << "KexTimes" << ".dat";
+	ofstream kextimes(kexfile.str().c_str());
+
+	fft.createPlan(size);
+
+	for (int i = 1; i < maxtotal / size; i++)
+	{
+		try {
+		fft.setSize(size*i);
+		fft.setBatchSize(i);
+		ChunkData::Ptr data;
+        data.reset(new ChunkData(size*i));
+		complex<float> *p = data->getCpuMemory();
+		ChunkData::Ptr result(new ChunkData(size*i));
+		fft.compute(data, result, FftDirection_Forward);
+		kextimes << fft.getKernelExecTime() << "\n";
+		} catch (uint e) {
+			cout << "An exception occurred. Exception Nr. " << e << endl;
+		}
+	}
+
+	kextimes.close();
 #endif
 }
 
