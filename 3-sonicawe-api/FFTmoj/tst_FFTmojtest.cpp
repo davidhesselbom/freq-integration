@@ -1138,7 +1138,7 @@ void FFTmojTest::testCase10()
 		#ifdef USE_AMD
 		if (i%100 == 0 && i != 0)
 		{
-			fft.reset();
+			//fft.reset();
 		}
 		#endif
 		size = sizevec[i];
