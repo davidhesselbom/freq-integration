@@ -67,7 +67,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define TIME_STFT
 
 #define RUNTEST1
-#define RUNTEST10
+//#define RUNTEST10
 //#define RUNTEST13
 #define PLACENESS "inplace"
 #define FFTINPLACE
@@ -118,6 +118,7 @@ private Q_SLOTS:
     void testCase1(); // Get sizes in an interval for current library and store in file
 	void testCase10(); // Read sizes from file, create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
+	//void mainTest(); // Benchmark wall-time, bake time, kernel execution time
 
 private:
 	string techlib;
@@ -139,15 +140,6 @@ private:
 FFTmojTest::FFTmojTest()
 {
     ExceptionAssert::installEventHandler();
-
-#ifdef TROLLLARS
-	DoAwesomeStuff();
-
-	int theThing = new Fixer(Category.Bug);
-	theThing.Apply(3, "qobject.cpp"); // Fixing some bugs in the codez
-
-	return 85; // DON'T CHANGE OR ELSE THINGS WILL BREAK
-#endif
 }
 
 /*
@@ -183,11 +175,9 @@ void FFTmojTest::cleanupTestCase()
 void FFTmojTest::testCase1()
 {
 #ifdef RUNTEST1
-	ostringstream filename, scriptname;
-	filename << "data/" << techlib << "Sizes" << ".dat";
-	ofstream outputfile(filename.str().c_str());
-	scriptname << "data/" << techlib << "Sizes" << ".m";
-	ofstream outputscript(scriptname.str().c_str());
+	char sizefilename[100];
+	sprintf(sizefilename, "data/%sSizes.dat", techlib.c_str());
+	ofstream outputfile(sizefilename);
 
 	int sumSize = 0;
 	int numSize = 0;
@@ -197,22 +187,13 @@ void FFTmojTest::testCase1()
 		sumSize += i;
 		numSize++;
 
-		outputfile << i << "\n";
-		outputscript << "a = rand(" << i << ", 1);" << "\n";
-		outputscript << "save rand" << i << ".dat a;" << "\n";
-		outputscript << "b = rand(" << i << ", 1);" << "\n";
-		outputscript << "save rand" << i << "i.dat b;" << "\n";
-		outputscript << "c = a + b*i;" << "\n";
-		outputscript << "d = fft(c);" << "\n";
-		outputscript << "a = real(d);" << "\n";
-		outputscript << "b = imag(d);" << "\n";
-		outputscript << "save rand" << i << "f.dat a;" << "\n";
-		outputscript << "save rand" << i << "if.dat b;" << "\n";
+		outputfile << i;
+		if (i != endSize)
+			outputfile << "\n";
 		i = fft.sChunkSizeG(i);
 	}
 
 	outputfile.close();
-	outputscript.close();
 
 	cout << "Number of sizes: " << numSize << "\n";
 	cout << "Sum of sizes: " << sumSize << "\n";
