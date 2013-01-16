@@ -67,8 +67,11 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define TIME_STFT
 
 #define RUNTEST1
+#define RUNTEST2
 //#define RUNTEST10
 //#define RUNTEST13
+#define RUNTEST14
+#define SEEDVAL 5
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
@@ -84,6 +87,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
     #ifdef USE_AMD
         #include "tfr/clamdfft/fftclamdfft.h"
     #else
+	#define USE_APPLE
         #include "tfr/clfft/fftclfft.h"
 	#endif
 #else
@@ -116,12 +120,16 @@ private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
     void testCase1(); // Get sizes in an interval for current library and store in file
-	void testCase10(); // Read sizes from file, create input vectors, run fft, store results in files.
+	void testCase2(); // Read sizes from file
+	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
-	//void mainTest(); // Benchmark wall-time, bake time, kernel execution time
+	void testCase14(); // Benchmark wall-time, bake time, kernel execution time
 
 private:
+	void getSizesFromFile(std::vector<int> *sizes, int *sumsizes);
 	string techlib;
+	int maxsize, sizesum;
+	std::vector<int> sizes;
 
 #ifdef USE_OPENCL
     #ifdef USE_AMD
@@ -151,11 +159,8 @@ void FFTmojTestCuda( cudaPitchedPtrType<float> data );
 
 void FFTmojTest::initTestCase()
 {
-//	A a;
-//	a = A();
 #ifdef USE_OPENCL
     #ifdef USE_AMD
-//        fft = FftClAmdFft();
         techlib = "ClAmdFft";
     #else
         techlib = "ClFft";
@@ -165,7 +170,7 @@ void FFTmojTest::initTestCase()
 #else
     techlib = "Ooura";
 #endif
-    //a.show(); // glew needs an OpenGL context
+	sizesum = maxsize = 0;
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -197,6 +202,39 @@ void FFTmojTest::testCase1()
 
 	cout << "Number of sizes: " << numSize << "\n";
 	cout << "Sum of sizes: " << sumSize << "\n";
+
+#endif
+}
+
+void FFTmojTest::testCase2()
+{
+
+#ifdef RUNTEST2
+	char sizefilename[100];
+	sprintf(sizefilename, "data/%sSizes.dat", techlib.c_str());
+	ifstream sizefile(sizefilename);
+
+	int size = 0, prevsize = 0;
+	
+	while (sizefile.good())
+	{
+		sizefile >> size;
+		if (prevsize == size) 
+		{
+			break;
+		}
+		else 
+		{
+			prevsize = size;
+			sizes.push_back(size);
+			sizesum += size;
+		}
+	}
+
+	sizefile.close();
+	maxsize = sizes.back();
+	
+	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
 
 #endif
 }
@@ -356,6 +394,115 @@ void FFTmojTest::testCase13()
 	}
 
 	kextimes.close();
+#endif
+}
+
+void FFTmojTest::testCase14()
+{
+#ifdef RUNTEST14
+// Create random data
+	srand(SEEDVAL);
+	
+	float tempfloat;
+	
+	int size = 0, sizeacc = 0;
+	
+	char wallTimeFileName[100];
+	sprintf(wallTimeFileName, "data/%sWallTimes.dat", techlib.c_str());
+	ofstream wallTimes(wallTimeFileName);
+
+#ifdef USE_OPENCL
+	char kExTimeFileName[100];
+	sprintf(kExTimeFileName, "data/%sKExTimes.dat", techlib.c_str());
+	ofstream kExTimes(kExTimeFileName);
+#endif
+	
+	for (int i = 0; i < sizes.size(); i++)
+	{
+		size = sizes[i];
+		sizeacc += size;
+	
+		ChunkData::Ptr data;
+        data.reset(new ChunkData(size));
+		complex<float> *input = data->getCpuMemory();
+
+        ChunkData::Ptr result(new ChunkData(size));
+		
+		for (int j = 0; j < size; j++)
+		{
+			tempfloat = (float)rand()/(float)RAND_MAX;
+			input[j].real(tempfloat);
+			tempfloat = (float)rand()/(float)RAND_MAX;
+			input[j].imag(tempfloat);
+		}
+		
+		if (size == maxsize)
+		{
+			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+			chunk->transform_data = data;
+			char randomfilename[100];
+			sprintf(randomfilename, "data/RandomData.h5");
+			Hdf5Chunk::saveChunk(randomfilename, *chunk );
+		}
+						
+// CLFFT {
+     // walltimewithbake
+          // fft.compute
+     // endwalltimewithbake
+     // getexectime
+// }
+
+// CLAMDFFT { 
+     // bake
+     // baketime = getbaketime
+// }
+		wallTimes << size;
+#ifdef USE_OPENCL
+		kExTimes << size;
+#endif
+		
+		for (int j = 0; j < 100; j++)
+		{
+			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+			fft.compute(data, result, FftDirection_Forward);
+			complex<float> *r = result->getCpuMemory();
+			float wallTime = wallTimer.elapsedTime();
+			if (j == 0)
+			{
+				char resultsFileName[100];
+				sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+				Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+				chunk->transform_data = result;
+				Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+			}
+			wallTimes << " " << wallTime;
+#ifdef USE_OPENCL
+			kExTimes << " " << fft.getKernelExecTime();
+#endif
+		}
+		
+		if (size < maxsize)
+		{
+			wallTimes << "\n";
+#ifdef USE_OPENCL
+			kExTimes << "\n";
+#endif
+		}
+	}
+
+	wallTimes.close();
+#ifdef USE_OPENCL
+	kExTimes.close();
+#endif
+
+// CLFFT baketime = walltimewithbake-walltime
+
+// OPENCL {
+     // exectime = getexectime
+     // spara batchtider
+     // spara exectider
+// }
+
 #endif
 }
 
