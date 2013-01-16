@@ -69,8 +69,8 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define RUNTEST1
 #define RUNTEST2
 //#define RUNTEST10
-//#define RUNTEST13
-#define RUNTEST14
+#define RUNTEST13
+//#define RUNTEST14
 #define SEEDVAL 1
 #define PLACENESS "inplace"
 #define FFTINPLACE
@@ -375,32 +375,106 @@ void FFTmojTest::testCase10()
 void FFTmojTest::testCase13()
 {
 #ifdef RUNTEST13
-	int maxtotal = 1<<22;
-	int size = 1<<8;
+// Create random data
+	srand(SEEDVAL);
+	
+	float tempfloat;
 
-	ostringstream kexfile;
-	kexfile << "data/" << techlib << "KexTimes" << ".dat";
-	ofstream kextimes(kexfile.str().c_str());
-
-	fft.createPlan(size);
-
-	for (int i = 1; i < maxtotal / size; i++)
+	for (int size = 1<<8; size <= 1<<22; size = size*2)
 	{
-		try {
-		fft.setSize(size*i);
-		fft.setBatchSize(i);
-		ChunkData::Ptr data;
-        data.reset(new ChunkData(size*i));
-		complex<float> *p = data->getCpuMemory();
-		ChunkData::Ptr result(new ChunkData(size*i));
-		fft.compute(data, result, FftDirection_Forward);
-		kextimes << fft.getKernelExecTime() << "\n";
-		} catch (uint e) {
-			cout << "An exception occurred. Exception Nr. " << e << endl;
+
+		char wallTimeFileName[100];
+		sprintf(wallTimeFileName, "data/%sWallTimes%d.dat", techlib.c_str(), size);
+		ofstream wallTimes(wallTimeFileName);
+
+	#ifdef USE_OPENCL
+		char kExTimeFileName[100];
+		sprintf(kExTimeFileName, "data/%sKExTimes%d.dat", techlib.c_str(), size);
+		ofstream kExTimes(kExTimeFileName);
+	#endif
+		
+		for (int i = 1; i <= (1<<24)/size; i = i*2)
+		{
+			cout << "Batchsize: " << i << "/" << maxsize/size << "\n";
+
+			/*if (size == 800000)
+			{
+				fft.reset();
+			}*/
+		
+			fft.setBatchSize(i);
+
+			ChunkData::Ptr data;
+			data.reset(new ChunkData(size*i));
+			complex<float> *input = data->getCpuMemory();
+
+			ChunkData::Ptr result(new ChunkData(size*i));
+			
+			for (int j = 0; j < size*i; j++)
+			{
+				tempfloat = (float)rand()/(float)RAND_MAX;
+				input[j].real(tempfloat);
+				tempfloat = (float)rand()/(float)RAND_MAX;
+				input[j].imag(tempfloat);
+			}
+			/*
+			if (size == maxsize)
+			{
+				Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+				chunk->transform_data = data;
+				char randomfilename[100];
+				sprintf(randomfilename, "data/RandomData.h5");
+				Hdf5Chunk::saveChunk(randomfilename, *chunk );
+			}
+			*/
+							
+	// CLFFT {
+		 // walltimewithbake
+			  // fft.compute
+		 // endwalltimewithbake
+		 // getexectime
+	// }
+
+	// CLAMDFFT { 
+		 // bake
+		 // baketime = getbaketime
+	// }
+			wallTimes << i;
+	#ifdef USE_OPENCL
+			kExTimes << i;
+	#endif
+			
+			for (int j = 0; j < 100; j++)
+			{
+				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+				fft.compute(data, result, FftDirection_Forward);
+				complex<float> *r = result->getCpuMemory();
+				float wallTime = wallTimer.elapsedTime();
+				/*
+				if (j == 0)
+				{
+					char resultsFileName[100];
+					sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+					chunk->transform_data = result;
+					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+				}
+				*/
+				wallTimes << " " << wallTime;
+	#ifdef USE_OPENCL
+				kExTimes << " " << fft.getKernelExecTime();
+	#endif
+			}
+			
+			if (i <= maxsize/size)
+			{
+				wallTimes << "\n";
+	#ifdef USE_OPENCL
+				kExTimes << "\n";
+	#endif
+			}
 		}
 	}
-
-	kextimes.close();
 #endif
 }
 
