@@ -71,12 +71,12 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 //#define RUNTEST10
 //#define RUNTEST13
 #define RUNTEST14
-#define SEEDVAL 5
+#define SEEDVAL 1
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
 //#define ONLYPOWERSOF2
-#define startSize 1<<8 // 2 ^ 8
+#define startSize 1<<8 // 2 ^ 8, 750000
 #define endSize 1<<22 // 2 ^ 22
 
 #include "exceptionassert.h"
@@ -288,6 +288,8 @@ void FFTmojTest::testCase10()
 		#endif
 		size = sizevec[i];
 		sizeacc+=size;
+		
+		cout << "Size: " << i+1 << "/" << sizevec.size() << "\n";
 	
 		ChunkData::Ptr data;
         data.reset(new ChunkData(size));
@@ -308,7 +310,7 @@ void FFTmojTest::testCase10()
 			p[j].imag(tempfloatr);
 		}
 
-		
+		/*
 		if (size == endSize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -317,7 +319,7 @@ void FFTmojTest::testCase10()
 			randomdataname << "data/" << "RandomData" << ".h5";;
 			Hdf5Chunk::saveChunk(randomdataname.str().c_str(), *chunk );
 		}
-		
+		*/
 
 		cout << "Computing FFT...";
 
@@ -426,11 +428,12 @@ void FFTmojTest::testCase14()
 	{
 		size = sizes[i];
 		sizeacc += size;
+		cout << "Size: " << i << "/" << sizes.size() << "\n";
 
-		if (size == 800000)
+		/*if (size == 800000)
 		{
 			fft.reset();
-		}
+		}*/
 	
 		ChunkData::Ptr data;
         data.reset(new ChunkData(size));
@@ -445,7 +448,7 @@ void FFTmojTest::testCase14()
 			tempfloat = (float)rand()/(float)RAND_MAX;
 			input[j].imag(tempfloat);
 		}
-		
+		/*
 		if (size == maxsize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -454,6 +457,7 @@ void FFTmojTest::testCase14()
 			sprintf(randomfilename, "data/RandomData.h5");
 			Hdf5Chunk::saveChunk(randomfilename, *chunk );
 		}
+		*/
 						
 // CLFFT {
      // walltimewithbake
@@ -471,12 +475,13 @@ void FFTmojTest::testCase14()
 		kExTimes << size;
 #endif
 		
-		for (int j = 0; j < 1; j++)
+		for (int j = 0; j < 5; j++)
 		{
 			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 			fft.compute(data, result, FftDirection_Forward);
 			complex<float> *r = result->getCpuMemory();
 			float wallTime = wallTimer.elapsedTime();
+			/*
 			if (j == 0)
 			{
 				char resultsFileName[100];
@@ -485,6 +490,7 @@ void FFTmojTest::testCase14()
 				chunk->transform_data = result;
 				Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 			}
+			*/
 			wallTimes << " " << wallTime;
 #ifdef USE_OPENCL
 			kExTimes << " " << fft.getKernelExecTime();
