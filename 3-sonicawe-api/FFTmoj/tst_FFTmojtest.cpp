@@ -380,7 +380,7 @@ void FFTmojTest::testCase13()
 	
 	float tempfloat;
 
-	for (int size = 1<<8; size <= 1<<22; size = size*2)
+	for (int size = 1<<10; size <= 1<<10; size = size*2)
 	{
 
 		char wallTimeFileName[100];
@@ -393,7 +393,7 @@ void FFTmojTest::testCase13()
 		ofstream kExTimes(kExTimeFileName);
 	#endif
 		
-		for (int i = 1; i <= (1<<24)/size; i = i*2)
+		for (int i = 1; i <= (1<<22)/size; i = i*2)
 		{
 			cout << "Batchsize: " << i << "/" << maxsize/size << "\n";
 
@@ -466,11 +466,11 @@ void FFTmojTest::testCase13()
 	#endif
 			}
 			
-			if (i <= maxsize/size)
+			if (i < (1<<22)/size)
 			{
-				wallTimes << "\n";
+				wallTimes << endl;
 	#ifdef USE_OPENCL
-				kExTimes << "\n";
+				kExTimes << endl;
 	#endif
 			}
 		}
