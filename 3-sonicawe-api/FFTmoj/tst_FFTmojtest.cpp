@@ -282,9 +282,9 @@ void FFTmojTest::testCase10()
 	{
 		#ifdef USE_AMD
 //		if (i% == 400 && i != 0)
-		{
-			fft.reset();
-		}
+//		{
+//			fft.reset();
+//		}
 		#endif
 		size = sizevec[i];
 		sizeacc+=size;
@@ -308,6 +308,7 @@ void FFTmojTest::testCase10()
 			p[j].imag(tempfloatr);
 		}
 
+		
 		if (size == endSize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -316,6 +317,7 @@ void FFTmojTest::testCase10()
 			randomdataname << "data/" << "RandomData" << ".h5";;
 			Hdf5Chunk::saveChunk(randomdataname.str().c_str(), *chunk );
 		}
+		
 
 		cout << "Computing FFT...";
 
@@ -336,14 +338,16 @@ void FFTmojTest::testCase10()
 
 		cout << "dumping results... ";
 
+		/*
 		ostringstream resultsname;
 		resultsname << "data/" << techlib << "Results" << size << ".h5";
 		Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 		chunk->transform_data = result;
 		Hdf5Chunk::saveChunk( resultsname.str().c_str(), *chunk);
+		*/
 
 		cout << " done!" << endl;
-		
+		/*
 		float progress = (float)sizeacc / (float)sumsize;
 		#ifdef USE_AMD
 		float bakeavg = bakeacc / (float)(i+1);
@@ -357,7 +361,8 @@ void FFTmojTest::testCase10()
 		int timeleft = (elapsed/progress)-elapsed;
 		#endif
 		printf("\n\nDone: %4i/%i, %i/%i (%3.1f%%, %.2i:%.2i:%.2i elapsed, %.2i:%.2i:%.2is remaining)\n\n", i+1, numsize, sizeacc, sumsize, progress*100, toc/3600, toc/60, toc%60, timeleft/3600, timeleft/60, timeleft%60);
-	}
+		*/
+		}
 			
 	#ifdef USE_AMD
 	baketimes.close();
@@ -421,6 +426,11 @@ void FFTmojTest::testCase14()
 	{
 		size = sizes[i];
 		sizeacc += size;
+
+		if (size == 800000)
+		{
+			fft.reset();
+		}
 	
 		ChunkData::Ptr data;
         data.reset(new ChunkData(size));
@@ -461,7 +471,7 @@ void FFTmojTest::testCase14()
 		kExTimes << size;
 #endif
 		
-		for (int j = 0; j < 100; j++)
+		for (int j = 0; j < 1; j++)
 		{
 			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 			fft.compute(data, result, FftDirection_Forward);
