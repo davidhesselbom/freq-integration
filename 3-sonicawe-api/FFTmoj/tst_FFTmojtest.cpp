@@ -69,8 +69,8 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define RUNTEST1
 #define RUNTEST2
 //#define RUNTEST10
-#define RUNTEST13
-//#define RUNTEST14
+//#define RUNTEST13
+#define RUNTEST14
 #define SEEDVAL 1
 #define PLACENESS "inplace"
 #define FFTINPLACE
@@ -447,7 +447,7 @@ void FFTmojTest::testCase13()
 			{
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 				fft.compute(data, result, FftDirection_Forward);
-				complex<float> *r = result->getCpuMemory();
+				complex<float> *r = data->getCpuMemory();
 				float wallTime = wallTimer.elapsedTime();
 				/*
 				if (j == 0)
@@ -547,12 +547,12 @@ void FFTmojTest::testCase14()
 #ifdef USE_OPENCL
 		kExTimes << size;
 #endif
-		
-		for (int j = 0; j < 5; j++)
+		try {
+		for (int j = 0; j < 100; j++)
 		{
 			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 			fft.compute(data, result, FftDirection_Forward);
-			complex<float> *r = result->getCpuMemory();
+			complex<float> *r = data->getCpuMemory();
 			float wallTime = wallTimer.elapsedTime();
 			/*
 			if (j == 0)
@@ -568,6 +568,10 @@ void FFTmojTest::testCase14()
 #ifdef USE_OPENCL
 			kExTimes << " " << fft.getKernelExecTime();
 #endif
+		}
+		} 	catch( std::exception& e )
+		{
+			cout << e.what() << endl;
 		}
 		
 		if (size < maxsize)
