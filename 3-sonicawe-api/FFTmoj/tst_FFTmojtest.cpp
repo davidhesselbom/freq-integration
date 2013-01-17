@@ -382,7 +382,6 @@ void FFTmojTest::testCase13()
 
 	for (int size = 1<<10; size <= 1<<10; size = size*2)
 	{
-
 		char wallTimeFileName[100];
 		sprintf(wallTimeFileName, "data/%sWallTimes%d.dat", techlib.c_str(), size);
 		ofstream wallTimes(wallTimeFileName);
@@ -393,9 +392,9 @@ void FFTmojTest::testCase13()
 		ofstream kExTimes(kExTimeFileName);
 	#endif
 		
-		for (int i = 1; i <= (1<<22)/size; i = i*2)
+		for (int i = 1; i <= (1<<25)/size; i = i*2)
 		{
-			cout << "Batchsize: " << i << "/" << maxsize/size << "\n";
+			cout << "Batchsize: " << i << "/" << (1<<25)/size << "\n";
 
 			/*if (size == 800000)
 			{
@@ -466,7 +465,7 @@ void FFTmojTest::testCase13()
 	#endif
 			}
 			
-			if (i < (1<<22)/size)
+			if (i < (1<<25)/size)
 			{
 				wallTimes << endl;
 	#ifdef USE_OPENCL
