@@ -233,6 +233,12 @@ void FFTmojTest::testCase2()
 
 	sizefile.close();
 	maxsize = sizes.back();
+	int i = fft.lChunkSizeS(startSize);
+	sizes.push_back(i);
+	reverse(sizes.begin(), sizes.end());
+
+	//sizes._Reverse(sizes.begin(), sizes.end());
+
 	
 	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
 
@@ -497,22 +503,24 @@ void FFTmojTest::testCase14()
 	ofstream kExTimes(kExTimeFileName);
 #endif
 	
+	TIME_STFT TaskTimer test14timer("testCase14 timer started\n");
+	int toc = 0;
 	for (int i = 0; i < sizes.size(); i++)
 	{
 		size = sizes[i];
-		sizeacc += size;
-		cout << "Size: " << i << "/" << sizes.size() << "\n";
 
-		/*if (size == 800000)
-		{
-			fft.reset();
-		}*/
+		float progress = (float)sizeacc / (float)sizesum;
+		toc = (int)test14timer.elapsedTime();
+		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n", 
+			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
+		
+		sizeacc += size;
 	
 		ChunkData::Ptr data;
         data.reset(new ChunkData(size));
 		complex<float> *input = data->getCpuMemory();
 
-        ChunkData::Ptr result(new ChunkData(size));
+        //ChunkData::Ptr result(new ChunkData(size));
 		
 		for (int j = 0; j < size; j++)
 		{
@@ -543,43 +551,48 @@ void FFTmojTest::testCase14()
      // bake
      // baketime = getbaketime
 // }
-		wallTimes << size;
-#ifdef USE_OPENCL
-		kExTimes << size;
-#endif
 		try {
+			//fft.reset();
 		for (int j = 0; j < 100; j++)
 		{
 			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-			fft.compute(data, result, FftDirection_Forward);
+			fft.compute(data, data, FftDirection_Forward);
 			complex<float> *r = data->getCpuMemory();
 			float wallTime = wallTimer.elapsedTime();
-			/*
+			
 			if (j == 0)
 			{
+				wallTimes << size;
+			#ifdef USE_OPENCL
+				kExTimes << size;
+			#endif
+			/*
 				char resultsFileName[100];
 				sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
 				Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 				chunk->transform_data = result;
 				Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-			}
 			*/
+			}
+			
 			wallTimes << " " << wallTime;
-#ifdef USE_OPENCL
+		#ifdef USE_OPENCL
 			kExTimes << " " << fft.getKernelExecTime();
-#endif
+		#endif
+		}
+
+		if (i < sizes.size())
+		{
+			wallTimes << "\n";
+		#ifdef USE_OPENCL
+			kExTimes << "\n";
+		#endif
 		}
 		} 	catch( std::exception& e )
 		{
 			cout << e.what() << endl;
-		}
-		
-		if (size < maxsize)
-		{
-			wallTimes << "\n";
-#ifdef USE_OPENCL
-			kExTimes << "\n";
-#endif
+			fft.reset();
+			i--;
 		}
 	}
 
