@@ -75,10 +75,6 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define FFTINPLACE
 #define CL_PROFILING
 //#define ONLYPOWERSOF2
-#define startSize 1<<8 // 2 ^ 8, 750000
-#define endSize 1<<22 // 2 ^ 22
-
-#include "exceptionassert.h"
 
 #include "tfr/fftimplementation.h"
 #include "tfr/fftcufft.h"
@@ -92,6 +88,16 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #else
     #include "tfr/fftooura.h"
 #endif
+
+#define startSize 1<<8 // 2 ^ 8, 750000
+#ifdef USE_APPLE
+#define endSize 1<<21
+#else
+#define endSize 1<<22 // 2 ^ 22
+#endif
+
+#include "exceptionassert.h"
+
 
 //#include "sawe/project_header.h"
 #include <QtCore/QString>
