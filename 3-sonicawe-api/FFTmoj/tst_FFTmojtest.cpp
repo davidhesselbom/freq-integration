@@ -71,7 +71,6 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 //#define RUNTEST10
 //#define RUNTEST13
 #define RUNTEST14
-#define SEEDVAL 1
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
@@ -123,13 +122,14 @@ private Q_SLOTS:
 	void testCase2(); // Read sizes from file
 	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
-	void testCase14(); // Benchmark wall-time, bake time, kernel execution time
+	void testCase14(); // Benchmark wall-time, bake time, kernel execution time, store first FFT result
 
 private:
 	void getSizesFromFile(std::vector<int> *sizes, int *sumsizes);
 	string techlib;
 	int maxsize, sizesum;
 	std::vector<int> sizes;
+	int seedVal;
 
 #ifdef USE_OPENCL
     #ifdef USE_AMD
@@ -170,7 +170,8 @@ void FFTmojTest::initTestCase()
 #else
     techlib = "Ooura";
 #endif
-	sizesum = maxsize = 0;
+	sizesum = maxsize = seedVal = 0;
+	seedVal = time(0);
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -382,7 +383,7 @@ void FFTmojTest::testCase13()
 {
 #ifdef RUNTEST13
 // Create random data
-	srand(SEEDVAL);
+	srand(seedVal);
 	
 	float tempfloat;
 
@@ -487,7 +488,7 @@ void FFTmojTest::testCase14()
 {
 #ifdef RUNTEST14
 // Create random data
-	srand(SEEDVAL);
+	srand(seedVal);
 	
 	float tempfloat;
 	
@@ -529,7 +530,7 @@ void FFTmojTest::testCase14()
 			tempfloat = (float)rand()/(float)RAND_MAX;
 			input[j].imag(tempfloat);
 		}
-		/*
+		
 		if (size == maxsize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -538,7 +539,7 @@ void FFTmojTest::testCase14()
 			sprintf(randomfilename, "data/RandomData.h5");
 			Hdf5Chunk::saveChunk(randomfilename, *chunk );
 		}
-		*/
+		
 						
 // CLFFT {
      // walltimewithbake
@@ -551,47 +552,54 @@ void FFTmojTest::testCase14()
      // bake
      // baketime = getbaketime
 // }
-		try {
-			//fft.reset();
-		for (int j = 0; j < 100; j++)
+		try 
 		{
-			TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-			fft.compute(data, data, FftDirection_Forward);
-			complex<float> *r = data->getCpuMemory();
-			float wallTime = wallTimer.elapsedTime();
-			
-			if (j == 0)
+			//fft.reset();
+			for (int j = 0; j < 25; j++)
 			{
-				wallTimes << size;
-			#ifdef USE_OPENCL
-				kExTimes << size;
-			#endif
-			/*
-				char resultsFileName[100];
-				sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
-				Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-				chunk->transform_data = result;
-				Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-			*/
+				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+				fft.compute(data, data, FftDirection_Forward);
+				complex<float> *r = data->getCpuMemory();
+				float wallTime = wallTimer.elapsedTime();
+				
+				if (size >= startSize)
+				{
+					if (j == 0)
+					{
+						wallTimes << size;
+					#ifdef USE_OPENCL
+						kExTimes << size;
+					#endif
+					
+					char resultsFileName[100];
+					sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+					chunk->transform_data = data;
+					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+					
+					}
+					
+					wallTimes << " " << wallTime;
+					#ifdef USE_OPENCL
+					kExTimes << " " << fft.getKernelExecTime();
+					#endif
+				}
 			}
 			
-			wallTimes << " " << wallTime;
-		#ifdef USE_OPENCL
-			kExTimes << " " << fft.getKernelExecTime();
-		#endif
+			if (i < sizes.size() && size > startSize)
+			{
+				wallTimes << "\n";
+				#ifdef USE_OPENCL
+				kExTimes << "\n";
+				#endif
+			}
 		}
-
-		if (i < sizes.size())
-		{
-			wallTimes << "\n";
-		#ifdef USE_OPENCL
-			kExTimes << "\n";
-		#endif
-		}
-		} 	catch( std::exception& e )
+catch( std::exception& e )
 		{
 			cout << e.what() << endl;
+			#ifdef USE_AMD
 			fft.reset();
+			#endif
 			i--;
 		}
 	}
