@@ -493,9 +493,7 @@ void FFTmojTest::testCase13()
 void FFTmojTest::testCase14()
 {
 #ifdef RUNTEST14
-// Create random data
-	srand(seedVal);
-	
+// Create random data	
 	float tempfloat;
 	
 	int size = 0, sizeacc = 0;
@@ -528,6 +526,7 @@ void FFTmojTest::testCase14()
 		complex<float> *input = data->getCpuMemory();
 
         //ChunkData::Ptr result(new ChunkData(size));
+		srand(seedVal);
 		
 		for (int j = 0; j < size; j++)
 		{
@@ -536,7 +535,7 @@ void FFTmojTest::testCase14()
 			tempfloat = (float)rand()/(float)RAND_MAX;
 			input[j].imag(tempfloat);
 		}
-		
+
 		if (size == maxsize)
 		{
 			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -546,6 +545,8 @@ void FFTmojTest::testCase14()
 			Hdf5Chunk::saveChunk(randomfilename, *chunk );
 		}
 		
+		//cout << "\nData[10]: " << input[10] << endl;
+
 						
 // CLFFT {
      // walltimewithbake
@@ -576,13 +577,15 @@ void FFTmojTest::testCase14()
 					#ifdef USE_OPENCL
 						kExTimes << size;
 					#endif
-					
-					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
-					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-					chunk->transform_data = data;
-					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-					
+
+						//cout << "\nData[10]: " << input[10] << " " << r[10] << endl;
+						
+						char resultsFileName[100];
+						sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+						chunk->transform_data = data;
+						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+						
 					}
 					
 					wallTimes << " " << wallTime;
