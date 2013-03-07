@@ -43,7 +43,6 @@ void SaweTestClass::
     QVERIFY( p );
 
     connect( p->tools().render_view(), SIGNAL(postPaint()), this, SLOT(postPaint()), Qt::QueuedConnection);
-    connect( p->tools().render_view(), SIGNAL(finishedWorkSection()), this, SLOT(renderViewFinishedWorkSection()), Qt::QueuedConnection);
 }
 
 
@@ -103,6 +102,8 @@ void SaweTestClass::
     disconnect( p->tools().render_view(), SIGNAL(postPaint()), this, SLOT(postPaint()));
 
     projectOpened();
+
+    connect( p->tools().render_view(), SIGNAL(finishedWorkSection()), this, SLOT(renderViewFinishedWorkSection()), Qt::QueuedConnection);
 }
 
 
