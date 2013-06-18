@@ -60,6 +60,8 @@ protected:
     /**
       Toggles the timeline visibility action unless the timline
       visibility already equals param 'visible'.
+
+      Call after projectOpened has been called.
       */
     void timeLineVisibility(bool visible);
 
@@ -136,4 +138,31 @@ template<typename T> void TestClassArguments(ArgvectorT&) {}
         }                                                      \
     }
 
+// SAWETEST_MAIN with navigation overlay
+#define SAWETEST_MAIN_NORMAL(TestClass)                        \
+    int main(int argc, char *argv[])                           \
+    {                                                          \
+        ArgvectorT argvector(argc);                            \
+        for (int i=0; i<argc; ++i)                             \
+            argvector[i] = argv[i];                            \
+                                                               \
+        argvector.push_back("--use_saved_state=0");            \
+        argvector.push_back("--skip_update_check=1");          \
+                                                               \
+        TestClassArguments<TestClass>( argvector );            \
+        argc = argvector.size();                               \
+                                                               \
+        Sawe::Application application(argc, (char**)&argvector[0]); \
+        QTEST_DISABLE_KEYPAD_NAVIGATION                        \
+        try {                                                  \
+            TestClass tc;                                      \
+            return QTest::qExec(&tc, argc, (char**)&argvector[0]); \
+        }                                                      \
+        catch (const std::exception& x)                        \
+        {                                                      \
+            std::cout << "Error: " << vartype(x) << std::endl  \
+                      << "Details: " << x.what() << std::endl; \
+            return -1;                                         \
+        }                                                      \
+    }
 #endif // SAWETEST
