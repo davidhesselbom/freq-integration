@@ -1,0 +1,210 @@
+#include "sawe/project_header.h"
+
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+#include <QtCore/QCoreApplication>
+#include <iostream>
+#include <QGLWidget> // libsonicawe uses gl, so we need to include a gl header in this project as well
+#include <QTimer>
+#include <QImage>
+#include <QPainter>
+#include <QRgb>
+
+#include "sawetest.h"
+#include "compareimages.h"
+#include "tfr/stftdesc.h"
+#include "filters/normalizespectra.h"
+#include "heightmap/blockfilter.h"
+#include "sawe/configuration.h"
+
+#include "sawe/application.h"
+#include "ui/mainwindow.h"
+#include "ui_mainwindow.h"
+
+using namespace std;
+using namespace Tfr;
+using namespace Signal;
+
+class Lofargram : public SaweTestClass
+{
+    Q_OBJECT
+
+public:
+    Lofargram();
+
+private slots:
+    void initOpenAudio();
+    void openAudio();
+
+    void verifyResult();
+
+protected slots:
+    void saveImage();
+
+private:
+    virtual void projectOpened();
+    virtual void finishedWorkSection(int workSectionCounter);
+
+    string sourceAudio;
+
+    CompareImages compareImages;
+};
+
+
+Lofargram::
+        Lofargram()
+{
+    sourceAudio = Sawe::Configuration::input_file ();
+    if (sourceAudio.empty ())
+        sourceAudio = "music-1.ogg";
+
+    compareImages.limit = 50.;
+    compareImages.limit2 = 13.f;
+    compareImages.limitinf = 0.8f;
+}
+
+
+void Lofargram::
+        initOpenAudio()
+{
+    project( Sawe::Application::global_ptr()->slotOpen_file( sourceAudio ) );
+}
+
+
+void Lofargram::
+        openAudio()
+{
+    exec();
+}
+
+
+void Lofargram::
+        projectOpened()
+{
+    Tools::RenderView* view = project()->toolRepo().render_view();
+    ::Ui::MainWindow* actions = project()->mainWindow()->getItems();
+
+    /**
+     * Setup the transform settings
+     * (look in opencwt for an example)
+     */
+    // linear frequency scale (see Tools::RenderController::receiveLinearScale)
+    {
+        float fs = view->model->project()->head->head_source()->sample_rate();
+
+        Tfr::FreqAxis fa;
+        fa.setLinear( fs );
+
+        view->model->display_scale( fa );
+    }
+
+    // green (see Tools::RenderController::receiveSetGreenColors)
+    {
+        actions->actionSet_green_colors->trigger();
+    }
+
+    // amplitude (see Tools::RenderController::receiveSetYScale)
+    {
+        view->model->renderer->y_scale = 4;
+    }
+
+    // logarithmic amplitude (see Tools::RenderController::receiveSetGreenColors)
+    {
+        view->model->amplitude_axis ( Heightmap::AmplitudeAxis_Logarithmic );
+    }
+
+    // window size (see Tools::RenderController::receiveSetTimeFrequencyResolution)
+    {
+        write1(view->model->transform_descs ())->getParam<Tfr::StftDesc>()
+                .set_approximate_chunk_size( 1<<18 ); // 262144
+    }
+
+    // normalization (see TransformInfoForm)
+    {
+        Tfr::Filter* filter = view->model->block_filter ();
+        EXCEPTION_ASSERT( filter ); // There should always be a block filter in RenderModel
+
+        Heightmap::BlockFilter* blockfilter = dynamic_cast<Heightmap::BlockFilter*>( filter );
+        EXCEPTION_ASSERT( blockfilter ); // testing if this indirection works
+
+        Heightmap::StftToBlock* stftblock = dynamic_cast<Heightmap::StftToBlock*>( filter );
+        stftblock->freqNormalization = Tfr::pChunkFilter(
+                    new Filters::NormalizeSpectra(10));
+    }
+
+
+    /**
+     * Setup the camera settings
+     */
+
+    // Flip to left-handed coordinate system
+    {
+        actions->actionToggleOrientation->trigger();
+    }
+
+    // 1. Run a test without closing the application automatically
+    //    (no Sawe::Application::global_ptr()->slotClosed_window and
+    //     use SAWETEST_MAIN_NORMAL instead of SAWETEST_MAIN)
+    // 2. Move the camera to a desired position
+    // 3. Put a breakpoint in Tools::Command::NavigationCommand
+    // 4. Inspect model->_q/p/r and store the values here. Or use
+    //    as an inspiration for analytical values.
+    {
+        float length = view->model->project()->head->head_source()->length();
+        float fs = view->model->project()->head->head_source()->sample_rate ();
+        // Approximately show the entire signal up to 1500 Hz
+        view->model->_qx = length/2;
+        view->model->_qz = 1500/fs;
+        view->model->xscale = 4/view->model->_qx;
+        view->model->zscale = 4/view->model->_qz*1.95;
+    }
+
+
+    // Notify Sonic AWE that we've fiddled with a lot of transform settings.
+    {
+        view->emitTransformChanged ();
+    }
+
+
+    /**
+     * When rendering is complete finishedWorkSection will be called.
+     */
+    SaweTestClass::projectOpened();
+
+
+    // Remove the timeline
+    {
+        timeLineVisibility(false);
+    }
+}
+
+
+void Lofargram::
+        finishedWorkSection(int workSectionCounter)
+{
+    if (0!=workSectionCounter)
+        return;
+
+    QTimer::singleShot(1, this, SLOT(saveImage()));
+}
+
+
+void Lofargram::
+        saveImage()
+{
+    compareImages.saveImage( project() );
+
+    Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
+}
+
+
+void Lofargram::
+        verifyResult()
+{
+    compareImages.verifyResult();
+}
+
+
+SAWETEST_MAIN(Lofargram)
+
+#include "lofargram.moc"
