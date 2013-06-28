@@ -25,6 +25,8 @@ using namespace std;
 using namespace Tfr;
 using namespace Signal;
 
+int minhz=0, maxhz=1500;
+
 class Lofargram : public SaweTestClass
 {
     Q_OBJECT
@@ -154,9 +156,9 @@ void Lofargram::
         float fs = view->model->project()->head->head_source()->sample_rate ();
         // Approximately show the entire signal up to 1500 Hz
         view->model->_qx = length/2;
-        view->model->_qz = 1500/fs;
-        view->model->xscale = 4/view->model->_qx;
-        view->model->zscale = 4/view->model->_qz*1.95;
+        view->model->_qz = (maxhz+minhz)/fs;
+        view->model->xscale = 4.f/view->model->_qx;
+        view->model->zscale = 4.f/(maxhz-minhz)*fs*1.95;
     }
 
 
@@ -205,6 +207,37 @@ void Lofargram::
 }
 
 
-SAWETEST_MAIN(Lofargram)
+int main(int argc, char *argv[])
+{
+    ArgvectorT argvector;
+    for (int i=0; i<argc; ++i) {
+        if (0 == strncmp("--minhz=", argv[i], 8) && strlen(argv[i])>8)
+            minhz = atoi(argv[i]+8);
+        else if (0 == strncmp("--maxhz=", argv[i], 8) && strlen(argv[i])>8)
+            maxhz = atoi(argv[i]+8);
+        else
+            argvector.push_back ( argv[i] );
+    }
+
+    argvector.push_back("--use_saved_state=0");
+    argvector.push_back("--skip_update_check=1");
+    argvector.push_back("--skipfeature=overlay_navigation");
+
+    TestClassArguments<Lofargram>( argvector );
+    argc = argvector.size();
+
+    Sawe::Application application(argc, (char**)&argvector[0]);
+    QTEST_DISABLE_KEYPAD_NAVIGATION
+    try {
+        Lofargram tc;
+        return QTest::qExec(&tc, argc, (char**)&argvector[0]);
+    }
+    catch (const std::exception& x)
+    {
+        std::cout << "Error: " << vartype(x) << std::endl
+                  << "Details: " << x.what() << std::endl;
+        return -1;
+    }
+}
 
 #include "lofargram.moc"
