@@ -108,7 +108,7 @@ void Lofargram::
 
     // amplitude (see Tools::RenderController::receiveSetYScale)
     {
-        view->model->renderer->y_scale = 2.0;
+        view->model->renderer->y_scale = 2.0f;
     }
 
     // logarithmic amplitude (see Tools::RenderController::receiveSetGreenColors)
@@ -118,10 +118,7 @@ void Lofargram::
 
     // window size (see Tools::RenderController::receiveSetTimeFrequencyResolution)
     {
-        int hzspan = maxhz - minhz;
-
-        // hzspan=1500 -> chunk_size=16384. Yield larger chunk_size for smaller hzspan.
-        int chunk_size = min( 16384*4, 1 << (25 - floor_log2(hzspan)));
+        int chunk_size = 65536;
 
         write1(view->model->transform_descs ())->getParam<Tfr::StftDesc>()
                 .set_approximate_chunk_size( chunk_size );
@@ -143,7 +140,7 @@ void Lofargram::
 
         Heightmap::StftToBlock* stftblock = dynamic_cast<Heightmap::StftToBlock*>( filter );
         stftblock->freqNormalization = Tfr::pChunkFilter(
-                    new Filters::NormalizeSpectra(128));
+                    new Filters::NormalizeSpectra(96));
     }
 
 
