@@ -7,11 +7,8 @@
 ####################
 # Build settings
 
-qtfeatures = ../../../../qtfeatures/
-win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
-
 CONFIG += console
-CONFIG += $${qtfeatures}sawetestlib
+CONFIG += sawetestlib
 
 QT += testlib
 

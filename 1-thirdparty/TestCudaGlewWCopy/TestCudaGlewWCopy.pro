@@ -7,13 +7,10 @@
 ####################
 # Build settings
 
-qtfeatures = ../../../../qtfeatures/
-win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
-
 CONFIG += console
-CONFIG += $${qtfeatures}buildflags
-CONFIG += $${qtfeatures}cuda
-CONFIG += $${qtfeatures}sawelibs
+CONFIG += buildflags
+CONFIG += cuda
+CONFIG += sawelibs
 
 QT -= core
 QT -= gui

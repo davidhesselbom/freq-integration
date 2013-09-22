@@ -7,10 +7,7 @@
 ####################
 # Build settings
 
-end2end = ../
-win32:end2end = "..\\"
-
-CONFIG += $${end2end}end2end
+include(../end2end.pri)
 
 
 ####################

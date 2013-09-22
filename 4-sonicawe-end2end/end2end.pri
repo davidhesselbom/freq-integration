@@ -1,15 +1,12 @@
 ####################
 # base on common lib
-
+message(doing it)
 DEFINES += end2end
 
 TEMPLATE = app
 win32:TEMPLATE = vcapp
 
-qtfeatures = $${end2end}../../../qtfeatures/
-win32:qtfeatures = "$${end2end}..\\..\\..\\qtfeatures\\"
-
-CONFIG += $${qtfeatures}sawetestlib
+CONFIG += sawetestlib
 CONFIG += console
 
 QT += testlib

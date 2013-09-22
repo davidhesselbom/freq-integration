@@ -7,10 +7,7 @@
 ####################
 # Build settings
 
-qtfeatures = ../../../../qtfeatures/
-win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
-
-CONFIG += $${qtfeatures}indietest
+CONFIG += indietest
 
 
 ####################
