@@ -1,5 +1,5 @@
 #include "sawe/project_header.h"
-#include <redirectstdout.h>
+#include "redirectstdout.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
