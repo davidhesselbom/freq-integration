@@ -6,7 +6,7 @@ DEFINES += end2end
 TEMPLATE = app
 win32:TEMPLATE = vcapp
 
-CONFIG += sawetestlib
+CONFIG += c++11 sawetestlib
 CONFIG += console
 
 QT += testlib

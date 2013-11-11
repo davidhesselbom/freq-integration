@@ -7,7 +7,7 @@
 ####################
 # Build settings
 
-CONFIG += indietest
+CONFIG += c++11 indietest
 
 
 ####################

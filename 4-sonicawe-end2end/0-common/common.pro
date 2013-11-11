@@ -8,7 +8,7 @@
 # Build settings
 
 CONFIG += console
-CONFIG += sawetestlib
+CONFIG += c++11 sawetestlib
 
 QT += testlib
 

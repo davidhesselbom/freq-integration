@@ -8,7 +8,7 @@
 # Build settings
 
 CONFIG += console
-CONFIG += buildflags
+CONFIG += c++11 buildflags
 CONFIG += cuda
 
 QT -= core

@@ -8,7 +8,7 @@
 # Build settings
 
 CONFIG += indietest
-CONFIG += sawetestlib
+CONFIG += c++11 sawetestlib
 
 
 ####################
