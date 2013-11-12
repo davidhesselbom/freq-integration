@@ -40,7 +40,7 @@ void SaweTestClass::
     project_ = p;
     project_is_opened_ = false;
 
-    QVERIFY( p );
+    QVERIFY( p.get() );
 
     connect( p->tools().render_view(), SIGNAL(postPaint()), this, SLOT(postPaint()), Qt::QueuedConnection);
 }
