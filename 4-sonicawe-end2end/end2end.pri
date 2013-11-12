@@ -5,6 +5,8 @@ DEFINES += end2end
 TEMPLATE = app
 win32:TEMPLATE = vcapp
 
+macx: QMAKE_INFO_PLIST = disableretina.plist
+
 CONFIG += c++11 sawetestlib
 CONFIG += console
 
