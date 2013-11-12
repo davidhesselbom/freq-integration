@@ -84,7 +84,7 @@ void CropSelection::
 
     Tools::RenderView* view = project()->toolRepo().render_view();
     Tools::RenderModel* model = view->model;
-    model->renderer->y_scale = 0.00597602082f;
+    model->renderer->render_settings.y_scale = 0.00597602082f;
 
     SaweTestClass::projectOpened();
 }

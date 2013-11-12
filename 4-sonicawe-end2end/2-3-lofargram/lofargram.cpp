@@ -93,7 +93,7 @@ void Lofargram::
      */
     // linear frequency scale (see Tools::RenderController::receiveLinearScale)
     {
-        float fs = view->model->project()->head->head_source()->sample_rate();
+        float fs = view->model->project()->extent ().sample_rate.get ();
 
         Tfr::FreqAxis fa;
         fa.setLinear( fs );
@@ -108,7 +108,7 @@ void Lofargram::
 
     // amplitude (see Tools::RenderController::receiveSetYScale)
     {
-        view->model->renderer->y_scale = 2.0f;
+        view->model->renderer->render_settings.y_scale = 2.0f;
     }
 
     // logarithmic amplitude (see Tools::RenderController::receiveSetGreenColors)
@@ -132,14 +132,11 @@ void Lofargram::
 
     // normalization (see TransformInfoForm)
     {
-        Tfr::Filter* filter = view->model->block_filter ();
-        EXCEPTION_ASSERT( filter ); // There should always be a block filter in RenderModel
+        Heightmap::TfrMappings::StftBlockFilterParams::Ptr stft_params =
+                view->model->project ()->tools ().render_model.get_stft_block_filter_params ();
+        EXCEPTION_ASSERT( stft_params );
 
-        Heightmap::BlockFilter* blockfilter = dynamic_cast<Heightmap::BlockFilter*>( filter );
-        EXCEPTION_ASSERT( blockfilter ); // testing if this indirection works
-
-        Heightmap::StftToBlock* stftblock = dynamic_cast<Heightmap::StftToBlock*>( filter );
-        stftblock->freqNormalization = Tfr::pChunkFilter(
+        write1(stft_params)->freq_normalization = Tfr::pChunkFilter(
                     new Filters::NormalizeSpectra(96));
     }
 
@@ -161,8 +158,8 @@ void Lofargram::
     // 4. Inspect model->_q/p/r and store the values here. Or use
     //    as an inspiration for analytical values.
     {
-        float length = view->model->project()->head->head_source()->length();
-        float fs = view->model->project()->head->head_source()->sample_rate ();
+        float length = view->model->project()->length ();
+        float fs = view->model->project()->extent ().sample_rate.get ();
         // Approximately show the entire signal up to 1500 Hz
         view->model->_qx = length/2;
         view->model->_qz = (maxhz+minhz)/fs;
