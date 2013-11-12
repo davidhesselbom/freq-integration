@@ -29,18 +29,14 @@ namespace QTest {
     template<>
     bool qCompare( const Interval &t1, const Intervals &t2, const char *actual, const char *expected, const char *file, int line )
     {
-        return (t1 == t2)
-            ? compare_helper(true, "COMPARE()", file, line)
-            : compare_helper(false, "Compared values are not the same",
+        return compare_helper(t1 == t2, "Compared values are not the same",
                              toString(t1), toString(t2), actual, expected, file, line);
     }
 
     template<>
     bool qCompare( const Intervals &t1, const Interval &t2, const char *actual, const char *expected, const char *file, int line )
     {
-        return (t1 == t2)
-            ? compare_helper(true, "COMPARE()", file, line)
-            : compare_helper(false, "Compared values are not the same",
+        return compare_helper(t1 == t2, "Compared values are not the same",
                              toString(t1), toString(t2), actual, expected, file, line);
     }
 
@@ -376,19 +372,19 @@ void IntervalsTest::
     Intervals I(100, 300);
     const Intervals J = I;
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I ^= Interval(150,150);
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I ^= Interval(50,50);
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I ^= Intervals(50,150);
     QCOMPARE( I, Interval(50,100) | Interval(150,300) );
-    QCOMPARE( I.toString(), "{2# [50, 100)50# [150, 300)150#}" );
+    QCOMPARE( I.toString(), "{[50, 100)50#, [150, 300)150#}" );
 }
 
 
@@ -398,15 +394,15 @@ void IntervalsTest::
     Intervals I(100, 300);
     const Intervals J = I;
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I -= Interval(150,150);
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I |= Interval(50,50);
     QCOMPARE( I, J );
-    QCOMPARE( I.toString(), "{[100, 300)200#}" );
+    QCOMPARE( I.toString(), "[100, 300)200#" );
     QCOMPARE( I.spannedInterval().toString(), "[100, 300)200#" );
     I &= Intervals(150,150);
     QCOMPARE( I, Intervals() );
