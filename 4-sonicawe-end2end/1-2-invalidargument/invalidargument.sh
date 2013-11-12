@@ -6,6 +6,9 @@ outputname=./argcheck
 if [ -n "$(uname -s | grep MINGW32_NT)" ]; then
     outputname=release/argcheck.exe
 fi
+if [ -n "$(uname -s | grep Darwin)" ]; then
+    outputname=argcheck.app/Contents/MacOS/argcheck
+fi
 echo 2
 [ -f $outputname ]
 echo 3
