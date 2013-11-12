@@ -1,6 +1,5 @@
 ####################
 # base on common lib
-message(doing it)
 DEFINES += end2end
 
 TEMPLATE = app

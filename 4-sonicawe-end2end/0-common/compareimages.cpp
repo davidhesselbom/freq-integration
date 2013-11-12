@@ -54,6 +54,7 @@ CompareImages::
     diffFileName = QString("%1%2-diff.png").arg(testName).arg(target);
 
     QFile::remove(resultFileName);
+    QFile::remove(diffFileName);
 }
 
 

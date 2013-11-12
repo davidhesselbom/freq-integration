@@ -13,7 +13,7 @@ tst_blocktest
 moc_*.cpp
 *.orig
 *.remote
-*.user
+*.pro.user*
 Makefile
 Makefile.Debug
 Makefile.Release
