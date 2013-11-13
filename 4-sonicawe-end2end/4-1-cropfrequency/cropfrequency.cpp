@@ -104,7 +104,7 @@ static void dragMouseEvent(QWidget *widget, Qt::MouseButton button,
     QSpontaneKeyEvent::setSpontaneous(&me);
     if (!qApp->notify(widget, &me)) {
         QString warning = QString::fromLatin1("Mouse event \"%1\" not accepted by receiving widget");
-        QTest::qWarn(warning.arg(QString::fromLatin1("MouseDrag")).toAscii().data());
+        QTest::qWarn(warning.arg("MouseDrag").toStdString ().c_str ());
     }
 }
 
