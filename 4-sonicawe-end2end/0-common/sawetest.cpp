@@ -5,7 +5,9 @@
 
 #include "ui/mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "TaskTimer.h"
+#include "prettifysegfault.h"
 
 #include <QtTest/QtTest>
 #include <QGLWidget>
@@ -14,7 +16,9 @@ SaweTestClass::
         SaweTestClass()
             : work_sections_( 0 ),
               project_is_opened_( false )
-{}
+{
+    PrettifySegfault::setup ();
+}
 
 
 Sawe::pProject SaweTestClass::
