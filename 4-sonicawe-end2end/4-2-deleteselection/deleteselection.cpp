@@ -89,10 +89,10 @@ void DeleteSelection::
 
     Tools::RenderView* view = project()->toolRepo().render_view();
     Tools::RenderModel* model = view->model;
-    float fs = model->renderer->render_settings.y_scale;
-    QVERIFY(qFuzzyCompare(fs, 0.00559899537f));
+    float y_scale_0 = model->renderer->render_settings.y_scale;
+    QVERIFY(qFuzzyCompare(y_scale_0, 0.00559899537f));
 
-    model->renderer->y_scale = 0.00597602082f;
+    model->renderer->render_settings.y_scale = 0.00597602082f;
 }
 
 
