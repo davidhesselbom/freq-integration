@@ -1,0 +1,114 @@
+#include "sawe/project_header.h"
+
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+#include <QtCore/QCoreApplication>
+#include <iostream>
+#include <QGLWidget> // libsonicawe uses gl, so we need to include a gl header in this project as well
+#include <QTimer>
+#include <QImage>
+#include <QPainter>
+#include <QRgb>
+
+#include "sawetest.h"
+#include "compareimages.h"
+
+#include "sawe/application.h"
+#include "ui/mainwindow.h"
+#include "ui_mainwindow.h"
+
+using namespace std;
+using namespace Tfr;
+using namespace Signal;
+
+class OpenAudio : public SaweTestClass
+{
+    Q_OBJECT
+
+public:
+    OpenAudio();
+
+private slots:
+    void initOpenAudio();
+    void openAudio();
+
+    void verifyResult();
+
+protected slots:
+    void saveImage();
+
+private:
+    virtual void projectOpened();
+    virtual void finishedWorkSection(int workSectionCounter);
+
+    QString sourceAudio;
+
+    CompareImages compareImages;
+};
+
+
+OpenAudio::
+        OpenAudio()
+{
+    sourceAudio = "testwav.wav";
+
+    compareImages.limit = 80.;
+    compareImages.limit2 = 80.f;
+    compareImages.limitinf = 1.1f;
+}
+
+
+void OpenAudio::
+        initOpenAudio()
+{
+    project( Sawe::Application::global_ptr()->slotOpen_file( sourceAudio.toStdString() ) );
+}
+
+
+void OpenAudio::
+        openAudio()
+{
+    exec();
+}
+
+
+void OpenAudio::
+        projectOpened()
+{
+    TaskTimer tt("%s", __FUNCTION__);
+
+    project()->mainWindow()->getItems()->actionTransform_Waveform->trigger();
+
+    SaweTestClass::projectOpened();
+}
+
+
+void OpenAudio::
+        finishedWorkSection(int workSectionCounter)
+{
+    if (0!=workSectionCounter)
+        return;
+
+    QTimer::singleShot(1, this, SLOT(saveImage()));
+}
+
+
+void OpenAudio::
+        saveImage()
+{
+    compareImages.saveImage( project() );
+
+    Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
+}
+
+
+void OpenAudio::
+        verifyResult()
+{
+    compareImages.verifyResult();
+}
+
+
+SAWETEST_MAIN(OpenAudio)
+
+#include "waveform.moc"
