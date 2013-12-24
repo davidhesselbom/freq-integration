@@ -70,11 +70,12 @@ void ReadWriteWav::
         TaskTimer t2("Writing audiofile '%s' while copying source '%s'",
                  output.c_str(), source.c_str());
 
-        Signal::pOperation wavwrite(new Adapters::WriteWav(output));
-        wavwrite->source(audiofile);
-        wavwrite->invalidate_samples(wavwrite->getInterval());
+        Adapters::WriteWav* w = 0;
+        Signal::Operation::Ptr wavwrite(w = new Adapters::WriteWav(output));
 
-        wavwrite->readFixedLength(audiofile->getInterval());
+        Signal::pBuffer b = audiofile->readFixedLength(audiofile->getInterval());
+        w->invalidate_samples(b->getInterval());
+        w->put(b);
     }
 
     TaskTimer t2("Reading output '%s' and verifying against original input '%s'",
@@ -112,11 +113,11 @@ void ReadWriteWav::
     }
 
     Adapters::WriteWav* w = 0;
-    Signal::pOperation wavwrite(w = new Adapters::WriteWav(normalizedOutput));
+    Signal::Operation::Ptr wavwrite(w = new Adapters::WriteWav(normalizedOutput));
 
-    wavwrite->source(audiofile);
-    wavwrite->invalidate_samples(audiofile->getInterval());
-    wavwrite->readFixedLength(audiofile->getInterval());
+    Signal::pBuffer b = audiofile->readFixedLength(audiofile->getInterval());
+    w->invalidate_samples(audiofile->getInterval());
+    w->put(b);
 
     for (int i=0; i<4; ++i)
     {
