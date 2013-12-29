@@ -14,7 +14,6 @@
 #include "compareimages.h"
 #include "tfr/stftdesc.h"
 #include "filters/normalizespectra.h"
-#include "heightmap/blockfilter.h"
 #include "sawe/configuration.h"
 
 #include "sawe/application.h"
