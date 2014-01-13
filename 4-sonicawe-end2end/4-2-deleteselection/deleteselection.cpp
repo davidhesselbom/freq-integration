@@ -47,6 +47,7 @@ private:
     QString sourceAudio;
 
     CompareImages compareImages;
+    QTestEventList tel;
 };
 
 
@@ -114,7 +115,7 @@ void DeleteSelection::
 
             QPoint p(658, 241);
 
-            QTestEventList tel;
+            tel.clear ();
             tel.addMouseMove(p, 100);
             tel.addMouseClick(Qt::LeftButton, 0, p, 100);
             tel.simulate(glwidget);
