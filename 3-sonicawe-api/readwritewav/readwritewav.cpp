@@ -7,6 +7,7 @@
 
 #include "adapters/audiofile.h"
 #include "adapters/writewav.h"
+#include "demangle.h"
 
 using namespace std;
 

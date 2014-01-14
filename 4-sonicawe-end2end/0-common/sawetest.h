@@ -2,6 +2,8 @@
 #define SAWETEST
 
 #include "sawe/project.h"
+#include "demangle.h"
+#include <exception>
 
 #include <QObject>
 #include <boost/weak_ptr.hpp>

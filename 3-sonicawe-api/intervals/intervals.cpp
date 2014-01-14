@@ -1,11 +1,12 @@
 #include "sawe/project_header.h"
+#include "signal/intervals.h"
+#include "demangle.h"
+
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
 #include <iostream>
 #include <QGLWidget> // libsonicawe uses gl, so we need to include a gl header in this project as well
-
-#include "signal/intervals.h"
 
 Q_DECLARE_METATYPE(Signal::Intervals)
 

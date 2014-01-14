@@ -1,6 +1,7 @@
 #include <iostream>
 #include "adapters/hdf5.h"
 #include "signal/buffer.h"
+#include "demangle.h"
 
 using namespace std;
 using namespace Signal;

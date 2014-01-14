@@ -1,5 +1,8 @@
 #pragma once
 
+#include "demangle.h"
+#include <exception>
+
 #ifdef QT_GUI_LIB
 #define Application QApplication
 #else
