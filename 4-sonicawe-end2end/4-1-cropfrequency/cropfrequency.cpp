@@ -47,6 +47,7 @@ private:
     QString sourceAudio;
 
     CompareImages compareImages;
+    QTestEventList tel;
 };
 
 
@@ -132,6 +133,8 @@ private:
 void CropFrequency::
         finishedWorkSection(int finishedWorkSections)
 {
+    TaskInfo ti("finishedWorkSection %d", finishedWorkSections);
+
     switch (finishedWorkSections)
     {
     case 0:
@@ -145,7 +148,7 @@ void CropFrequency::
 
             ui->actionFrequencySelection->trigger();
 
-            QTestEventList tel;
+            tel.clear();
             tel.addMousePress(Qt::LeftButton, 0, QPoint(661, 174), 100);
             for (int y=174; y<=204; y++)
             {
@@ -159,7 +162,7 @@ void CropFrequency::
             }
 
             {
-                TaskInfo ti("Triggering actionActionRemove_selection");
+                TaskInfo ti("Triggering actionCropSelection");
 
                 ui->actionCropSelection->trigger();
             }
