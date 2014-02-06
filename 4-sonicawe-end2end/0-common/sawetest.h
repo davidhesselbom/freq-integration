@@ -121,6 +121,7 @@ template<typename T> void TestClassArguments(ArgvectorT&) {}
                                                                \
         argvector.push_back("--use_saved_state=0");            \
         argvector.push_back("--skip_update_check=1");          \
+        argvector.push_back("--skipfeature=timeline_dock");    \
         argvector.push_back("--skipfeature=overlay_navigation");\
         argvector.push_back("--skipfeature=transform_info");   \
                                                                \
