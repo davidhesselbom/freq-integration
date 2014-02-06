@@ -78,13 +78,19 @@ void TestCommon::
         finishedWorkSection(int /*workSectionCounter*/)
 {
     has_done_work_ = true;
+
+    if (has_called_slot_)
+      {
+        compare.saveImage( project() );
+        Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
+      }
 }
 
 
 void TestCommon::
         compareImagesTestResult()
 {
-    TaskTimer ti("%s::%s", vartype(*this).c_str(), __FUNCTION__, NULL);
+    TaskTimer ti("%s::%s", vartype(*this).c_str(), __FUNCTION__);
 
     compare.verifyResult();
 }
@@ -109,13 +115,15 @@ void TestCommon::
 void TestCommon::
         hasCalledSlotTestSlot()
 {
-    TaskTimer ti("%s::%s", vartype(*this).c_str(), __FUNCTION__, NULL);
+    TaskTimer ti("%s::%s", vartype(*this).c_str(), __FUNCTION__);
 
     has_called_slot_ = true;
 
-    compare.saveImage( project() );
-
-    Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
+    if (has_done_work_)
+      {
+        compare.saveImage( project() );
+        Sawe::Application::global_ptr()->slotClosed_window( project()->mainWindowWidget() );
+      }
 }
 
 SAWETEST_MAIN(TestCommon)

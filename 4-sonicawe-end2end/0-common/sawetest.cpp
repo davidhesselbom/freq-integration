@@ -24,7 +24,9 @@ SaweTestClass::
 Sawe::pProject SaweTestClass::
         project()
 {
-    return Sawe::pProject(project_);
+    Sawe::pProject p = project_.lock ();
+    EXCEPTION_ASSERT(p);
+    return p;
 }
 
 
