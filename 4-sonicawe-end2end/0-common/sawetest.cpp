@@ -40,6 +40,21 @@ void SaweTestClass::
             disconnect( oldp->tools().render_view(), SIGNAL(finishedWorkSection()), this, SLOT(renderViewFinishedWorkSection()));
         }
     }
+    else
+    {
+        // Close any other project currently open by the application
+        // (application_cmd_options.cpp opens a project by default, but that
+        // might not be the project we want to run in the current test)
+        Sawe::Application* app = Sawe::Application::global_ptr ();
+        std::set<boost::weak_ptr<Sawe::Project>> projects = app->projects ();
+        for (boost::weak_ptr<Sawe::Project> wp : projects) {
+            Sawe::pProject pl = wp.lock ();
+            if (pl && pl != p) {
+                TaskTimer tt("Closing previous project");
+                app->slotClosed_window( pl->mainWindow () );
+            }
+        }
+    }
 
     project_ = p;
     project_is_opened_ = false;
