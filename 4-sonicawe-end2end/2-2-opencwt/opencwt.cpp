@@ -54,7 +54,7 @@ OpenCwt::
 
     compareImages.limit = 200.;
     compareImages.limit2 = 1.6;
-    compareImages.limitinf = 0.15;
+    compareImages.limitinf = 0.25;
 }
 
 
