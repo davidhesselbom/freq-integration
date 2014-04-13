@@ -30,7 +30,7 @@ NetworkAccessTest::NetworkAccessTest()
 #include "mappedvbo.h"
 #endif
 
-void mappedVboTestCuda( DataStorage<float>::Ptr datap );
+void mappedVboTestCuda( DataStorage<float>::ptr datap );
 
 void NetworkAccessTest::initTestCase()
 {
@@ -50,7 +50,7 @@ void NetworkAccessTest::testCase1()
 #endif
     pVbo vbo( new Vbo(1024, GL_ARRAY_BUFFER, GL_STATIC_DRAW));
     MappedVbo<float> mapping(vbo, DataStorageSize(256,1,1));
-    DataStorage<float>::Ptr copy( new DataStorage<float>(*mapping.data) );
+    DataStorage<float>::ptr copy( new DataStorage<float>(*mapping.data) );
 	mappedVboTestCuda( copy );
     QVERIFY2(true, "Failure");
 #endif

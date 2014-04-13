@@ -83,7 +83,7 @@ void OpenProject::
     Tools::RenderView* view = projectAudio->toolRepo().render_view();
     Tools::RenderModel* model = view->model;
 
-    model->renderer->y_scale = 0.01f;
+    model->renderer->render_settings.y_scale = 0.01f;
     model->_qx = 63.4565;
     model->_qy = 0;
     model->_qz = 0.37;

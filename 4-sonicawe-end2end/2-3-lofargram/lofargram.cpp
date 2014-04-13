@@ -119,23 +119,23 @@ void Lofargram::
     {
         int chunk_size = 65536;
 
-        write1(view->model->transform_descs ())->getParam<Tfr::StftDesc>()
+        view->model->transform_descs ()->getParam<Tfr::StftDesc>()
                 .set_approximate_chunk_size( chunk_size );
     }
 
     // averaging (see TransformInfoForm)
     {
-        write1(view->model->transform_descs ())->getParam<Tfr::StftDesc>()
+        view->model->transform_descs ()->getParam<Tfr::StftDesc>()
                 .averaging( 1 );
     }
 
     // normalization (see TransformInfoForm)
     {
-        Heightmap::TfrMappings::StftBlockFilterParams::Ptr stft_params =
+        Heightmap::TfrMappings::StftBlockFilterParams::ptr stft_params =
                 view->model->project ()->tools ().render_model.get_stft_block_filter_params ();
         EXCEPTION_ASSERT( stft_params );
 
-        write1(stft_params)->freq_normalization = Tfr::pChunkFilter(
+        stft_params->freq_normalization = Tfr::pChunkFilter(
                     new Filters::NormalizeSpectra(96));
     }
 

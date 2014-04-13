@@ -37,7 +37,7 @@ MappedVboTestNoCopy::MappedVboTestNoCopy()
 #include "CudaException.h"
 #endif
 
-void mappedVboTestCuda( DataStorage<float>::Ptr datap );
+void mappedVboTestCuda( DataStorage<float>::ptr datap );
 
 void MappedVboTestNoCopy::initTestCase()
 {

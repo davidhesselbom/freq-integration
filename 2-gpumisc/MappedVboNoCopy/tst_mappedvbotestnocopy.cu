@@ -16,7 +16,7 @@ __global__ void mappedVboTestKernel(
 }
 
 
-void mappedVboTestCuda( DataStorage<float>::Ptr datap )
+void mappedVboTestCuda( DataStorage<float>::ptr datap )
 {
     cudaPitchedPtrType<float> data(CudaGlobalStorage::ReadOnly<2>( datap ).getCudaPitchedPtr());
 

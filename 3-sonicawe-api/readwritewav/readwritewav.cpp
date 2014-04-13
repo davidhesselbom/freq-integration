@@ -66,13 +66,13 @@ void ReadWriteWav::
         QFAIL("You need to run the script source.m to create some source data first");
     }
 
-    Adapters::Audiofile::Ptr audiofile(new Adapters::Audiofile(source));
+    Adapters::Audiofile::ptr audiofile(new Adapters::Audiofile(source));
     {
         TaskTimer t2("Writing audiofile '%s' while copying source '%s'",
                  output.c_str(), source.c_str());
 
         Adapters::WriteWav* w = 0;
-        Signal::Operation::Ptr wavwrite(w = new Adapters::WriteWav(output));
+        Signal::Operation::ptr wavwrite(w = new Adapters::WriteWav(output));
 
         Signal::pBuffer b = audiofile->readFixedLength(audiofile->getInterval());
         w->invalidate_samples(b->getInterval());
@@ -82,7 +82,7 @@ void ReadWriteWav::
     TaskTimer t2("Reading output '%s' and verifying against original input '%s'",
              output.c_str(), source.c_str());
 
-    Adapters::Audiofile::Ptr audiofile2(new Adapters::Audiofile(output));
+    Adapters::Audiofile::ptr audiofile2(new Adapters::Audiofile(output));
 
     QCOMPARE( audiofile2->getInterval(), audiofile->getInterval() );
 
@@ -107,14 +107,14 @@ void ReadWriteWav::
     try
     {
     TaskTimer ti("ReadWriteWav::writeNormalized");
-    Adapters::Audiofile::Ptr audiofile(new Adapters::Audiofile(source));
+    Adapters::Audiofile::ptr audiofile(new Adapters::Audiofile(source));
     if (!QFile::exists(source.c_str()))
     {
         QFAIL("You need to run the script source.m to create some source data first");
     }
 
     Adapters::WriteWav* w = 0;
-    Signal::Operation::Ptr wavwrite(w = new Adapters::WriteWav(normalizedOutput));
+    Signal::Operation::ptr wavwrite(w = new Adapters::WriteWav(normalizedOutput));
 
     Signal::pBuffer b = audiofile->readFixedLength(audiofile->getInterval());
     w->invalidate_samples(audiofile->getInterval());
@@ -126,9 +126,9 @@ void ReadWriteWav::
 
         w->normalize(0 == i%2);
 
-        Adapters::Audiofile::Ptr normalizedAudiofile(new Adapters::Audiofile(normalizedOutput));
+        Adapters::Audiofile::ptr normalizedAudiofile(new Adapters::Audiofile(normalizedOutput));
         std::string goldname = w->normalize() ? normalizedGold : source;
-        Adapters::Audiofile::Ptr normalizedAudiofileGold(new Adapters::Audiofile(goldname));
+        Adapters::Audiofile::ptr normalizedAudiofileGold(new Adapters::Audiofile(goldname));
         if (!QFile::exists(normalizedOutput.c_str()))
         {
             QFAIL(QString("Couldn't write '%1'")
