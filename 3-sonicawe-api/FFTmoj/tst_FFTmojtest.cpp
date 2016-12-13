@@ -525,7 +525,9 @@ void FFTmojTest::testCase14()
         data.reset(new ChunkData(size));
 		complex<float> *input = data->getCpuMemory();
 
-        //ChunkData::Ptr result(new ChunkData(size));
+#ifndef USE_OPENCL
+        ChunkData::Ptr result(new ChunkData(size));
+#endif
 		srand(seedVal);
 		
 		for (int j = 0; j < size; j++)
@@ -565,8 +567,13 @@ void FFTmojTest::testCase14()
 			for (int j = 0; j < 25; j++)
 			{
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+#ifdef USE_OPENCL
 				fft.compute(data, data, FftDirection_Forward);
 				complex<float> *r = data->getCpuMemory();
+#else
+				fft.compute(data, result, FftDirection_Forward);
+				complex<float> *r = result->getCpuMemory();
+#endif
 				float wallTime = wallTimer.elapsedTime();
 				
 				if (size >= startSize)
@@ -583,7 +590,11 @@ void FFTmojTest::testCase14()
 						char resultsFileName[100];
 						sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+#ifdef USE_OPENCL
 						chunk->transform_data = data;
+#else
+						chunk->transform_data = result;
+#endif
 						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 						
 					}
