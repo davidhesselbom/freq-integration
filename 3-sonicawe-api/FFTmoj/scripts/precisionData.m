@@ -8,7 +8,6 @@ function precisionData(lib)
 	PrecisionData = getPrecision(lib, RandomData);
 	saveto = sprintf("../data/%sPrecision.dat", lib);
 	save(saveto, "PrecisionData");
-	end
 end
 
 function [precision] = getPrecision(lib, RandomData)
