@@ -13,6 +13,7 @@ win32:qtfeatures = "..\\..\\..\\..\\qtfeatures\\"
 CONFIG += $${qtfeatures}indietest
 CONFIG += $${qtfeatures}sawetestlib
 
+DESTDIR = release/cpu
 
 ####################
 # Source code
@@ -62,6 +63,7 @@ useopenclamdapple {
 CONFIG += useopencl
 DEFINES += USE_OPENCL
 OBJECTS_DIR = $${OBJECTS_DIR}openclamdapple/
+DESTDIR = release/opencl/amdapple
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
@@ -91,6 +93,7 @@ useopenclamdamd {
 DEFINES += USE_OPENCL
 DEFINES += USE_AMD
 OBJECTS_DIR = $${OBJECTS_DIR}openclamdamd/
+DESTDIR = release/opencl/amdamd
 
 macx: LIBS += -framework OpenCL
 !macx: LIBS += -lOpenCL
