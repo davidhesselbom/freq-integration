@@ -74,7 +74,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
-//#define ONLYPOWERSOF2
+#define ONLYPOWERSOF2
 
 #include "tfr/fftimplementation.h"
 #include "tfr/fftcufft.h"
@@ -202,7 +202,11 @@ void FFTmojTest::testCase1()
 		outputfile << i;
 		if (i != endSize)
 			outputfile << "\n";
-		i = fft.sChunkSizeG(i);
+#ifdef ONLYPOWERSOF2
+			i = i * 2;
+#else
+			i = fft.sChunkSizeG(i);
+#endif
 	}
 
 	outputfile.close();
