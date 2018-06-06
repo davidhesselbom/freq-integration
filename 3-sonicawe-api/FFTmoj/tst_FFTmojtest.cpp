@@ -70,7 +70,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define READSIZEVECTOR
 //#define RUNTEST10
 //#define RUNTEST13
-//#define RUNTEST14
+#define RUNBENCHMARK
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
@@ -129,7 +129,7 @@ private Q_SLOTS:
 	void readSizeVector();
 	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
-	void testCase14(); // Benchmark wall-time, bake time, kernel execution time, store first FFT result.
+	void runBenchmark();
 
 private:
 	void getSizesFromFile(std::vector<int> *sizes, int *sumsizes);
@@ -178,8 +178,9 @@ void FFTmojTest::initTestCase()
 #else
     techlib = "Ooura";
 #endif
-	sizesum = maxsize = seedVal = run = 0;
+	sizesum = maxsize = seedVal = 0;
 	seedVal = time(0);
+	run = 1;
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -551,32 +552,33 @@ void FFTmojTest::testCase13()
 #endif
 }
 
-void FFTmojTest::testCase14()
+void FFTmojTest::runBenchmark()
 {
-#ifdef RUNTEST14
+	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
+#ifdef RUNBENCHMARK
 // Create random data	
 	float tempfloat;
 	
 	int size = 0, sizeacc = 0;
 	
 	char wallTimeFileName[100];
-	sprintf(wallTimeFileName, "data/%sWallTimes.dat", techlib.c_str());
+	sprintf(wallTimeFileName, "data/%s/run%d/WallTimes.dat", techlib.c_str(), run);
 	ofstream wallTimes(wallTimeFileName);
 
 #ifdef USE_OPENCL
 	char kExTimeFileName[100];
-	sprintf(kExTimeFileName, "data/%sKExTimes.dat", techlib.c_str());
+	sprintf(kExTimeFileName, "data/%s/run%d/KernelExecutionTimes.dat", techlib.c_str(), run);
 	ofstream kExTimes(kExTimeFileName);
 #endif
 	
-	TIME_STFT TaskTimer test14timer("testCase14 timer started\n");
+	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
 	int toc = 0;
 	for (int i = 0; i < sizes.size(); i++)
 	{
 		size = sizes[i];
 
 		float progress = (float)sizeacc / (float)sizesum;
-		toc = (int)test14timer.elapsedTime();
+		toc = (int)runBenchmarkTimer.elapsedTime();
 		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n", 
 			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
 		
@@ -649,7 +651,7 @@ void FFTmojTest::testCase14()
 						//cout << "\nData[10]: " << input[10] << " " << r[10] << endl;
 						
 						char resultsFileName[100];
-						sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+						sprintf(resultsFileName, "data/%s/run%d/Results%d.h5", techlib.c_str(), run, size);
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
 						chunk->transform_data = data;
