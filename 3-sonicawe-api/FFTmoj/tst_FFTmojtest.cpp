@@ -66,11 +66,11 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 
 #define TIME_STFT
 
-#define RUNTEST1
-#define RUNTEST2
+//#define RUNTEST1
+//#define RUNTEST2
 //#define RUNTEST10
 //#define RUNTEST13
-#define RUNTEST14
+//#define RUNTEST14
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
@@ -124,11 +124,12 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
+	void generateRandomData();
     void testCase1(); // Get sizes in an interval for current library and store in file
 	void testCase2(); // Read sizes from file
 	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
-	void testCase14(); // Benchmark wall-time, bake time, kernel execution time, store first FFT result
+	void testCase14(); // Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 
 private:
 	void getSizesFromFile(std::vector<int> *sizes, int *sumsizes);
@@ -182,6 +183,56 @@ void FFTmojTest::initTestCase()
 
 void FFTmojTest::cleanupTestCase()
 {
+}
+
+void FFTmojTest::generateRandomData()
+{
+	// Make 5 random vectors with the seeds 1..5,
+	// store them in data/RandomFile#.h5,
+	// but don't overwrite if exist
+	
+	cout << "About to generate random data..." << endl;
+	
+	for (int i = 1; i <= 5; i++)
+	{
+		char randomfilename[100];
+		sprintf(randomfilename, "data/RandomData%d.h5", i);
+
+		cout << "Generating " << randomfilename << "... " << flush;
+		
+		ifstream infile(randomfilename);
+		if (infile)
+		{
+			cout << "already exists, skipping" << endl;
+			continue;
+		}
+
+		srand(i);
+
+		int maxSize = 1 << 22;
+		
+		float tempfloatr;
+			
+		ChunkData::Ptr data;
+		data.reset(new ChunkData(maxSize));
+		complex<float> *p = data->getCpuMemory();
+
+		for (int j = 0; j < maxSize; j++)
+		{
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].real(tempfloatr);
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].imag(tempfloatr);
+		}
+		
+		Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
+
+		chunk->transform_data = data;
+
+		Hdf5Chunk::saveChunk( randomfilename, *chunk);
+		
+		cout << "done." << endl;
+	}
 }
 
 void FFTmojTest::testCase1()
