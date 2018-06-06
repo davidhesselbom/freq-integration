@@ -601,12 +601,14 @@ void FFTmojTest::runBenchmark()
 		sprintf(randomfilename, "data/RandomData%d.h5", run);
 
 		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-		// TODO: This doesn't actually work
-		// TODO: It also needs doing once for every iteration if "inplace"! ... right?
-		memcpy(&input, &(randomchunk->transform_data), size);
-		
-		//cout << "\nData[10]: " << input[10] << endl;
-
+		complex<float> *random = randomchunk->transform_data->getCpuMemory();
+		//TODO: Can't seem to get this right, so...
+		//memcpy(&input, &random, size);
+		//TODO: Redo for each iteration if inplace
+		for (int j = 0; j < size; j++)
+		{
+			input[j] = random[j];
+		}
 						
 // CLFFT {
      // walltimewithbake
