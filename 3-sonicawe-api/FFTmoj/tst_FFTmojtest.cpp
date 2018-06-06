@@ -579,6 +579,15 @@ void FFTmojTest::runBenchmark()
 	
 	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
 	int toc = 0;
+
+	char randomfilename[100];
+	sprintf(randomfilename, "data/RandomData%d.h5", run);
+
+	cout << "Loading random data from " << randomfilename << "... " << flush;
+	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+	complex<float> *random = randomchunk->transform_data->getCpuMemory();
+	cout << "done." << endl;
+
 	for (int i = 0; i < sizes.size(); i++)
 	{
 		size = sizes[i];
@@ -597,11 +606,6 @@ void FFTmojTest::runBenchmark()
 #ifndef USE_OPENCL
         ChunkData::Ptr result(new ChunkData(size));
 #endif
-		char randomfilename[100];
-		sprintf(randomfilename, "data/RandomData%d.h5", run);
-
-		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-		complex<float> *random = randomchunk->transform_data->getCpuMemory();
 		
 // CLFFT {
      // walltimewithbake
@@ -651,9 +655,6 @@ void FFTmojTest::runBenchmark()
 					#ifdef USE_OPENCL
 						kExTimes << size;
 					#endif
-
-						//cout << "\nData[10]: " << input[10] << " " << r[10] << endl;
-						
 						char resultsFileName[100];
 						sprintf(resultsFileName, "data/%s/run%d/Results%d.h5", techlib.c_str(), run, size);
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
