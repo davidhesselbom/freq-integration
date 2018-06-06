@@ -602,14 +602,7 @@ void FFTmojTest::runBenchmark()
 
 		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
 		complex<float> *random = randomchunk->transform_data->getCpuMemory();
-		//TODO: Can't seem to get this right, so...
-		//memcpy(&input, &random, size);
-		//TODO: Redo for each iteration if inplace
-		for (int j = 0; j < size; j++)
-		{
-			input[j] = random[j];
-		}
-						
+		
 // CLFFT {
      // walltimewithbake
           // fft.compute
@@ -626,6 +619,20 @@ void FFTmojTest::runBenchmark()
 			//fft.reset();
 			for (int j = 0; j < 25; j++)
 			{
+#ifndef USE_OPENCL
+				// Unless inplace, this only needs doing the first iteration.
+				if (j == 0)
+				{
+#endif
+				//TODO: Can't seem to get this right, so using a loop instead...
+				//memcpy(&input, &random, size);
+				for (int k = 0; k < size; k++)
+				{
+					input[k] = random[k];
+				}
+#ifndef USE_OPENCL
+				}
+#endif
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 #ifdef USE_OPENCL
 				fft.compute(data, data, FftDirection_Forward);
