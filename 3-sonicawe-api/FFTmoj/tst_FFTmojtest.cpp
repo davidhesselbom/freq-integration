@@ -601,6 +601,8 @@ void FFTmojTest::runBenchmark()
 		sprintf(randomfilename, "data/RandomData%d.h5", run);
 
 		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+		// TODO: This doesn't actually work
+		// TODO: It also needs doing once for every iteration if "inplace"! ... right?
 		memcpy(&input, &(randomchunk->transform_data), size);
 		
 		//cout << "\nData[10]: " << input[10] << endl;
