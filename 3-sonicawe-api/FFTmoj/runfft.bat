@@ -1,28 +1,32 @@
 @ECHO OFF
 
+mkdir data
+mkdir data\Ooura
+mkdir data\Ooura\run1
+mkdir data\Ooura\run2
+mkdir data\Ooura\run3
+mkdir data\Ooura\run4
+mkdir data\Ooura\run5
+mkdir data\ClFft
+mkdir data\ClFft\run1
+mkdir data\ClFft\run2
+mkdir data\ClFft\run3
+mkdir data\ClFft\run4
+mkdir data\ClFft\run5
+mkdir data\ClAmdFft
+mkdir data\ClAmdFft\run1
+mkdir data\ClAmdFft\run2
+mkdir data\ClAmdFft\run3
+mkdir data\ClAmdFft\run4
+mkdir data\ClAmdFft\run5
+
 REM set path
 PATH=C:\Qt\4.8.4\bin;C:\sonicawe\lib\sonicawe-winlib\sonicawe_snapshot_win32_base;C:\sonicawe\src\release;%PATH%
 
-REM call FFTmoj, process output with Octave, rename output
-call release\FFTmoj.exe
-call C:\octave\3.2.4_gcc-4.4.0\bin\octave.exe runPrecision.m
-move data\OouraPrecision.dat data\OouraPrecision1.dat
-move data\OouraWallTimes.dat data\OouraWallTimes1.dat
-call release\FFTmoj.exe
-call C:\octave\3.2.4_gcc-4.4.0\bin\octave.exe runPrecision.m
-move data\OouraPrecision.dat data\OouraPrecision2.dat
-move data\OouraWallTimes.dat data\OouraWallTimes2.dat
-call release\FFTmoj.exe
-call C:\octave\3.2.4_gcc-4.4.0\bin\octave.exe runPrecision.m
-move data\OouraPrecision.dat data\OouraPrecision3.dat
-move data\OouraWallTimes.dat data\OouraWallTimes3.dat
-call release\FFTmoj.exe
-call C:\octave\3.2.4_gcc-4.4.0\bin\octave.exe runPrecision.m
-move data\OouraPrecision.dat data\OouraPrecision4.dat
-move data\OouraWallTimes.dat data\OouraWallTimes4.dat
-call release\FFTmoj.exe
-call C:\octave\3.2.4_gcc-4.4.0\bin\octave.exe runPrecision.m
-move data\OouraPrecision.dat data\OouraPrecision5.dat
-move data\OouraWallTimes.dat data\OouraWallTimes5.dat
-
+REM call FFTmoj 5 times
+call release\cpu\FFTmoj.exe
+call release\cpu\FFTmoj.exe
+call release\cpu\FFTmoj.exe
+call release\cpu\FFTmoj.exe
+call release\cpu\FFTmoj.exe
 pause
