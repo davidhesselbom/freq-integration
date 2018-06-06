@@ -564,7 +564,6 @@ void FFTmojTest::runBenchmark()
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 #ifdef RUNBENCHMARK
 // Create random data	
-	float tempfloat;
 	
 	int size = 0, sizeacc = 0;
 	
@@ -598,15 +597,11 @@ void FFTmojTest::runBenchmark()
 #ifndef USE_OPENCL
         ChunkData::Ptr result(new ChunkData(size));
 #endif
-		srand(seedVal);
-		
-		for (int j = 0; j < size; j++)
-		{
-			tempfloat = (float)rand()/(float)RAND_MAX;
-			input[j].real(tempfloat);
-			tempfloat = (float)rand()/(float)RAND_MAX;
-			input[j].imag(tempfloat);
-		}
+		char randomfilename[100];
+		sprintf(randomfilename, "data/RandomData%d.h5", run);
+
+		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+		memcpy(&input, &(randomchunk->transform_data), size);
 		
 		//cout << "\nData[10]: " << input[10] << endl;
 
