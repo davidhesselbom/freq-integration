@@ -66,7 +66,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 
 #define TIME_STFT
 
-//#define RUNTEST1
+#define GENERATESIZEVECTOR
 //#define RUNTEST2
 //#define RUNTEST10
 //#define RUNTEST13
@@ -125,7 +125,7 @@ private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
 	void generateRandomData();
-    void testCase1(); // Get sizes in an interval for current library and store in file
+	void generateSizeVector();
 	void testCase2(); // Read sizes from file
 	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
@@ -235,9 +235,10 @@ void FFTmojTest::generateRandomData()
 	}
 }
 
-void FFTmojTest::testCase1()
+void FFTmojTest::generateSizeVector()
 {
-#ifdef RUNTEST1
+	// Get sizes in an interval for current library and store in file
+#ifdef GENERATESIZEVECTOR
 	char sizefilename[100];
 	sprintf(sizefilename, "data/%sSizes.dat", techlib.c_str());
 	ofstream outputfile(sizefilename);
