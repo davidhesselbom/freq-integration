@@ -600,15 +600,6 @@ void FFTmojTest::runBenchmark()
 			tempfloat = (float)rand()/(float)RAND_MAX;
 			input[j].imag(tempfloat);
 		}
-
-		if (size == maxsize)
-		{
-			Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-			chunk->transform_data = data;
-			char randomfilename[100];
-			sprintf(randomfilename, "data/RandomData.h5");
-			Hdf5Chunk::saveChunk(randomfilename, *chunk );
-		}
 		
 		//cout << "\nData[10]: " << input[10] << endl;
 
