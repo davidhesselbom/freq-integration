@@ -240,7 +240,7 @@ void FFTmojTest::generateSizeVector()
 	// Get sizes in an interval for current library and store in file
 #ifdef GENERATESIZEVECTOR
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%sSizes.dat", techlib.c_str());
+	sprintf(sizefilename, "data/%s/Sizes.dat", techlib.c_str());
 	ofstream outputfile(sizefilename);
 
 	int sumSize = 0;
@@ -274,7 +274,7 @@ void FFTmojTest::testCase2()
 
 #ifdef RUNTEST2
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%sSizes.dat", techlib.c_str());
+	sprintf(sizefilename, "data/%s/Sizes.dat", techlib.c_str());
 	ifstream sizefile(sizefilename);
 
 	int size = 0, prevsize = 0;
