@@ -299,7 +299,7 @@ void FFTmojTest::readSizeVector()
 	sizefile.close();
 	maxsize = sizes.back();
 #ifdef ONLYPOWERSOF2
-	int i = i / 2;
+	int i = startSize / 2;
 #else
 	int i = fft.lChunkSizeS(startSize);
 #endif
