@@ -24,9 +24,14 @@ REM set path
 PATH=C:\Qt\4.8.4\bin;C:\sonicawe\lib\sonicawe-winlib\sonicawe_snapshot_win32_base;C:\sonicawe\src\release;%PATH%
 
 REM call FFTmoj 5 times
+echo 1 > argv.txt
 call release\cpu\FFTmoj.exe
+echo 2 > argv.txt
 call release\cpu\FFTmoj.exe
+echo 3 > argv.txt
 call release\cpu\FFTmoj.exe
+echo 4 > argv.txt
 call release\cpu\FFTmoj.exe
+echo 5 > argv.txt
 call release\cpu\FFTmoj.exe
 pause

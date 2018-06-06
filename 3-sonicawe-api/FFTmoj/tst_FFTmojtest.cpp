@@ -181,6 +181,13 @@ void FFTmojTest::initTestCase()
 	sizesum = maxsize = seedVal = 0;
 	seedVal = time(0);
 	run = 1;
+	
+	// So, this is dumb, but without argv, what do I do instead?
+	char argvfilename[100];
+	sprintf(argvfilename, "argv.txt");
+	ifstream argvfile(argvfilename);
+	// TODO: Error handling...
+	argvfile >> run; //argv tells the program which of the 5 runs to run
 }
 
 void FFTmojTest::cleanupTestCase()
