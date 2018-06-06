@@ -67,7 +67,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define TIME_STFT
 
 #define GENERATESIZEVECTOR
-//#define RUNTEST2
+#define READSIZEVECTOR
 //#define RUNTEST10
 //#define RUNTEST13
 //#define RUNTEST14
@@ -126,7 +126,7 @@ private Q_SLOTS:
     void cleanupTestCase();
 	void generateRandomData();
 	void generateSizeVector();
-	void testCase2(); // Read sizes from file
+	void readSizeVector();
 	void testCase10(); // , create input vectors, run fft, store results in files.
 	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
 	void testCase14(); // Benchmark wall-time, bake time, kernel execution time, store first FFT result.
@@ -137,6 +137,7 @@ private:
 	int maxsize, sizesum;
 	std::vector<int> sizes;
 	int seedVal;
+	int run;
 
 #ifdef USE_OPENCL
     #ifdef USE_AMD
@@ -177,7 +178,7 @@ void FFTmojTest::initTestCase()
 #else
     techlib = "Ooura";
 #endif
-	sizesum = maxsize = seedVal = 0;
+	sizesum = maxsize = seedVal = run = 0;
 	seedVal = time(0);
 }
 
@@ -269,10 +270,10 @@ void FFTmojTest::generateSizeVector()
 #endif
 }
 
-void FFTmojTest::testCase2()
+void FFTmojTest::readSizeVector()
 {
-
-#ifdef RUNTEST2
+	// Read sizes from file
+#ifdef READSIZEVECTOR
 	char sizefilename[100];
 	sprintf(sizefilename, "data/%s/Sizes.dat", techlib.c_str());
 	ifstream sizefile(sizefilename);
