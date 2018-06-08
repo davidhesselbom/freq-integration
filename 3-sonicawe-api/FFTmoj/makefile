@@ -41,6 +41,7 @@ $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)):
 
 clean: $(interp,clean,$(LIBRARIES))
 
+# TODO: This only removes WallTimes, should remove all of e.g. Ooura, including folder
 cleanOoura:
 	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
 cleanClFft:
