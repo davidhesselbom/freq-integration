@@ -496,8 +496,9 @@ void FFTmojTest::runBatchTest()
 				fft.reset();
 			}*/
 		
+#ifdef USE_AMD
 			fft.setBatchSize(i);
-
+#endif
 			ChunkData::Ptr data;
 			data.reset(new ChunkData(size*i));
 			complex<float> *input = data->getCpuMemory();
