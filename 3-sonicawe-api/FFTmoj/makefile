@@ -9,8 +9,8 @@ interp5=$(call interp,$1,$(call interp4,$2,$3,$4,$5))
 interp6=$(call interp,$1,$(call interp5,$2,$3,$4,$5,$6))
 
 SEPARATOR=/
-SETS=1
-RUNS=1
+SETS=1 2 3
+RUNS=1 2 3 4 5
 BENCHMARKS=Wall
 LIBRARIES=Ooura
 PLATFORMS=$(MACHINE)
@@ -20,6 +20,4 @@ TARGETS=$(call interp6,$(LIBRARYTARGETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(
 all: $(TARGETS)
 	
 $(TARGETS):
-	@mkdir -p $(dir $@)
-	@echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt
-	./runfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
