@@ -12,12 +12,30 @@ SEPARATOR=/
 SETS=1 2 3
 RUNS=1 2 3 4 5
 BENCHMARKS=Wall
-LIBRARIES=Ooura
+LIBRARIES=Ooura ClFft ClAmdFft
 PLATFORMS=$(MACHINE)
-LIBRARYTARGETS=$(call interp6,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR)set,$(SETS),$(SEPARATOR),$(LIBRARIES))
-TARGETS=$(call interp6,$(LIBRARYTARGETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
+FIRSTPARTOFTARGETS=$(call interp5,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR)set,$(SETS),$(SEPARATOR))
+LASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
 
-all: $(TARGETS)
-	
-$(TARGETS):
+all:
+	@echo "Pick a library: Ooura, ClFft, or ClAmdFft."
+
+.PHONY: $(LIBRARIES) clean $(interp,clean,$(LIBRARIES))
+
+Ooura: $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
+ClFft: $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
+ClAmdFft: $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+
+# TODO: FFTmoj should refuse to run if source is newer than binary.
+$(call interp3,$(FIRSTPARTOFTARGETS),$(LIBRARIES),$(LASTPARTOFTARGETS)):
+	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
+	
+clean: $(interp,clean,$(LIBRARIES))
+
+cleanOoura:
+	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
+cleanClFft:
+	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
+cleanClAmdFft:
+	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
