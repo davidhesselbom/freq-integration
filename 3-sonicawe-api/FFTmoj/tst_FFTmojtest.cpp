@@ -138,6 +138,9 @@ private:
 	std::vector<int> sizes;
 	int seedVal;
 	int run;
+	string machine;
+	int rerun;
+	string mode;
 
 #ifdef USE_OPENCL
     #ifdef USE_AMD
@@ -187,7 +190,11 @@ void FFTmojTest::initTestCase()
 	sprintf(argvfilename, "argv.txt");
 	ifstream argvfile(argvfilename);
 	// TODO: Error handling...
-	argvfile >> run; //argv tells the program which of the 5 runs to run
+	argvfile >> machine; // which machine we're on
+	// TODO: "rerun" is a terrible name
+	argvfile >> rerun; // which of the 3 reruns to run
+	argvfile >> run; // which of the 5 runs to run
+	argvfile >> mode; // whether to run benchmarks or batches
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -457,6 +464,8 @@ void FFTmojTest::testCase10()
 void FFTmojTest::testCase13()
 {
 #ifdef RUNTEST13
+	if (mode != "batch")
+		return;
 // Create random data
 	srand(seedVal);
 	
@@ -564,7 +573,9 @@ void FFTmojTest::runBenchmark()
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 #ifdef RUNBENCHMARK
 // Create random data	
-	
+	if (mode != "bench")
+		return;
+
 	int size = 0, sizeacc = 0;
 	
 	char wallTimeFileName[100];
