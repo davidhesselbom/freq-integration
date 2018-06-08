@@ -1,3 +1,5 @@
+SHELL := bash
+
 containing = $(foreach word,$2,$(if $(findstring $1,$(word)),$(word)))
 not-containing = $(foreach word,$2,$(if $(findstring $1,$(word)),,$(word)))
 interp = $(foreach word,$1,$(addprefix $(word),$2))
@@ -23,3 +25,12 @@ $(TARGETS):
 	@echo $(subst set,,$(word 3,$(subst /, ,$@))) >> argv.txt
 	@echo $(subst run,,$(word 5,$(subst /, ,$@))) >> argv.txt
 	@echo "bench" >> argv.txt
+	if [ "Ooura" = "$(word 4,$(subst /, ,$@))" ]; then \
+		runfft.bat; \
+	fi
+	if [ "ClFft" = "$(word 4,$(subst /, ,$@))" ]; then \
+		runclfft.bat; \
+	fi
+	if [ "ClAmdFft" = "$(word 4,$(subst /, ,$@))" ]; then \
+		runclamdfft.bat; \
+	fi
