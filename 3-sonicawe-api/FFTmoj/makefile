@@ -20,13 +20,24 @@ LASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMAR
 all:
 	@echo "Pick a library: Ooura, ClFft, or ClAmdFft."
 
-.PHONY: $(LIBRARIES) clean $(interp,clean,$(LIBRARIES))
+.PHONY: $(LIBRARIES) clean $(interp,clean,$(LIBRARIES)) $(interp,$(LIBRARIES),Binary)
 
-Ooura: $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
-ClFft: $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
-ClAmdFft: $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+# TODO: Check that FFTmoj.exe is newer than tst_FFTmojtest.cpp, else $(error blar)
+OouraBinary:
+	
 
-# TODO: FFTmoj should refuse to run if source is newer than binary.
+ClFftBinary:
+	
+
+ClAmdFftBinary:
+	
+
+Ooura: OouraBinary $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
+ClFft: ClFftBinary $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
+ClAmdFft: ClAmdFftBinary $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+
+release/cpu/FFTmoj.exe: tst_FFTmojtest.cpp
+
 $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)):
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
