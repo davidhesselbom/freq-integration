@@ -184,6 +184,9 @@ void FFTmojTest::initTestCase()
 	sizesum = maxsize = seedVal = 0;
 	seedVal = time(0);
 	run = 1;
+	rerun = 1;
+	machine = "Rampage";
+	mode = "bench";
 	
 	// So, this is dumb, but without argv, what do I do instead?
 	char argvfilename[100];
