@@ -1,37 +1,50 @@
 @ECHO OFF
 
 mkdir data
-mkdir data\Ooura
-mkdir data\Ooura\run1
-mkdir data\Ooura\run2
-mkdir data\Ooura\run3
-mkdir data\Ooura\run4
-mkdir data\Ooura\run5
-mkdir data\ClFft
-mkdir data\ClFft\run1
-mkdir data\ClFft\run2
-mkdir data\ClFft\run3
-mkdir data\ClFft\run4
-mkdir data\ClFft\run5
-mkdir data\ClAmdFft
-mkdir data\ClAmdFft\run1
-mkdir data\ClAmdFft\run2
-mkdir data\ClAmdFft\run3
-mkdir data\ClAmdFft\run4
-mkdir data\ClAmdFft\run5
+mkdir data\Rampage\rerun1\Ooura
+mkdir data\Rampage\rerun1\Ooura\run1
+mkdir data\Rampage\rerun1\Ooura\run2
+mkdir data\Rampage\rerun1\Ooura\run3
+mkdir data\Rampage\rerun1\Ooura\run4
+mkdir data\Rampage\rerun1\Ooura\run5
+mkdir data\Rampage\rerun2\Ooura
+mkdir data\Rampage\rerun2\Ooura\run1
+mkdir data\Rampage\rerun2\Ooura\run2
+mkdir data\Rampage\rerun2\Ooura\run3
+mkdir data\Rampage\rerun2\Ooura\run4
+mkdir data\Rampage\rerun2\Ooura\run5
+mkdir data\Rampage\rerun1\ClFft
+mkdir data\Rampage\rerun1\ClFft\run1
+mkdir data\Rampage\rerun1\ClFft\run2
+mkdir data\Rampage\rerun1\ClFft\run3
+mkdir data\Rampage\rerun1\ClFft\run4
+mkdir data\Rampage\rerun1\ClFft\run5
+mkdir data\Rampage\rerun2\ClFft
+mkdir data\Rampage\rerun2\ClFft\run1
+mkdir data\Rampage\rerun2\ClFft\run2
+mkdir data\Rampage\rerun2\ClFft\run3
+mkdir data\Rampage\rerun2\ClFft\run4
+mkdir data\Rampage\rerun2\ClFft\run5
+mkdir data\Rampage\rerun1\ClAmdFft
+mkdir data\Rampage\rerun1\ClAmdFft\run1
+mkdir data\Rampage\rerun1\ClAmdFft\run2
+mkdir data\Rampage\rerun1\ClAmdFft\run3
+mkdir data\Rampage\rerun1\ClAmdFft\run4
+mkdir data\Rampage\rerun1\ClAmdFft\run5
+mkdir data\Rampage\rerun2\ClAmdFft
+mkdir data\Rampage\rerun2\ClAmdFft\run1
+mkdir data\Rampage\rerun2\ClAmdFft\run2
+mkdir data\Rampage\rerun2\ClAmdFft\run3
+mkdir data\Rampage\rerun2\ClAmdFft\run4
+mkdir data\Rampage\rerun2\ClAmdFft\run5
 
 REM set path
 PATH=C:\Qt\4.8.4\bin;C:\sonicawe\lib\sonicawe-winlib\sonicawe_snapshot_win32_base;C:\sonicawe\lib\sonicawe-winlib\clamdfft;C:\sonicawe\src\release;%PATH%
 
 REM call FFTmoj 5 times
-echo 1 > argv.txt
-call release\opencl\amdamd\FFTmoj.exe
-echo 2 > argv.txt
-call release\opencl\amdamd\FFTmoj.exe
-echo 3 > argv.txt
-call release\opencl\amdamd\FFTmoj.exe
-echo 4 > argv.txt
-call release\opencl\amdamd\FFTmoj.exe
-echo 5 > argv.txt
+echo Rampage > argv.txt
+echo 2 >> argv.txt
+echo 3 >> argv.txt
+echo bench >> argv.txt
 call release\opencl\amdamd\FFTmoj.exe
 pause

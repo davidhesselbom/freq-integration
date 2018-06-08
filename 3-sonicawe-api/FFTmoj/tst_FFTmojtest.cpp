@@ -198,6 +198,7 @@ void FFTmojTest::initTestCase()
 	argvfile >> rerun; // which of the 3 reruns to run
 	argvfile >> run; // which of the 5 runs to run
 	argvfile >> mode; // whether to run benchmarks or batches
+	cout << machine << " " << rerun << " " << run << " " << mode << endl;
 }
 
 void FFTmojTest::cleanupTestCase()
@@ -215,7 +216,7 @@ void FFTmojTest::generateRandomData()
 	for (int i = 1; i <= 5; i++)
 	{
 		char randomfilename[100];
-		sprintf(randomfilename, "data/RandomData%d.h5", i);
+		sprintf(randomfilename, "data/%s/rerun%d/RandomData%d.h5", machine.c_str(), rerun, i);
 
 		cout << "Generating " << randomfilename << "... " << flush;
 		
@@ -259,7 +260,7 @@ void FFTmojTest::generateSizeVector()
 	// Get sizes in an interval for current library and store in file
 #ifdef GENERATESIZEVECTOR
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/Sizes.dat", techlib.c_str());
+	sprintf(sizefilename, "data/%s/rerun%d/%s/Sizes.dat", machine.c_str(), rerun, techlib.c_str());
 	ofstream outputfile(sizefilename);
 
 	int sumSize = 0;
@@ -293,7 +294,7 @@ void FFTmojTest::readSizeVector()
 	// Read sizes from file
 #ifdef READSIZEVECTOR
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/Sizes.dat", techlib.c_str());
+	sprintf(sizefilename, "data/%s/rerun%d/%s/Sizes.dat", machine.c_str(), rerun, techlib.c_str());
 	ifstream sizefile(sizefilename);
 
 	int size = 0, prevsize = 0;
@@ -583,12 +584,12 @@ void FFTmojTest::runBenchmark()
 	int size = 0, sizeacc = 0;
 	
 	char wallTimeFileName[100];
-	sprintf(wallTimeFileName, "data/%s/run%d/WallTimes.dat", techlib.c_str(), run);
+	sprintf(wallTimeFileName, "data/%s/rerun%d/%s/run%d/WallTimes.dat", machine.c_str(), rerun, techlib.c_str(), run);
 	ofstream wallTimes(wallTimeFileName);
 
 #ifdef USE_OPENCL
 	char kExTimeFileName[100];
-	sprintf(kExTimeFileName, "data/%s/run%d/KernelExecutionTimes.dat", techlib.c_str(), run);
+	sprintf(kExTimeFileName, "data/%s/rerun%d/%s/run%d/KernelExecutionTimes.dat", machine.c_str(), rerun, techlib.c_str(), run);
 	ofstream kExTimes(kExTimeFileName);
 #endif
 	
@@ -596,7 +597,7 @@ void FFTmojTest::runBenchmark()
 	int toc = 0;
 
 	char randomfilename[100];
-	sprintf(randomfilename, "data/RandomData%d.h5", run);
+	sprintf(randomfilename, "data/%s/rerun%d/RandomData%d.h5", machine.c_str(), rerun, run);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
@@ -671,7 +672,7 @@ void FFTmojTest::runBenchmark()
 						kExTimes << size;
 					#endif
 						char resultsFileName[100];
-						sprintf(resultsFileName, "data/%s/run%d/Results%d.h5", techlib.c_str(), run, size);
+						sprintf(resultsFileName, "data/%s/rerun%d/%s/run%d/Results%d.h5", machine.c_str(), rerun, techlib.c_str(), run, size);
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
 						chunk->transform_data = data;
