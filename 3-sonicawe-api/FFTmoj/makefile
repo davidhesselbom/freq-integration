@@ -1,4 +1,4 @@
-SHELL := "C:\Program Files\Git\git-bash"
+SHELL = "C:\Program Files\Git\bin\bash"
 
 containing = $(foreach word,$2,$(if $(findstring $1,$(word)),$(word)))
 not-containing = $(foreach word,$2,$(if $(findstring $1,$(word)),,$(word)))
@@ -22,19 +22,18 @@ all:
 
 .PHONY: $(LIBRARIES) clean $(interp,clean,$(LIBRARIES)) $(interp,$(LIBRARIES),Binary)
 
-# TODO: Check that FFTmoj.exe is newer than tst_FFTmojtest.cpp, else $(error blar)
-OouraBinary:
-	
+release/cpu/FFTmoj.exe: tst_FFTmojtest.cpp
+	$(error Ooura binary needs to be rebuilt!)
 
-ClFftBinary:
-	
+release/opencl/amdapple/FFTmoj.exe: tst_FFTmojtest.cpp
+	$(error ClFft binary needs to be rebuilt!)
 
-ClAmdFftBinary:
-	
+release/opencl/amdamd/FFTmoj.exe: tst_FFTmojtest.cpp
+	$(error ClAmdFft binary needs to be rebuilt!)
 
-Ooura: OouraBinary $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
-ClFft: ClFftBinary $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
-ClAmdFft: ClAmdFftBinary $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+Ooura: release/cpu/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
+ClFft: release/opencl/amdapple/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
+ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
 
 release/cpu/FFTmoj.exe: tst_FFTmojtest.cpp
 
@@ -50,7 +49,11 @@ $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)):
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclamdfft.bat
 
-clean: $(interp,clean,$(LIBRARIES))
+clean: $(call interp,clean,$(LIBRARIES))
+	
+
+cleanall:
+	rm -rf $(call interp,data$(SEPARATOR),$(PLATFORMS))
 
 # TODO: This only removes WallTimes, should remove all of e.g. Ooura, including folder
 cleanOoura:
