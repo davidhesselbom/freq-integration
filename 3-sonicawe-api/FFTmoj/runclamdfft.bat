@@ -21,7 +21,7 @@ mkdir data\ClAmdFft\run4
 mkdir data\ClAmdFft\run5
 
 REM set path
-PATH=C:\Qt\4.8.4\bin;C:\sonicawe\lib\sonicawe-winlib\sonicawe_snapshot_win32_base;C:\sonicawe\src\release;%PATH%
+PATH=C:\Qt\4.8.4\bin;C:\sonicawe\lib\sonicawe-winlib\sonicawe_snapshot_win32_base;C:\sonicawe\lib\sonicawe-winlib\clamdfft;C:\sonicawe\src\release;%PATH%
 
 REM call FFTmoj 5 times
 echo 1 > argv.txt
