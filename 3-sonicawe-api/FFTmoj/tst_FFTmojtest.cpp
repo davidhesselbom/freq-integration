@@ -69,7 +69,7 @@ Gör på samma sätt ett annat test som kollar vilken batchstorlek som ger bäst wal
 #define GENERATESIZEVECTOR
 #define READSIZEVECTOR
 //#define RUNTEST10
-//#define RUNTEST13
+#define RUNBATCHTEST
 #define RUNBENCHMARK
 #define PLACENESS "inplace"
 #define FFTINPLACE
@@ -128,7 +128,7 @@ private Q_SLOTS:
 	void generateSizeVector();
 	void readSizeVector();
 	void testCase10(); // , create input vectors, run fft, store results in files.
-	void testCase13(); // Benchmark, for all batch sizes of a given size, the kernel execution time.
+	void runBatchTest();
 	void runBenchmark();
 
 private:
@@ -461,9 +461,10 @@ void FFTmojTest::testCase10()
 #endif
 }
 
-void FFTmojTest::testCase13()
+void FFTmojTest::runBatchTest() 
 {
-#ifdef RUNTEST13
+	// Benchmark, for all batch sizes of a given size, the kernel execution time.
+#ifdef RUNBATCHTEST
 	if (mode != "batch")
 		return;
 // Create random data
