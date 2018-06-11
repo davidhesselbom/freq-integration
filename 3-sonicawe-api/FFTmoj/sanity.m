@@ -15,7 +15,8 @@ end
 function compareOutput()
 	compareRandomDataAcrossSets("Fusion")
 	compareRandomDataAcrossSets("Rampage")
-	compareFirstSetOfRandomDataAcrossMachines()
+	compareFirstSetOfRandomDataAcrossMachines();
+	compareFftOutputFromOctave();
 	compareLibraryResultsAcrossSets("Fusion", "Ooura");
 	compareLibraryResultsAcrossSets("Fusion", "ClFft");
 	compareLibraryResultsAcrossSets("Fusion", "ClAmdFft");
@@ -49,6 +50,10 @@ function compareSizeFiles(firstFileName, secondFileName)
 	else
 		%disp(sprintf("%s and %s are identical.", firstFileName, secondFileName))
 	end
+end
+
+function compareFftOutputFromOctave()
+	% TODO: Here, compare fft output from Octave to make sure it's consistent!
 end
 
 function compareRandomDataAcrossSets(machine)
