@@ -4,6 +4,15 @@
 
 function sanity()
 	tic()
+	compareOutput();
+	computePrecision("Fusion", "Ooura");
+	computePrecision("Fusion", "ClFft");
+	computePrecision("Fusion", "ClAmdFft");
+	computePrecision("Rampage", "ClFft");
+	toc()
+end
+
+function compareOutput()
 	compareRandomDataAcrossSets("Fusion")
 	compareRandomDataAcrossSets("Rampage")
 	compareFirstSetOfRandomDataAcrossMachines()
@@ -16,9 +25,6 @@ function sanity()
 	compareFirstSetOfLibraryResultsAcrossMachines("Ooura");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
-	toc()
-
-% TODO: Precision for Rampage/Ooura, Rampage/ClFft, Rampage/ClAmdFft, Fusion/ClFft
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -44,7 +50,6 @@ function compareSizeFiles(firstFileName, secondFileName)
 		%disp(sprintf("%s and %s are identical.", firstFileName, secondFileName))
 	end
 end
-
 
 function compareRandomDataAcrossSets(machine)
 	for set = 2:3
@@ -110,6 +115,10 @@ function compareFirstSetOfLibraryResultsAcrossMachines(techlib)
 		end
 	end
 	disp("");
+end
+
+function computePrecision(machine, techlib)
+
 end
 
 function output = nrmsd(X, x)
