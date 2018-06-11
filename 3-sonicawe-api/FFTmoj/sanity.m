@@ -16,6 +16,8 @@ function sanity()
 	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
 %	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
 
+% TODO: Precision for Rampage/Ooura, Rampage/ClFft, Rampage/ClAmdFft, Fusion/ClFft
+% TODO: Less output. Output message before inner for loops, no output unless problem
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
