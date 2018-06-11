@@ -125,15 +125,17 @@ end
 function computePrecision(machine, techlib)
 	sizes = load(sprintf("C:/data/%s/set1/%s/Sizes.dat", machine, techlib));
 	
-	% TODO: Make average of the 5 runs and store in a file for plotting with GNUPlot
+	% TODO: Make average/max (?) of the 5 runs and store in a file for plotting with GNUPlot
 	for run = 1:5
 		disp(sprintf("Computing precision for %s on %s, run %i...", techlib, machine, run));
 		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine, run));
 		for size = sizes'
 			resultsFile = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine, techlib, run, size));
 			reference = fft(randomData.chunk(1:size));
-			m = maxerr(resultsFile.chunk(2:end), reference(2:end));
-			n = nrmsd(resultsFile.chunk(2:end), reference(2:end));
+			% TODO: Does element 1 really need to be excluded?
+			startElement = 2;
+			m = maxerr(resultsFile.chunk(startElement:end), reference(startElement:end));
+			n = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
 			disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", size, m, n))
 		end
 		disp("");
