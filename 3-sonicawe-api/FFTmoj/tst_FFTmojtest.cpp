@@ -128,6 +128,7 @@ private Q_SLOTS:
 	void generateSizeVector();
 	void readSizeVector();
 	void testCase10(); // , create input vectors, run fft, store results in files.
+	void generateBatchRandomData();
 	void runBatchTest();
 	void runBenchmark();
 
@@ -464,32 +465,89 @@ void FFTmojTest::testCase10()
 #endif
 }
 
+void FFTmojTest::generateBatchRandomData()
+{
+	// Make 5 random vectors with the seeds 1..5,
+	// store them in data/ClAmdFft/RandomFile#.h5,
+	// but don't overwrite if exist
+#ifdef RUNBATCHTEST
+	if (mode != "batch")
+		return;
+	cout << "About to generate random data..." << endl;
+
+	for (int i = 1; i <= 5; i++)
+	{
+		char randomfilename[100];
+		sprintf(randomfilename, "data/%s/set%d/BatchRandomData%d.h5", machine.c_str(), set, i);
+
+		cout << "Generating " << randomfilename << "... " << flush;
+
+		ifstream infile(randomfilename);
+		if (infile)
+		{
+			cout << "already exists, skipping" << endl;
+			continue;
+		}
+
+		srand(i);
+
+		int maxSize = 1 << (10+14);
+
+		float tempfloatr;
+
+		ChunkData::Ptr data;
+		data.reset(new ChunkData(maxSize));
+		complex<float> *p = data->getCpuMemory();
+
+		for (int j = 0; j < maxSize; j++)
+		{
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].real(tempfloatr);
+			tempfloatr = (float)rand()/(float)RAND_MAX;
+			p[j].imag(tempfloatr);
+		}
+
+		Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
+
+		chunk->transform_data = data;
+
+		Hdf5Chunk::saveChunk( randomfilename, *chunk);
+
+		cout << "done." << endl;
+	}
+#endif
+}
+
 void FFTmojTest::runBatchTest() 
 {
 	// Benchmark, for all batch sizes of a given size, the kernel execution time.
 #ifdef RUNBATCHTEST
 	if (mode != "batch")
 		return;
-// Create random data
-	srand(seedVal);
-	
-	float tempfloat;
+// Load random data
+	char randomfilename[100];
+	sprintf(randomfilename, "data/%s/set%d/BatchRandomData%d.h5", machine.c_str(), set, run);
+
+	cout << "Loading random data from " << randomfilename << "... " << flush;
+	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+	complex<float> *random = randomchunk->transform_data->getCpuMemory();
+	cout << "done." << endl;
 
 	for (int size = 1<<10; size <= 1<<10; size = size*2)
 	{
 		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%sWallTimes%d.dat", techlib.c_str(), size);
+		sprintf(wallTimeFileName, "data/%s/set%d/%s/batch%d/WallTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
 		ofstream wallTimes(wallTimeFileName);
 
 	#ifdef USE_OPENCL
 		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%sKExTimes%d.dat", techlib.c_str(), size);
+		sprintf(kExTimeFileName, "data/%s/set%d/%s/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
 		ofstream kExTimes(kExTimeFileName);
 	#endif
-		
-		for (int i = 1; i <= (1<<25)/size; i = i*2)
+
+		for (int i = 1; i <= (1<<24)/size; i = i*2)
 		{
-			cout << "Batchsize: " << i << "/" << (1<<25)/size << "\n";
+			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
 
 			/*if (size == 800000)
 			{
@@ -502,26 +560,6 @@ void FFTmojTest::runBatchTest()
 			ChunkData::Ptr data;
 			data.reset(new ChunkData(size*i));
 			complex<float> *input = data->getCpuMemory();
-
-			ChunkData::Ptr result(new ChunkData(size*i));
-			
-			for (int j = 0; j < size*i; j++)
-			{
-				tempfloat = (float)rand()/(float)RAND_MAX;
-				input[j].real(tempfloat);
-				tempfloat = (float)rand()/(float)RAND_MAX;
-				input[j].imag(tempfloat);
-			}
-			/*
-			if (size == maxsize)
-			{
-				Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-				chunk->transform_data = data;
-				char randomfilename[100];
-				sprintf(randomfilename, "data/RandomData.h5");
-				Hdf5Chunk::saveChunk(randomfilename, *chunk );
-			}
-			*/
 							
 	// CLFFT {
 		 // walltimewithbake
@@ -539,29 +577,36 @@ void FFTmojTest::runBatchTest()
 			kExTimes << i;
 	#endif
 			
-			for (int j = 0; j < 100; j++)
+			for (int j = 0; j < 25; j++)
 			{
+				//TODO: Can't seem to get this right, so using a loop instead...
+				//memcpy(&input, &random, size);
+				for (int k = 0; k < size*i; k++)
+				{
+					input[k] = random[k];
+				}
+
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-				fft.compute(data, result, FftDirection_Forward);
+				fft.compute(data, data, FftDirection_Forward);
 				complex<float> *r = data->getCpuMemory();
 				float wallTime = wallTimer.elapsedTime();
-				/*
+
 				if (j == 0)
 				{
 					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%sResults%d.h5", techlib.c_str(), size);
+					sprintf(resultsFileName, "data/%s/set%d/%s/batch%d/%dResults%d.h5", machine.c_str(), set, techlib.c_str(), run, i, size);
 					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-					chunk->transform_data = result;
+					chunk->transform_data = data;
 					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 				}
-				*/
+
 				wallTimes << " " << wallTime;
 	#ifdef USE_OPENCL
 				kExTimes << " " << fft.getKernelExecTime();
 	#endif
 			}
 			
-			if (i < (1<<25)/size)
+			if (i < (1<<24)/size)
 			{
 				wallTimes << endl;
 	#ifdef USE_OPENCL

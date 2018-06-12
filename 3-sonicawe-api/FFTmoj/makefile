@@ -16,6 +16,7 @@ LIBRARIES=Ooura ClFft ClAmdFft
 PLATFORMS=$(MACHINE)
 FIRSTPARTOFTARGETS=$(call interp5,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR)set,$(SETS),$(SEPARATOR))
 LASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
+BATCHLASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)batch,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
 
 all:
 	@echo "Pick a library: Ooura, ClFft, or ClAmdFft."
@@ -46,6 +47,10 @@ $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS)):
 $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)):
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclamdfft.bat
+
+$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS)):
+	@echo "Making $@"
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst batch,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
 
 clean: $(call interp,clean,$(LIBRARIES))
 	
