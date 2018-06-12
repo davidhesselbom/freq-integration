@@ -147,17 +147,17 @@ function computePrecision(machine, techlib)
 		disp(sprintf("Computing precision for %s on %s, run %i...", techlib, machine, run));
 		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine, run));
 
-		for i = size(sizes', 1)
-			size = sizes'(i);
-			resultsFile = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine, techlib, run, size));
-			reference = fft(randomData.chunk(1:size));
+		for i = 1:size(sizes', 2)
+			currentSize = sizes(i);
+			resultsFile = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine, techlib, run, currentSize));
+			reference = fft(randomData.chunk(1:currentSize));
 			% TODO: Does element 1 really need to be excluded?
 			startElement = 2;
 			m(run,i) = maxerr(resultsFile.chunk(startElement:end), reference(startElement:end));
 			n(run,i) = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
-			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", size, m, n))
+			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
 			if (run == 5)
-				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", size, max(m(:,i)), max(n(:,i))))
+				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", currentSize, max(m(:,i)), max(n(:,i))))
 			end
 		end
 	end
