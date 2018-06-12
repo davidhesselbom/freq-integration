@@ -166,7 +166,7 @@ function compareBatchFftOutputFromOctave()
 
 end
 
-function compareLibraryBatchResultsAcrossSets("Fusion")
+function compareLibraryBatchResultsAcrossSets(machine)
 
 end
 
