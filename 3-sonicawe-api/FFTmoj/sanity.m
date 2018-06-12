@@ -12,6 +12,7 @@ function sanity()
 	compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
 	compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
 	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
+	compareBatchOutput();
 	toc()
 end
 
@@ -29,6 +30,16 @@ function compareOutput()
 	compareFirstSetOfLibraryResultsAcrossMachines("Ooura");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
+end
+
+function compareBatchOutput()
+	compareBatchRandomDataAcrossSets("Fusion")
+	compareBatchRandomDataAcrossSets("Rampage")
+	compareFirstSetOfBatchRandomDataAcrossMachines()
+	compareBatchFftOutputFromOctave();
+	compareLibraryBatchResultsAcrossSets("Fusion");
+	compareLibraryBatchResultsAcrossSets("Rampage");
+	compareFirstSetOfLibraryBatchResultsAcrossMachines();
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -140,6 +151,26 @@ function compareFirstSetOfLibraryResultsAcrossMachines(techlib)
 		end
 	end
 	disp("");
+end
+
+function compareBatchRandomDataAcrossSets(machine)
+
+end
+
+function compareFirstSetOfBatchRandomDataAcrossMachines()
+
+end
+
+function compareBatchFftOutputFromOctave()
+
+end
+
+function compareLibraryBatchResultsAcrossSets("Fusion")
+
+end
+
+function compareFirstSetOfLibraryBatchResultsAcrossMachines()
+
 end
 
 function computePrecision(machine, techlib)
