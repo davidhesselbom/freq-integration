@@ -35,8 +35,6 @@ Ooura: release/cpu/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTP
 ClFft: release/opencl/amdapple/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
 ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
 
-release/cpu/FFTmoj.exe: tst_FFTmojtest.cpp
-
 $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)):
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
@@ -54,8 +52,6 @@ clean: $(call interp,clean,$(LIBRARIES))
 
 cleanall:
 	rm -rf $(call interp,data$(SEPARATOR),$(PLATFORMS))
-
-# TODO: This only removes WallTimes, should remove all of e.g. Ooura, including folder
 cleanOoura:
 	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
 cleanClFft:
