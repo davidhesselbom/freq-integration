@@ -182,7 +182,7 @@ function compareBatchRandomDataToRandomData()
 			n = nrmsd(firstFile, secondFile);
 			disp(sprintf("Run: %i: Random data differs! MaxErr: %i, NRMSD: %i", i, m, n))
 		else
-			%disp(sprintf("Octave results are identical."))
+			%disp(sprintf("Random data is identical."))
 		end
 	end
 	disp("");
@@ -209,7 +209,7 @@ function compareOutputOfSmallerBatchesToLargestBatch()
 				n = nrmsd(firstFile(1:1024*batchSize), secondFile);
 				disp(sprintf("Run: %i, Batch size: %i: Batch result differs from largets batch! MaxErr: %i, NRMSD: %i", i, batchSize, m, n))
 			else
-				%disp(sprintf("Octave results are identical."))
+				%disp(sprintf("Batch results are identical."))
 			end
 		end
 	end
