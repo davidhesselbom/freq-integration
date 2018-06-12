@@ -39,9 +39,9 @@ function compareBatchOutput()
 	%compareBatchRandomDataToRandomData()
 	%compareFirstSetOfBatchRandomDataAcrossMachines()
 	%compareBatchFftOutputFromOctave();
-	%compareLibraryBatchResultsAcrossSets("Fusion");
-	%compareLibraryBatchResultsAcrossSets("Rampage");
-	compareFirstSetOfLibraryBatchResultsAcrossMachines();
+	%compareBatchResultsAcrossSets("Fusion");
+	%compareBatchResultsAcrossSets("Rampage");
+	%compareFirstSetOfBatchResultsAcrossMachines();
 	% TODO: Also, compare:
 	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar), for one machine
 	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar), for both machines
@@ -215,7 +215,7 @@ function compareBatchFftOutputFromOctave()
 	disp("");
 end
 
-function compareLibraryBatchResultsAcrossSets(machine)
+function compareBatchResultsAcrossSets(machine)
 	for set = 2:3
 		disp(sprintf("Comparing batch results from %s, set 1 to set %i...", machine, set));
 		for run = 1:5
@@ -230,7 +230,7 @@ function compareLibraryBatchResultsAcrossSets(machine)
 	end
 end
 
-function compareFirstSetOfLibraryBatchResultsAcrossMachines()
+function compareFirstSetOfBatchResultsAcrossMachines()
 	disp(sprintf("Comparing batch results from Fusion to Rampage, set 1..."));
 	for run = 1:5
 		for batchSize = 2.^(0:14)
