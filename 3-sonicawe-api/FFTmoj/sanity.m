@@ -32,8 +32,8 @@ function compareChunkFiles(firstFileName, secondFileName)
 	firstFile = load(firstFileName);
 	secondFile = load(secondFileName);
 	if (max(firstFile.chunk - secondFile.chunk) != 0);
-		m = maxerr(firstFile.chunk(1:end), secondFile.chunk(1:end));
-		n = nrmsd(firstFile.chunk(1:end), secondFile.chunk(1:end));
+		m = maxerr(firstFile.chunk, secondFile.chunk);
+		n = nrmsd(firstFile.chunk, secondFile.chunk);
 		disp(sprintf("%s and %s differ! MaxErr: %i, NRMSD: %i", firstFileName, secondFileName, m, n))
 	else
 		%disp(sprintf("%s and %s are identical.", firstFileName, secondFileName))
@@ -44,8 +44,8 @@ function compareSizeFiles(firstFileName, secondFileName)
 	firstFile = load(firstFileName);
 	secondFile = load(secondFileName);
 	if (max(firstFile - secondFile) != 0);
-		m = maxerr(firstFile(1:end), secondFile(1:end));
-		n = nrmsd(firstFile(1:end), secondFile(1:end));
+		m = maxerr(firstFile, secondFile);
+		n = nrmsd(firstFile, secondFile);
 		disp(sprintf("%s and %s differ! MaxErr: %i, NRMSD: %i", firstFileName, secondFileName, m, n))
 	else
 		%disp(sprintf("%s and %s are identical.", firstFileName, secondFileName))
