@@ -36,15 +36,15 @@ end
 function compareBatchOutput()
 	%compareBatchRandomDataAcrossSets("Fusion")
 	%compareBatchRandomDataAcrossSets("Rampage")
-	compareBatchRandomDataToRandomData()
+	%compareBatchRandomDataToRandomData()
 	%compareFirstSetOfBatchRandomDataAcrossMachines()
 	%compareBatchFftOutputFromOctave();
-	compareLibraryBatchResultsAcrossSets("Fusion");
-	compareLibraryBatchResultsAcrossSets("Rampage");
+	%compareLibraryBatchResultsAcrossSets("Fusion");
+	%compareLibraryBatchResultsAcrossSets("Rampage");
 	compareFirstSetOfLibraryBatchResultsAcrossMachines();
 	% TODO: Also, compare:
-	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar)
-	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar)
+	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar), for one machine
+	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar), for both machines
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -216,11 +216,31 @@ function compareBatchFftOutputFromOctave()
 end
 
 function compareLibraryBatchResultsAcrossSets(machine)
+	for set = 2:3
+		disp(sprintf("Comparing batch results from %s, set 1 to set %i...", machine, set));
+		for run = 1:5
+			for batchSize = 2.^(0:14)
+				firstFile = sprintf("C:/data/%s/set1/ClAmdFft/batch%i/%iResults1024.h5", machine, run, batchSize);
+				secondFile = sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/%iResults1024.h5", machine, set, run, batchSize);
 
+				compareChunkFiles(firstFile, secondFile);
+			end
+		end
+		disp("");
+	end
 end
 
 function compareFirstSetOfLibraryBatchResultsAcrossMachines()
+	disp(sprintf("Comparing batch results from Fusion to Rampage, set 1..."));
+	for run = 1:5
+		for batchSize = 2.^(0:14)
+			firstFile = sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize);
+			secondFile = sprintf("C:/data/Rampage/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize);
 
+			compareChunkFiles(firstFile, secondFile);
+		end
+	end
+	disp("");
 end
 
 function computeBatchPrecision()
