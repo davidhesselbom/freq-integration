@@ -43,7 +43,7 @@ function compareBatchOutput()
 	%compareBatchResultsAcrossSets("Rampage");
 	%compareFirstSetOfBatchResultsAcrossMachines();
 	%compareOutputOfSmallerBatchesToLargestBatch();
-	compareOutputOfBatchSize1toBenchResults();
+	%compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBenchResults("Fusion");
 	compareTimesOfBatchSize1toBenchResults("Rampage");
 
@@ -226,7 +226,8 @@ function compareOutputOfBatchSize1toBenchResults()
 end
 
 function compareTimesOfBatchSize1toBenchResults(machine)
-	% TODO: Implement
+	% TODO: Compute an average walltime and kernel execution time from all of the runs in all of the sets for bench,
+	% do the same for all of the runs in all of the sets for batch, then make the comparison between the two
 end
 
 function compareBatchFftOutputFromOctave()
@@ -277,7 +278,8 @@ function compareFirstSetOfBatchResultsAcrossMachines()
 end
 
 function computeBatchPrecision()
-	%TODO: Slice largest batch result into pieces of 1024, compare each piece with fft result from Octave
+	% TODO: For each set and each run, slice largest batch result into pieces of 1024, compare each piece with fft result from Octave
+	% Store the maximum maxerr and NRMSD. See computePrecision below, use a "vectorToSave"
 end
 
 function computePrecision(machine, techlib)
