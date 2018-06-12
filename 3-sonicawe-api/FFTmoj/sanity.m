@@ -42,11 +42,10 @@ function compareBatchOutput()
 	%compareBatchResultsAcrossSets("Fusion");
 	%compareBatchResultsAcrossSets("Rampage");
 	%compareFirstSetOfBatchResultsAcrossMachines();
-	compareOutputOfSmallerBatchesToLargestBatch();
+	%compareOutputOfSmallerBatchesToLargestBatch();
 	compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBenchResults("Fusion");
 	compareTimesOfBatchSize1toBenchResults("Rampage");
-	% TODO: Also, compare:
 
 end
 
@@ -218,11 +217,11 @@ function compareOutputOfSmallerBatchesToLargestBatch()
 end
 
 function compareOutputOfBatchSize1toBenchResults()
-
+	% TODO: Implement
 end
 
 function compareTimesOfBatchSize1toBenchResults(machine)
-
+	% TODO: Implement
 end
 
 function compareBatchFftOutputFromOctave()
@@ -273,7 +272,7 @@ function compareFirstSetOfBatchResultsAcrossMachines()
 end
 
 function computeBatchPrecision()
-
+	%TODO: Slice largest batch result into pieces of 1024, compare each piece with fft result from Octave
 end
 
 function computePrecision(machine, techlib)
