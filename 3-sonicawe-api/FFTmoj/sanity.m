@@ -217,7 +217,12 @@ function compareOutputOfSmallerBatchesToLargestBatch()
 end
 
 function compareOutputOfBatchSize1toBenchResults()
-	% TODO: Implement
+	for run = 1:5
+		firstFile = sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/1Results1024.h5", run);
+		secondFile = sprintf("C:/data/Fusion/set1/ClAmdFft/run%i/Results1024.h5", run);
+		compareChunkFiles(firstFile, secondFile);
+	end
+	disp("");
 end
 
 function compareTimesOfBatchSize1toBenchResults(machine)
