@@ -53,7 +53,24 @@ function compareSizeFiles(firstFileName, secondFileName)
 end
 
 function compareFftOutputFromOctave()
-	% TODO: Here, compare fft output from Octave to make sure it's consistent!
+	sizes = load(sprintf("C:/data/Fusion/set1/Ooura/Sizes.dat"));
+
+	for run = 1:5
+		disp(sprintf("Computing precision for Octave vs Octave, run %i...", run));
+		randomData = load(sprintf("C:/data/Fusion/set1/RandomData%i.h5", run));
+		for size = sizes'
+			reference = fft(randomData.chunk(1:size));
+			reference2 = fft(randomData.chunk(1:size));
+			if (max(reference - reference2) != 0);
+				m = maxerr(reference, reference2);
+				n = nrmsd(reference, reference2);
+				disp(sprintf("Size: %i: Octave results differ! MaxErr: %i, NRMSD: %i", size, m, n))
+			else
+				%disp(sprintf("Octave results are identical."))
+			end
+		end
+	end
+	disp("");
 end
 
 function compareRandomDataAcrossSets(machine)
