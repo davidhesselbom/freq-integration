@@ -311,7 +311,7 @@ function computePrecision(machine, techlib)
 end
 
 function compareMaxErr(machine1, techlib1, machine2, techlib2)
-	sizes = load(sprintf("C:/data/%s/set1/ClFft/Sizes.dat", machine1));
+	sizes = load(sprintf("C:/data/%s/set1/%s/Sizes.dat", machine1, techlib1));
 
 	for run = 1:5
 		disp(sprintf("Comparing Maxerr for %s on %s with %s on %s, run %i...", techlib1, machine1, techlib2, machine2, run));
