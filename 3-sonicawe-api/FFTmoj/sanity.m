@@ -142,7 +142,6 @@ end
 function computePrecision(machine, techlib)
 	sizes = load(sprintf("C:/data/%s/set1/%s/Sizes.dat", machine, techlib));
 	
-	% TODO: Make average/max (?) of the 5 runs and store in a file for plotting with GNUPlot
 	for run = 1:5
 		disp(sprintf("Computing precision for %s on %s, run %i...", techlib, machine, run));
 		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine, run));
@@ -157,10 +156,14 @@ function computePrecision(machine, techlib)
 			n(run,i) = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
 			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
 			if (run == 5)
+				vectorToSave(i,1) = currentSize;
+				vectorToSave(i,2) = max(m(:,i))/sqrt(currentSize);
+				vectorToSave(i,3) = max(n(:,i));
 				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", currentSize, max(m(:,i)), max(n(:,i))))
 			end
 		end
 	end
+	save(sprintf("%sPrecision%s.dat", techlib, machine), "vectorToSave");
 	disp("");
 end
 
