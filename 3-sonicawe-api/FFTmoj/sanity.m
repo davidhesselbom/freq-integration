@@ -9,10 +9,11 @@ function sanity()
 	computePrecision("Fusion", "ClFft");
 	computePrecision("Fusion", "ClAmdFft");
 	computePrecision("Rampage", "ClFft");
-	compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
-	compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
-	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
+	%compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
+	%compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
+	%compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
 	compareBatchOutput();
+	computeBatchPrecision();
 	toc()
 end
 
@@ -20,7 +21,7 @@ function compareOutput()
 	compareRandomDataAcrossSets("Fusion")
 	compareRandomDataAcrossSets("Rampage")
 	compareFirstSetOfRandomDataAcrossMachines();
-	compareFftOutputFromOctave();
+	%compareFftOutputFromOctave();
 	compareLibraryResultsAcrossSets("Fusion", "Ooura");
 	compareLibraryResultsAcrossSets("Fusion", "ClFft");
 	compareLibraryResultsAcrossSets("Fusion", "ClAmdFft");
@@ -170,6 +171,10 @@ function compareLibraryBatchResultsAcrossSets("Fusion")
 end
 
 function compareFirstSetOfLibraryBatchResultsAcrossMachines()
+
+end
+
+function computeBatchPrecision()
 
 end
 
