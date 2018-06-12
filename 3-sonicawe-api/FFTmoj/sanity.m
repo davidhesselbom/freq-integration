@@ -5,10 +5,10 @@
 function sanity()
 	tic()
 	%compareOutput();
-	computePrecision("Fusion", "Ooura");
-	computePrecision("Fusion", "ClFft");
-	computePrecision("Fusion", "ClAmdFft");
-	computePrecision("Rampage", "ClFft");
+	%computePrecision("Fusion", "Ooura");
+	%computePrecision("Fusion", "ClFft");
+	%computePrecision("Fusion", "ClAmdFft");
+	%computePrecision("Rampage", "ClFft");
 	%compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
 	%compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
 	%compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
@@ -34,13 +34,17 @@ function compareOutput()
 end
 
 function compareBatchOutput()
-	compareBatchRandomDataAcrossSets("Fusion")
-	compareBatchRandomDataAcrossSets("Rampage")
-	compareFirstSetOfBatchRandomDataAcrossMachines()
+	%compareBatchRandomDataAcrossSets("Fusion")
+	%compareBatchRandomDataAcrossSets("Rampage")
+	%compareFirstSetOfBatchRandomDataAcrossMachines()
 	compareBatchFftOutputFromOctave();
 	compareLibraryBatchResultsAcrossSets("Fusion");
 	compareLibraryBatchResultsAcrossSets("Rampage");
 	compareFirstSetOfLibraryBatchResultsAcrossMachines();
+	% TODO: Also, compare:
+	% - BatchRandomData%i(1:(2^22)) to RandomData%i for one of the machines (should be identical)
+	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar)
+	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar)
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -177,7 +181,22 @@ function compareFirstSetOfBatchRandomDataAcrossMachines()
 end
 
 function compareBatchFftOutputFromOctave()
-
+	for run = 1:5
+		disp(sprintf("Computing precision for Octave vs Octave, run %i...", run));
+		randomData = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", run));
+		for i = 1:2^14;
+			reference = fft(randomData.chunk(1+(i-1)*1024:i*1024));
+			reference2 = fft(randomData.chunk(1+(i-1)*1024:i*1024));
+			if (max(reference - reference2) != 0);
+				m = maxerr(reference, reference2);
+				n = nrmsd(reference, reference2);
+				disp(sprintf("Size: %i: Octave results differ! MaxErr: %i, NRMSD: %i", size, m, n))
+			else
+				%disp(sprintf("Octave results are identical."))
+			end
+		end
+	end
+	disp("");
 end
 
 function compareLibraryBatchResultsAcrossSets(machine)
