@@ -9,6 +9,9 @@ function sanity()
 	computePrecision("Fusion", "ClFft");
 	computePrecision("Fusion", "ClAmdFft");
 	computePrecision("Rampage", "ClFft");
+	compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
+	compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
+	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
 	toc()
 end
 
@@ -164,6 +167,33 @@ function computePrecision(machine, techlib)
 		end
 	end
 	save(sprintf("%sPrecision%s.dat", techlib, machine), "vectorToSave");
+	disp("");
+end
+
+function compareMaxErr(machine1, techlib1, machine2, techlib2)
+	sizes = load(sprintf("C:/data/%s/set1/ClFft/Sizes.dat", machine1));
+
+	for run = 1:5
+		disp(sprintf("Comparing Maxerr for %s on %s with %s on %s, run %i...", techlib1, machine1, techlib2, machine2, run));
+		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine1, run));
+
+		for i = 1:size(sizes', 2)
+			currentSize = sizes(i);
+			resultsFile1 = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine1, techlib1, run, currentSize));
+			resultsFile2 = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine2, techlib2, run, currentSize));
+			reference = fft(randomData.chunk(1:currentSize));
+			% TODO: Does element 1 really need to be excluded?
+			startElement = 2;
+			m1(run,i) = maxerr(resultsFile1.chunk(startElement:end), reference(startElement:end));
+			m2(run,i) = maxerr(resultsFile2.chunk(startElement:end), reference(startElement:end));
+			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
+			if (run == 5)
+				if (m1(run,i) != m2(run,i))
+					disp(sprintf("Size: %i, Maxerr diff: %i", currentSize, abs(m1(run,i) - m2(run,i))))
+				end
+			end
+		end
+	end
 	disp("");
 end
 
