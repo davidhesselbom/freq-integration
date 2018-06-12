@@ -42,9 +42,10 @@ function compareBatchOutput()
 	%compareBatchResultsAcrossSets("Fusion");
 	%compareBatchResultsAcrossSets("Rampage");
 	%compareFirstSetOfBatchResultsAcrossMachines();
+	compareOutputOfBatchSize1toBenchResults();
+	compareTimesOfBatchSize1toBenchResults("Fusion");
+	compareTimesOfBatchSize1toBenchResults("Rampage");
 	% TODO: Also, compare:
-	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar), for one machine
-	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar), for both machines
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -194,6 +195,14 @@ function compareFirstSetOfBatchRandomDataAcrossMachines()
 		compareChunkFiles(fusionFile, rampageFile);
 	end
 	disp("");
+end
+
+function compareOutputOfBatchSize1toBenchResults()
+
+end
+
+function compareTimesOfBatchSize1toBenchResults(machine)
+
 end
 
 function compareBatchFftOutputFromOctave()
