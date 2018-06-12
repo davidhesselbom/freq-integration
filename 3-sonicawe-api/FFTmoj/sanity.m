@@ -36,13 +36,13 @@ end
 function compareBatchOutput()
 	%compareBatchRandomDataAcrossSets("Fusion")
 	%compareBatchRandomDataAcrossSets("Rampage")
+	compareBatchRandomDataToRandomData()
 	%compareFirstSetOfBatchRandomDataAcrossMachines()
-	compareBatchFftOutputFromOctave();
+	%compareBatchFftOutputFromOctave();
 	compareLibraryBatchResultsAcrossSets("Fusion");
 	compareLibraryBatchResultsAcrossSets("Rampage");
 	compareFirstSetOfLibraryBatchResultsAcrossMachines();
 	% TODO: Also, compare:
-	% - BatchRandomData%i(1:(2^22)) to RandomData%i for one of the machines (should be identical)
 	% - output of batchsize 1 to bench results for 1024 on same machine (should be very similar)
 	% - timings for batchsize 1 to bench results for 1024 on same machine (should be very similar)
 end
@@ -165,6 +165,22 @@ function compareBatchRandomDataAcrossSets(machine)
 			firstFileName = sprintf("C:/data/%s/set1/BatchRandomData%i.h5", machine, i);
 			secondFileName = sprintf("C:/data/%s/set%i/BatchRandomData%i.h5", machine, set, i);
 			compareChunkFiles(firstFileName, secondFileName);
+		end
+	end
+	disp("");
+end
+
+function compareBatchRandomDataToRandomData()
+	disp(sprintf("Comparing batch random data files to random data files from Fusion, set 1 to set 1..."));
+	for i = 1:5
+		firstFile = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", i)).chunk(1:2^22);
+		secondFile = load(sprintf("C:/data/Fusion/set1/RandomData%i.h5", i)).chunk;
+		if (max(firstFile - secondFile) != 0);
+			m = maxerr(firstFile, secondFile);
+			n = nrmsd(firstFile, secondFile);
+			disp(sprintf("Run: %i: Random data differs! MaxErr: %i, NRMSD: %i", i, m, n))
+		else
+			%disp(sprintf("Octave results are identical."))
 		end
 	end
 	disp("");
