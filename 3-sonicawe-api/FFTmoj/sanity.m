@@ -42,10 +42,12 @@ function compareBatchOutput()
 	%compareBatchResultsAcrossSets("Fusion");
 	%compareBatchResultsAcrossSets("Rampage");
 	%compareFirstSetOfBatchResultsAcrossMachines();
+	compareOutputOfSmallerBatchesToLargestBatch();
 	compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBenchResults("Fusion");
 	compareTimesOfBatchSize1toBenchResults("Rampage");
 	% TODO: Also, compare:
+
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -193,6 +195,24 @@ function compareFirstSetOfBatchRandomDataAcrossMachines()
 		fusionFile = sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", i);
 		rampageFile = sprintf("C:/data/Rampage/set1/BatchRandomData%i.h5", i);
 		compareChunkFiles(fusionFile, rampageFile);
+	end
+	disp("");
+end
+
+function compareOutputOfSmallerBatchesToLargestBatch()
+	for run = 1:5
+		disp(sprintf("Comparing batch results from Fusion, smaller batches to largest batch, run %i...", run));
+		firstFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, 2^14)).chunk;
+		for batchSize = 2.^(0:13)
+			secondFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize)).chunk;
+			if (max(firstFile(1:1024*batchSize) - secondFile) != 0);
+				m = maxerr(firstFile(1:1024*batchSize), secondFile);
+				n = nrmsd(firstFile(1:1024*batchSize), secondFile);
+				disp(sprintf("Run: %i, Batch size: %i: Batch result differs from largets batch! MaxErr: %i, NRMSD: %i", i, batchSize, m, n))
+			else
+				%disp(sprintf("Octave results are identical."))
+			end
+		end
 	end
 	disp("");
 end
