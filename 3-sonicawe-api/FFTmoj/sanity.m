@@ -48,7 +48,6 @@ function compareBatchOutput()
 	%compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBench("Fusion");
 	compareTimesOfBatchSize1toBench("Rampage");
-
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -307,8 +306,9 @@ function compareFirstSetOfBatchResultsAcrossMachines()
 end
 
 function computeBatchPrecision()
-	% TODO: For each set and each run, slice largest batch result into pieces of 1024, compare each piece with fft result from Octave
-	% Store the maximum maxerr and NRMSD. See computePrecision below, use a "vectorToSave"
+	% TODO: For each run in the first set from one machine, slice largest batch result into pieces of 1024, 
+	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD. 
+	% See computePrecision below, use a "vectorToSave"
 end
 
 function computePrecision(machine, techlib)
