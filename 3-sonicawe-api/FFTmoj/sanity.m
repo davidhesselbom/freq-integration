@@ -226,8 +226,26 @@ function compareOutputOfBatchSize1toBenchResults()
 end
 
 function compareTimesOfBatchSize1toBench(machine)
-	% TODO: Compute an average walltime and kernel execution time from all of the runs in all of the sets for bench,
-	% do the same for all of the runs in all of the sets for batch, then make the comparison between the two
+	wallTimes = [];
+	kernelExecutionTimes = [];
+	batchWallTimes = [];
+	batchKernelExecutionTimes = [];
+	for set = 1:3
+		for run = 1:5
+			wallTimes = [wallTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/run%i/WallTimes.dat", machine, set, run))(13, 3:end)];
+			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/WallTimes1024.dat", machine, set, run))(1, 3:end)];
+
+			kernelExecutionTimes = [kernelExecutionTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/run%i/KernelExecutionTimes.dat", machine, set, run))(13, 3:end)];
+			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(1, 3:end)];
+		end
+	end
+
+	meanWallTimesDiff = 100*abs((mean(wallTimes) - mean(batchWallTimes))/mean(wallTimes));
+	meanKernelExecutionTimesDiff = 100*abs((mean(kernelExecutionTimes) - mean(batchKernelExecutionTimes))/mean(kernelExecutionTimes));
+	disp(sprintf("Mean walltime difference between no batch and single batch for 1024 on %s: %i %%", machine, meanWallTimesDiff));
+	disp(sprintf("Mean kernel execution time difference between no batch and single batch for 1024 on %s: %i %%", machine, meanKernelExecutionTimesDiff));
+
+	disp("");
 end
 
 function compareBatchFftOutputFromOctave()
