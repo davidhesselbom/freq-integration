@@ -18,6 +18,8 @@ function sanity()
 end
 
 function compareOutput()
+	% TODO: At some point, verify output from Octave fft is different from its input
+	% TODO: At some point, verify outout from FFTmoj is different from its input
 	compareRandomDataAcrossSets("Fusion")
 	compareRandomDataAcrossSets("Rampage")
 	compareFirstSetOfRandomDataAcrossMachines();
