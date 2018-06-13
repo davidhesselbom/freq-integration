@@ -12,7 +12,7 @@ function sanity()
 	%compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
 	%compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
 	%compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
-	compareBatchOutput();
+	%compareBatchOutput();
 	computeBatchPrecision();
 	toc()
 end
@@ -309,6 +309,25 @@ function computeBatchPrecision()
 	% TODO: For each run in the first set from one machine, slice largest batch result into pieces of 1024, 
 	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD. 
 	% See computePrecision below, use a "vectorToSave"
+
+	for run = 1:5
+		disp(sprintf("Computing batch precision, run %i...", run));
+		randomData = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", run));
+		resultsFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, 2^14));
+
+		for i = 1:2^14
+			reference = fft(randomData.chunk(1+(i-1)*1024:i*1024));
+			startElement = 2;
+			m((run-1)*(2^14)+i) = maxerr(resultsFile.chunk((i-1)*1024+startElement:i*1024), reference(startElement:end));
+			n((run-1)*(2^14)+i) = nrmsd(resultsFile.chunk((i-1)*1024+startElement:i*1024), reference(startElement:end));
+			if (run == 5)
+				vectorToSave(1) = max(m)/sqrt(1024);
+				vectorToSave(2) = max(n);
+			end
+		end
+	end
+	disp(sprintf("Maximum Maxerr: %i, Maximum NRMSD: %i", max(m), max(n)))
+	save("BatchPrecision.dat", "vectorToSave");
 end
 
 function computePrecision(machine, techlib)
