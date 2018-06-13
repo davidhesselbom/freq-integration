@@ -44,8 +44,8 @@ function compareBatchOutput()
 	%compareFirstSetOfBatchResultsAcrossMachines();
 	%compareOutputOfSmallerBatchesToLargestBatch();
 	%compareOutputOfBatchSize1toBenchResults();
-	compareTimesOfBatchSize1toBenchResults("Fusion");
-	compareTimesOfBatchSize1toBenchResults("Rampage");
+	compareTimesOfBatchSize1toBench("Fusion");
+	compareTimesOfBatchSize1toBench("Rampage");
 
 end
 
@@ -225,7 +225,7 @@ function compareOutputOfBatchSize1toBenchResults()
 	disp("");
 end
 
-function compareTimesOfBatchSize1toBenchResults(machine)
+function compareTimesOfBatchSize1toBench(machine)
 	% TODO: Compute an average walltime and kernel execution time from all of the runs in all of the sets for bench,
 	% do the same for all of the runs in all of the sets for batch, then make the comparison between the two
 end
