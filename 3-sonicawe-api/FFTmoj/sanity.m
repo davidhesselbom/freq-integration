@@ -316,10 +316,17 @@ function computeBatchPrecision()
 		resultsFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, 2^14));
 
 		for i = 1:2^14
-			reference = fft(randomData.chunk(1+(i-1)*1024:i*1024));
+			randomSlice = randomData.chunk(1+(i-1)*1024:i*1024);
+			resultsSlice = resultsFile.chunk(1+(i-1)*1024:i*1024);
+			if (max(resultsSlice-randomSlice) == 0)
+				% TODO: Make better error message
+				disp(sprintf("PANIC!!! results equal input at batch slice %i", i))
+				break
+			end
+			reference = fft(randomSlice);
 			startElement = 2;
-			m((run-1)*(2^14)+i) = maxerr(resultsFile.chunk((i-1)*1024+startElement:i*1024), reference(startElement:end));
-			n((run-1)*(2^14)+i) = nrmsd(resultsFile.chunk((i-1)*1024+startElement:i*1024), reference(startElement:end));
+			m((run-1)*(2^14)+i) = maxerr(resultsSlice(startElement:end), reference(startElement:end));
+			n((run-1)*(2^14)+i) = nrmsd(resultsSlice(startElement:end), reference(startElement:end));
 			if (run == 5)
 				vectorToSave(1) = max(m)/sqrt(1024);
 				vectorToSave(2) = max(n);
