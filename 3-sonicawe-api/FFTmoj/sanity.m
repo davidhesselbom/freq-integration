@@ -244,6 +244,15 @@ function compareTimesOfBatchSize1toBench(machine)
 	meanKernelExecutionTimesDiff = 100*abs((mean(kernelExecutionTimes) - mean(batchKernelExecutionTimes))/mean(kernelExecutionTimes));
 	disp(sprintf("Mean walltime difference between no batch and single batch for 1024 on %s: %i %%", machine, meanWallTimesDiff));
 	disp(sprintf("Mean kernel execution time difference between no batch and single batch for 1024 on %s: %i %%", machine, meanKernelExecutionTimesDiff));
+	% TODO: Find a more suitable way to present the below numbers. Box plot?
+	disp(min(wallTimes));
+	disp(max(wallTimes));
+	disp(min(batchWallTimes));
+	disp(max(batchWallTimes));
+	disp(min(kernelExecutionTimes));
+	disp(max(kernelExecutionTimes));
+	disp(min(batchKernelExecutionTimes));
+	disp(max(batchKernelExecutionTimes));
 
 	disp("");
 end
