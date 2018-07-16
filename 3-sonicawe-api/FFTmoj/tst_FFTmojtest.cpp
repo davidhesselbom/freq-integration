@@ -223,8 +223,7 @@ void FFTmojTest::generateRandomData()
 		ifstream infile(randomfilename);
 		if (infile)
 		{
-			cout << "already exists, skipping" << endl;
-			continue;
+			cout << "already exists, verifying" << endl;
 		}
 
 		srand(i);
@@ -249,8 +248,19 @@ void FFTmojTest::generateRandomData()
 
 		chunk->transform_data = data;
 
-		Hdf5Chunk::saveChunk( randomfilename, *chunk);
-		
+		if (infile)
+		{
+			pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+			complex<float> *random = randomchunk->transform_data->getCpuMemory();
+			for (int j = 0; j < maxSize; j++)
+			{
+				QVERIFY(p[j] == random[j]);
+			}
+		}
+		else
+		{
+			Hdf5Chunk::saveChunk( randomfilename, *chunk);
+		}
 		cout << "done." << endl;
 	}
 }
