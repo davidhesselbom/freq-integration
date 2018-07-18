@@ -20,8 +20,6 @@ end
 function compareOutput()
 	% TODO: At some point, verify output from Octave fft is different from its input
 	% TODO: At some point, verify output from FFTmoj is different from its input
-	compareRandomDataAcrossSets("Fusion")
-	compareRandomDataAcrossSets("Rampage")
 	compareFirstSetOfRandomDataAcrossMachines();
 	%compareFftOutputFromOctave();
 	compareLibraryResultsAcrossSets("Fusion", "Ooura");
@@ -90,18 +88,6 @@ function compareFftOutputFromOctave()
 			else
 				%disp(sprintf("Octave results are identical."))
 			end
-		end
-	end
-	disp("");
-end
-
-function compareRandomDataAcrossSets(machine)
-	for set = 2:3
-			disp(sprintf("Comparing random data files from %s, set 1 to set %i...", machine, set));
-		for i = 1:5
-			firstFileName = sprintf("C:/data/%s/set1/RandomData%i.h5", machine, i);
-			secondFileName = sprintf("C:/data/%s/set%i/RandomData%i.h5", machine, set, i);
-			compareChunkFiles(firstFileName, secondFileName);
 		end
 	end
 	disp("");
