@@ -34,8 +34,6 @@ function compareOutput()
 end
 
 function compareBatchOutput()
-	%compareBatchRandomDataAcrossSets("Fusion")
-	%compareBatchRandomDataAcrossSets("Rampage")
 	%compareBatchRandomDataToRandomData()
 	%compareFirstSetOfBatchRandomDataAcrossMachines()
 	%compareBatchFftOutputFromOctave();
@@ -142,18 +140,6 @@ function compareFirstSetOfLibraryResultsAcrossMachines(techlib)
 			secondFile = sprintf("C:/data/Rampage/set1/%s/run%i/Results%i.h5", techlib, i, size);
 
 			compareChunkFiles(firstFile, secondFile);
-		end
-	end
-	disp("");
-end
-
-function compareBatchRandomDataAcrossSets(machine)
-	for set = 2:3
-			disp(sprintf("Comparing batch random data files from %s, set 1 to set %i...", machine, set));
-		for i = 1:5
-			firstFileName = sprintf("C:/data/%s/set1/BatchRandomData%i.h5", machine, i);
-			secondFileName = sprintf("C:/data/%s/set%i/BatchRandomData%i.h5", machine, set, i);
-			compareChunkFiles(firstFileName, secondFileName);
 		end
 	end
 	disp("");

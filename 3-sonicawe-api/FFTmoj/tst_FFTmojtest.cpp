@@ -532,8 +532,30 @@ void FFTmojTest::generateBatchRandomData()
 
 		chunk->transform_data = data;
 
-		Hdf5Chunk::saveChunk( randomfilename, *chunk);
+		if (infile)
+		{
+			pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+			complex<float> *random = randomchunk->transform_data->getCpuMemory();
 
+			/*
+			TODO: This should be faster, but I can't get it to build.
+			TODO: Is there no way to terminate the whole test if QVERIFY2 fails?
+			Is there another QTest function or macro that does this?
+			QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
+			*/
+			for (int j = 0; j < maxSize; j++)
+			{
+				if (p[j] != random[j])
+				{
+					cout << "\nFAIL: Input batch random data differs from generated batch random data!\n" << endl;
+					abort();
+				}
+			}
+		}
+		else
+		{
+			Hdf5Chunk::saveChunk( randomfilename, *chunk);
+		}
 		cout << "done." << endl;
 	}
 #endif
