@@ -19,7 +19,6 @@ end
 
 function compareOutput()
 	% TODO: At some point, verify output from Octave fft is different from its input
-	% TODO: At some point, verify output from FFTmoj is different from its input
 	compareFirstSetOfRandomDataAcrossMachines();
 	%compareFftOutputFromOctave();
 	compareLibraryResultsAcrossSets("Fusion", "Ooura");

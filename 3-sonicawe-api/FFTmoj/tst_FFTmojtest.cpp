@@ -750,6 +750,21 @@ void FFTmojTest::runBenchmark()
 				complex<float> *r = result->getCpuMemory();
 #endif
 				float wallTime = wallTimer.elapsedTime();
+
+				// Verify output != input
+				for (int k = 0; k < size; k++)
+				{
+					// Good enough for single batch, but for multi-batch, this needs to be done for each batch...
+					if (r[k] != random[k])
+					{
+						break;
+					}
+					if (k == size - 1)
+					{
+						cout << "\nFAIL: FFT results are identical to input!\n" << endl;
+						abort();
+					}
+				}
 				
 				if (size >= startSize)
 				{
