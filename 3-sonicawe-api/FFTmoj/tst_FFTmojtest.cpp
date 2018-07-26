@@ -67,7 +67,6 @@ private Q_SLOTS:
 	void generateRandomData();
 	void generateSizeVector();
 	void readSizeVector();
-	void testCase10(); // , create input vectors, run fft, store results in files.
 	void generateBatchRandomData();
 	void runBatchTest();
 	void runBenchmark();
