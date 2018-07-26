@@ -469,12 +469,7 @@ void FFTmojTest::runBenchmark()
 					if (!results)
 					{
 						ifstream infile(resultsFileName);
-						if (infile)
-						{
-							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-							results = resultchunk->transform_data->getCpuMemory();
-						}
-						else
+						if (!infile)
 						{
 							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
@@ -483,8 +478,9 @@ void FFTmojTest::runBenchmark()
 							chunk->transform_data = result;
 #endif
 							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-							results = chunk->transform_data->getCpuMemory();
 						}
+						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+						results = resultchunk->transform_data->getCpuMemory();
 					}
 					if (0 != memcmp(results, r, size*sizeof(complex<float>)))
 					{
@@ -621,18 +617,14 @@ void FFTmojTest::runBatchTest()
 				if (!results)
 				{
 					ifstream infile(resultsFileName);
-					if (infile)
-					{
-						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-						results = resultchunk->transform_data->getCpuMemory();
-					}
-					else
+					if (!infile)
 					{
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 						chunk->transform_data = data;
 						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-						results = chunk->transform_data->getCpuMemory();
 					}
+					resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+					results = resultchunk->transform_data->getCpuMemory();
 				}
 				if (0 != memcmp(results, r, size*sizeof(complex<float>)))
 				{
