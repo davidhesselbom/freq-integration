@@ -152,64 +152,61 @@ void FFTmojTest::generateRandomData()
 	
 	cout << "About to generate random data..." << endl;
 	
-	for (int i = 1; i <= 5; i++)
+	char randomfilename[100];
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), run);
+
+	cout << "Generating " << randomfilename << "... " << flush;
+		
+	ifstream infile(randomfilename);
+	if (infile)
 	{
-		char randomfilename[100];
-		sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), i);
-
-		cout << "Generating " << randomfilename << "... " << flush;
-		
-		ifstream infile(randomfilename);
-		if (infile)
-		{
-			cout << "already exists, verifying" << endl;
-		}
-
-		srand(i);
-
-		int maxSize = 1 << 22;
-		
-		float tempfloatr;
-			
-		ChunkData::Ptr data;
-		data.reset(new ChunkData(maxSize));
-		complex<float> *p = data->getCpuMemory();
-
-		for (int j = 0; j < maxSize; j++)
-		{
-			tempfloatr = (float)rand()/(float)RAND_MAX;
-			p[j].real(tempfloatr);
-			tempfloatr = (float)rand()/(float)RAND_MAX;
-			p[j].imag(tempfloatr);
-		}
-		
-		Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
-
-		chunk->transform_data = data;
-
-		if (infile)
-		{
-			pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-			complex<float> *random = randomchunk->transform_data->getCpuMemory();
-
-			/*
-			TODO: Is there no way to terminate the whole test if QVERIFY2 fails?
-			Is there another QTest function or macro that does this?
-			QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
-			*/
-
-			if (0 != memcmp(p, random, maxSize))
-			{
-				cout << "\nFAIL: Input random data differs from generated random data!\n" << endl;
-				abort();
-			}
-		}
-		else
-		{
-			Hdf5Chunk::saveChunk( randomfilename, *chunk);
-		}
-		cout << "done." << endl;
+		cout << "already exists, verifying... " << flush;
 	}
+
+	srand(run);
+
+	int maxSize = 1 << 22;
+
+	float tempfloatr;
+		
+	ChunkData::Ptr data;
+	data.reset(new ChunkData(maxSize));
+	complex<float> *p = data->getCpuMemory();
+
+	for (int i = 0; i < maxSize; i++)
+	{
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		p[i].real(tempfloatr);
+		tempfloatr = (float)rand()/(float)RAND_MAX;
+		p[i].imag(tempfloatr);
+	}
+
+	Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
+
+	chunk->transform_data = data;
+
+	if (infile)
+	{
+		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+		complex<float> *random = randomchunk->transform_data->getCpuMemory();
+
+		/*
+		TODO: Is there no way to terminate the whole test if QVERIFY2 fails?
+		Is there another QTest function or macro that does this?
+		QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
+		*/
+
+		if (0 != memcmp(p, random, maxSize))
+		{
+			cout << "\nFAIL: Input random data differs from generated random data!\n" << endl;
+			abort();
+		}
+	}
+	else
+	{
+		Hdf5Chunk::saveChunk( randomfilename, *chunk);
+	}
+	cout << "done." << endl;
 }
 
 void FFTmojTest::generateSizeVector()
