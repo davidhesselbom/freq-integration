@@ -529,7 +529,7 @@ void FFTmojTest::runBenchmark()
 				if (j == 0)
 				{
 #endif
-				memcpy(input, random, size);
+				memcpy(input, random, size*sizeof(complex<float>));
 #ifndef USE_OPENCL
 				}
 #endif
