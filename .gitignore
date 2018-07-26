@@ -43,3 +43,4 @@ release
 *-result.wav
 *-diff.wav
 .DS_Store
+/3-sonicawe-api/FFTmoj/argv.txt
