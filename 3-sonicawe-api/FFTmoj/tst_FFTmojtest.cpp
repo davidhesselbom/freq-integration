@@ -33,7 +33,7 @@
 #ifdef USE_APPLE
 #define endSize 1<<21
 #else
-#define endSize 1<<14 // 2 ^ 22
+#define endSize 1<<22 // 2 ^ 22
 #endif
 
 #include "exceptionassert.h"
