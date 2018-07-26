@@ -209,80 +209,6 @@ void FFTmojTest::generateRandomData()
 	cout << "done." << endl;
 }
 
-void FFTmojTest::generateSizeVector()
-{
-	// Get sizes in an interval for current library and store in file
-#ifdef GENERATESIZEVECTOR
-	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
-	ofstream outputfile(sizefilename);
-
-	int sumSize = 0;
-	int numSize = 0;
-	int i = startSize;
-	while (i <= endSize)
-	{
-		sumSize += i;
-		numSize++;
-
-		outputfile << i;
-		if (i != endSize)
-			outputfile << "\n";
-#ifdef ONLYPOWERSOF2
-			i = i * 2;
-#else
-			i = fft.sChunkSizeG(i);
-#endif
-	}
-
-	outputfile.close();
-
-	cout << "Number of sizes: " << numSize << "\n";
-	cout << "Sum of sizes: " << sumSize << "\n";
-
-#endif
-}
-
-void FFTmojTest::readSizeVector()
-{
-	// Read sizes from file
-#ifdef READSIZEVECTOR
-	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
-	ifstream sizefile(sizefilename);
-
-	int size = 0, prevsize = 0;
-	
-	while (sizefile.good())
-	{
-		sizefile >> size;
-		if (prevsize == size) 
-		{
-			break;
-		}
-		else 
-		{
-			prevsize = size;
-			sizes.push_back(size);
-			sizesum += size;
-		}
-	}
-
-	sizefile.close();
-	maxsize = sizes.back();
-#ifdef ONLYPOWERSOF2
-	int i = startSize / 2;
-#else
-	int i = fft.lChunkSizeS(startSize);
-#endif
-	sizes.push_back(i);
-	reverse(sizes.begin(), sizes.end());
-	
-	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
-
-#endif
-}
-
 void FFTmojTest::generateBatchRandomData()
 {
 	// Make 5 random vectors with the seeds 1..5,
@@ -358,103 +284,78 @@ void FFTmojTest::generateBatchRandomData()
 #endif
 }
 
-void FFTmojTest::runBatchTest() 
+
+void FFTmojTest::generateSizeVector()
 {
-	// Benchmark, for all batch sizes of a given size, the kernel execution time.
-#ifdef RUNBATCHTEST
-	if (mode != "batch")
-		return;
-// Load random data
-	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/set%d/BatchRandomData%d.h5", machine.c_str(), set, run);
+	// Get sizes in an interval for current library and store in file
+#ifdef GENERATESIZEVECTOR
+	char sizefilename[100];
+	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
+	ofstream outputfile(sizefilename);
 
-	cout << "Loading random data from " << randomfilename << "... " << flush;
-	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-	complex<float> *random = randomchunk->transform_data->getCpuMemory();
-	cout << "done." << endl;
-
-	for (int size = 1<<10; size <= 1<<10; size = size*2)
+	int sumSize = 0;
+	int numSize = 0;
+	int i = startSize;
+	while (i <= endSize)
 	{
-		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%s/set%d/%s/batch%d/WallTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
-		ofstream wallTimes(wallTimeFileName);
+		sumSize += i;
+		numSize++;
 
-	#ifdef USE_OPENCL
-		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%s/set%d/%s/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
-		ofstream kExTimes(kExTimeFileName);
-	#endif
-
-		for (int i = 1; i <= (1<<24)/size; i = i*2)
-		{
-			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
-
-			/*if (size == 800000)
-			{
-				fft.reset();
-			}*/
-		
-#ifdef USE_AMD
-			fft.setBatchSize(i);
+		outputfile << i;
+		if (i != endSize)
+			outputfile << "\n";
+#ifdef ONLYPOWERSOF2
+			i = i * 2;
+#else
+			i = fft.sChunkSizeG(i);
 #endif
-			ChunkData::Ptr data;
-			data.reset(new ChunkData(size*i));
-			complex<float> *input = data->getCpuMemory();
-							
-	// CLFFT {
-		 // walltimewithbake
-			  // fft.compute
-		 // endwalltimewithbake
-		 // getexectime
-	// }
+	}
 
-	// CLAMDFFT { 
-		 // bake
-		 // baketime = getbaketime
-	// }
-			wallTimes << i;
-	#ifdef USE_OPENCL
-			kExTimes << i;
-	#endif
-			
-			for (int j = 0; j < 25; j++)
-			{
-				//TODO: Can't seem to get this right, so using a loop instead...
-				//memcpy(&input, &random, size);
-				for (int k = 0; k < size*i; k++)
-				{
-					input[k] = random[k];
-				}
+	outputfile.close();
 
-				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-				fft.compute(data, data, FftDirection_Forward);
-				complex<float> *r = data->getCpuMemory();
-				float wallTime = wallTimer.elapsedTime();
+	cout << "Number of sizes: " << numSize << "\n";
+	cout << "Sum of sizes: " << sumSize << "\n";
 
-				if (j == 0)
-				{
-					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%s/set%d/%s/batch%d/%dResults%d.h5", machine.c_str(), set, techlib.c_str(), run, i, size);
-					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-					chunk->transform_data = data;
-					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-				}
+#endif
+}
 
-				wallTimes << " " << wallTime;
-	#ifdef USE_OPENCL
-				kExTimes << " " << fft.getKernelExecTime();
-	#endif
-			}
-			
-			if (i < (1<<24)/size)
-			{
-				wallTimes << endl;
-	#ifdef USE_OPENCL
-				kExTimes << endl;
-	#endif
-			}
+void FFTmojTest::readSizeVector()
+{
+	// Read sizes from file
+#ifdef READSIZEVECTOR
+	char sizefilename[100];
+	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
+	ifstream sizefile(sizefilename);
+
+	int size = 0, prevsize = 0;
+
+	while (sizefile.good())
+	{
+		sizefile >> size;
+		if (prevsize == size)
+		{
+			break;
+		}
+		else
+		{
+			prevsize = size;
+			sizes.push_back(size);
+			sizesum += size;
 		}
 	}
+
+	sizefile.close();
+	maxsize = sizes.back();
+#ifdef ONLYPOWERSOF2
+	int i = startSize / 2;
+#else
+	int i = fft.lChunkSizeS(startSize);
+#endif
+	sizes.push_back(i);
+	reverse(sizes.begin(), sizes.end());
+
+	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
+
 #endif
 }
 
@@ -626,6 +527,106 @@ catch( std::exception& e )
      // spara exectider
 // }
 
+#endif
+}
+
+void FFTmojTest::runBatchTest()
+{
+	// Benchmark, for all batch sizes of a given size, the kernel execution time.
+#ifdef RUNBATCHTEST
+	if (mode != "batch")
+		return;
+// Load random data
+	char randomfilename[100];
+	sprintf(randomfilename, "data/%s/set%d/BatchRandomData%d.h5", machine.c_str(), set, run);
+
+	cout << "Loading random data from " << randomfilename << "... " << flush;
+	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
+	complex<float> *random = randomchunk->transform_data->getCpuMemory();
+	cout << "done." << endl;
+
+	for (int size = 1<<10; size <= 1<<10; size = size*2)
+	{
+		char wallTimeFileName[100];
+		sprintf(wallTimeFileName, "data/%s/set%d/%s/batch%d/WallTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
+		ofstream wallTimes(wallTimeFileName);
+
+	#ifdef USE_OPENCL
+		char kExTimeFileName[100];
+		sprintf(kExTimeFileName, "data/%s/set%d/%s/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
+		ofstream kExTimes(kExTimeFileName);
+	#endif
+
+		for (int i = 1; i <= (1<<24)/size; i = i*2)
+		{
+			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
+
+			/*if (size == 800000)
+			{
+				fft.reset();
+			}*/
+
+#ifdef USE_AMD
+			fft.setBatchSize(i);
+#endif
+			ChunkData::Ptr data;
+			data.reset(new ChunkData(size*i));
+			complex<float> *input = data->getCpuMemory();
+
+	// CLFFT {
+		 // walltimewithbake
+			  // fft.compute
+		 // endwalltimewithbake
+		 // getexectime
+	// }
+
+	// CLAMDFFT {
+		 // bake
+		 // baketime = getbaketime
+	// }
+			wallTimes << i;
+	#ifdef USE_OPENCL
+			kExTimes << i;
+	#endif
+
+			for (int j = 0; j < 25; j++)
+			{
+				//TODO: Can't seem to get this right, so using a loop instead...
+				//memcpy(&input, &random, size);
+				for (int k = 0; k < size*i; k++)
+				{
+					input[k] = random[k];
+				}
+
+				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+				fft.compute(data, data, FftDirection_Forward);
+				complex<float> *r = data->getCpuMemory();
+				float wallTime = wallTimer.elapsedTime();
+
+				if (j == 0)
+				{
+					char resultsFileName[100];
+					sprintf(resultsFileName, "data/%s/set%d/%s/batch%d/%dResults%d.h5", machine.c_str(), set, techlib.c_str(), run, i, size);
+					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+					chunk->transform_data = data;
+					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+				}
+
+				wallTimes << " " << wallTime;
+	#ifdef USE_OPENCL
+				kExTimes << " " << fft.getKernelExecTime();
+	#endif
+			}
+
+			if (i < (1<<24)/size)
+			{
+				wallTimes << endl;
+	#ifdef USE_OPENCL
+				kExTimes << endl;
+	#endif
+			}
+		}
+	}
 #endif
 }
 
