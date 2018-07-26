@@ -193,18 +193,15 @@ void FFTmojTest::generateRandomData()
 			complex<float> *random = randomchunk->transform_data->getCpuMemory();
 
 			/*
-			TODO: This should be faster, but I can't get it to build.
 			TODO: Is there no way to terminate the whole test if QVERIFY2 fails?
 			Is there another QTest function or macro that does this?
 			QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
 			*/
-			for (int j = 0; j < maxSize; j++)
+
+			if (0 != memcmp(p, random, maxSize))
 			{
-				if (p[j] != random[j])
-				{
-					cout << "\nFAIL: Input random data differs from generated random data!\n" << endl;
-					abort();
-				}
+				cout << "\nFAIL: Input random data differs from generated random data!\n" << endl;
+				abort();
 			}
 		}
 		else
