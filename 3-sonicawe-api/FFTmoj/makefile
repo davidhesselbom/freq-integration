@@ -7,16 +7,17 @@ interp3=$(call interp,$1,$(call interp,$2,$3))
 interp4=$(call interp,$1,$(call interp3,$2,$3,$4))
 interp5=$(call interp,$1,$(call interp4,$2,$3,$4,$5))
 interp6=$(call interp,$1,$(call interp5,$2,$3,$4,$5,$6))
+interp7=$(call interp,$1,$(call interp6,$2,$3,$4,$5,$6,$7))
 
 SEPARATOR=/
-SETS=1 2 3
-RUNS=1 2 3 4 5
+SETS=1 2 3 4 5
+RUNS=1 2 3
 BENCHMARKS=Wall
 LIBRARIES=Ooura ClFft ClAmdFft
 PLATFORMS=$(MACHINE)
-FIRSTPARTOFTARGETS=$(call interp5,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR)set,$(SETS),$(SEPARATOR))
-LASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
-BATCHLASTPARTOFTARGETS=$(call interp5,$(SEPARATOR)batch,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
+FIRSTPARTOFTARGETS=$(call interp3,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR))
+LASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
+BATCHLASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)batch,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
 
 all:
 	@echo "Pick a library: Ooura, ClFft, or ClAmdFft."
@@ -34,23 +35,23 @@ release/opencl/amdamd/FFTmoj.exe: tst_FFTmojtest.cpp
 
 Ooura: release/cpu/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
 ClFft: release/opencl/amdapple/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
-ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS))
 
-$(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)):
+$(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)): release/cpu/FFTmoj.exe
 	@echo "Making $@"
-	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runfft.bat
 
-$(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS)):
+$(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS)): release/opencl/amdapple/FFTmoj.exe
 	@echo "Making $@"
-	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclfft.bat
 
-$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)):
+$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)): release/opencl/amdamd/FFTmoj.exe
 	@echo "Making $@"
-	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclamdfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclamdfft.bat
 
-$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS)):
+$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS)): release/opencl/amdamd/FFTmoj.exe
 	@echo "Making $@"
-	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 3,$(subst $(SEPARATOR), ,$@))) $(subst batch,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst batch,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
 
 clean: $(call interp,clean,$(LIBRARIES))
 	

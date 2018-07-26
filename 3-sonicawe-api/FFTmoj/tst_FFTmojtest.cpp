@@ -163,7 +163,7 @@ void FFTmojTest::generateRandomData()
 		cout << "already exists, verifying... " << flush;
 	}
 
-	srand(run);
+	srand(set);
 
 	int maxSize = 1 << 22;
 
