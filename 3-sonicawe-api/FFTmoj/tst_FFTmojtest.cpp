@@ -550,7 +550,7 @@ void FFTmojTest::runBatchTest()
 		ofstream kExTimes(kExTimeFileName);
 #endif
 
-		for (int i = 1; i <= (1<<24)/size; i = i*2)
+		for (int i = (1<<24)/size; i > 0; i = i/2)
 		{
 			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
 
