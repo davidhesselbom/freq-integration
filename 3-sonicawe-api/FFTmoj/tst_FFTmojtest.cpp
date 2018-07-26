@@ -196,7 +196,7 @@ void FFTmojTest::generateRandomData()
 		QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
 		*/
 
-		if (0 != memcmp(p, random, maxSize))
+		if (0 != memcmp(p, random, maxSize*sizeof(complex<float>)))
 		{
 			cout << "\nFAIL: Input random data differs from generated random data!\n" << endl;
 			abort();
@@ -545,7 +545,7 @@ void FFTmojTest::runBenchmark()
 
 				// Verify output != input
 				// Good enough for single batch, but for multi-batch, this needs to be done for each batch...
-				if (0 == memcmp(r, random, size))
+				if (0 == memcmp(r, random, size*sizeof(complex<float>)))
 				{
 					cout << "\nFAIL: FFT results are identical to input!\n" << endl;
 					abort();
@@ -568,10 +568,9 @@ void FFTmojTest::runBenchmark()
 					{
 						pChunk resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
 						complex<float> *results = resultchunk->transform_data->getCpuMemory();
-						if (0 != memcmp(results, r, size))
+						if (0 != memcmp(results, r, size*sizeof(complex<float>)))
 						{
 							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
-							cout << "First different byte: " << memcmp(results, r, size) << endl;
 							abort();
 						}
 					}
