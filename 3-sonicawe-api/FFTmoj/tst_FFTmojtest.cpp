@@ -602,10 +602,21 @@ void FFTmojTest::runBatchTest()
 						abort();
 					}
 				}
-				if (j == 0)
+				char resultsFileName[100];
+				sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, i, size);
+				ifstream infile(resultsFileName);
+				if (infile)
 				{
-					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%s/%s/set%d/batch%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, run, i, size);
+					pChunk resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+					complex<float> *results = resultchunk->transform_data->getCpuMemory();
+					if (0 != memcmp(results, r, size*sizeof(complex<float>)))
+					{
+						cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
+						abort();
+					}
+				}
+				else
+				{
 					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 					chunk->transform_data = data;
 					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
