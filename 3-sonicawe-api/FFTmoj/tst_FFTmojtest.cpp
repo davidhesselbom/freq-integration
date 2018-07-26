@@ -603,7 +603,7 @@ void FFTmojTest::runBatchTest()
 					}
 				}
 				char resultsFileName[100];
-				sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, i, size);
+				sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, (1<<24)/size, size);
 				ifstream infile(resultsFileName);
 				if (infile)
 				{
