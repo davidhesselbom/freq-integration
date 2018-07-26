@@ -550,6 +550,12 @@ void FFTmojTest::runBatchTest()
 		ofstream kExTimes(kExTimeFileName);
 #endif
 
+		complex<float> *results = 0;
+		pChunk resultchunk;
+
+		char resultsFileName[100];
+		sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, (1<<24)/size, size);
+
 		for (int i = (1<<24)/size; i > 0; i = i/2)
 		{
 			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
@@ -602,24 +608,26 @@ void FFTmojTest::runBatchTest()
 						abort();
 					}
 				}
-				char resultsFileName[100];
-				sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, (1<<24)/size, size);
-				ifstream infile(resultsFileName);
-				if (infile)
+				if (!results)
 				{
-					pChunk resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-					complex<float> *results = resultchunk->transform_data->getCpuMemory();
-					if (0 != memcmp(results, r, size*sizeof(complex<float>)))
+					ifstream infile(resultsFileName);
+					if (infile)
 					{
-						cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
-						abort();
+						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+						results = resultchunk->transform_data->getCpuMemory();
+					}
+					else
+					{
+						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+						chunk->transform_data = data;
+						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+						results = chunk->transform_data->getCpuMemory();
 					}
 				}
-				else
+				if (0 != memcmp(results, r, size*sizeof(complex<float>)))
 				{
-					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-					chunk->transform_data = data;
-					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+					cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
+					abort();
 				}
 
 				wallTimes << " " << wallTime;
