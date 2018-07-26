@@ -591,6 +591,17 @@ void FFTmojTest::runBatchTest()
 				complex<float> *r = data->getCpuMemory();
 				float wallTime = wallTimer.elapsedTime();
 
+				// Verify output != input
+				// It's a little more complicated for multi-batch...
+				for (int k = 0; k < i; k++)
+				{
+					int offset = k*size;
+					if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
+					{
+						cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+						abort();
+					}
+				}
 				if (j == 0)
 				{
 					char resultsFileName[100];
