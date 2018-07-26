@@ -153,7 +153,7 @@ void FFTmojTest::generateRandomData()
 	cout << "About to generate random data..." << endl;
 	
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), run);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
 
 	cout << "Generating " << randomfilename << "... " << flush;
 		
@@ -214,7 +214,7 @@ void FFTmojTest::generateSizeVector()
 	// Get sizes in an interval for current library and store in file
 #ifdef GENERATESIZEVECTOR
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/set%d/%s/Sizes.dat", machine.c_str(), set, techlib.c_str());
+	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
 	ofstream outputfile(sizefilename);
 
 	int sumSize = 0;
@@ -248,7 +248,7 @@ void FFTmojTest::readSizeVector()
 	// Read sizes from file
 #ifdef READSIZEVECTOR
 	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/set%d/%s/Sizes.dat", machine.c_str(), set, techlib.c_str());
+	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
 	ifstream sizefile(sizefilename);
 
 	int size = 0, prevsize = 0;
@@ -277,9 +277,6 @@ void FFTmojTest::readSizeVector()
 #endif
 	sizes.push_back(i);
 	reverse(sizes.begin(), sizes.end());
-
-	//sizes._Reverse(sizes.begin(), sizes.end());
-
 	
 	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
 
@@ -472,12 +469,12 @@ void FFTmojTest::runBenchmark()
 	int size = 0, sizeacc = 0;
 	
 	char wallTimeFileName[100];
-	sprintf(wallTimeFileName, "data/%s/set%d/%s/run%d/WallTimes.dat", machine.c_str(), set, techlib.c_str(), run);
+	sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes.dat", machine.c_str(), techlib.c_str(), set, run);
 	ofstream wallTimes(wallTimeFileName);
 
 #ifdef USE_OPENCL
 	char kExTimeFileName[100];
-	sprintf(kExTimeFileName, "data/%s/set%d/%s/run%d/KernelExecutionTimes.dat", machine.c_str(), set, techlib.c_str(), run);
+	sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes.dat", machine.c_str(), techlib.c_str(), set, run);
 	ofstream kExTimes(kExTimeFileName);
 #endif
 	
@@ -485,7 +482,7 @@ void FFTmojTest::runBenchmark()
 	int toc = 0;
 
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), run);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
@@ -563,7 +560,8 @@ void FFTmojTest::runBenchmark()
 						kExTimes << size;
 					#endif
 						char resultsFileName[100];
-						sprintf(resultsFileName, "data/%s/set%d/%s/run%d/Results%d.h5", machine.c_str(), set, techlib.c_str(), run, size);
+						sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+						// TODO: Similar to during input generation, check first if a file exists, and if so, compare to that one
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
 						chunk->transform_data = data;
@@ -571,7 +569,6 @@ void FFTmojTest::runBenchmark()
 						chunk->transform_data = result;
 #endif
 						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-						
 					}
 					
 					wallTimes << " " << wallTime;
