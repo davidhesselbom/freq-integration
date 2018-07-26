@@ -566,7 +566,14 @@ void FFTmojTest::runBenchmark()
 					ifstream infile(resultsFileName);
 					if (infile)
 					{
-						// TODO: Similar to during input generation, check first if a file exists, and if so, compare to that one
+						pChunk resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+						complex<float> *results = resultchunk->transform_data->getCpuMemory();
+						if (0 != memcmp(results, r, size))
+						{
+							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
+							cout << "First different byte: " << memcmp(results, r, size) << endl;
+							abort();
+						}
 					}
 					else
 					{
