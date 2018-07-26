@@ -532,12 +532,7 @@ void FFTmojTest::runBenchmark()
 				if (j == 0)
 				{
 #endif
-				//TODO: Can't seem to get this right, so using a loop instead...
-				//memcpy(&input, &random, size);
-				for (int k = 0; k < size; k++)
-				{
-					input[k] = random[k];
-				}
+				memcpy(input, random, size);
 #ifndef USE_OPENCL
 				}
 #endif
@@ -552,18 +547,11 @@ void FFTmojTest::runBenchmark()
 				float wallTime = wallTimer.elapsedTime();
 
 				// Verify output != input
-				for (int k = 0; k < size; k++)
+				// Good enough for single batch, but for multi-batch, this needs to be done for each batch...
+				if (0 == memcmp(r, random, size))
 				{
-					// Good enough for single batch, but for multi-batch, this needs to be done for each batch...
-					if (r[k] != random[k])
-					{
-						break;
-					}
-					if (k == size - 1)
-					{
-						cout << "\nFAIL: FFT results are identical to input!\n" << endl;
-						abort();
-					}
+					cout << "\nFAIL: FFT results are identical to input!\n" << endl;
+					abort();
 				}
 				
 				if (size >= startSize)
