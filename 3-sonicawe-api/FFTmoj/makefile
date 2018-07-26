@@ -20,7 +20,7 @@ LASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS)
 BATCHLASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)batch,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
 
 all:
-	@echo "Pick a library: Ooura, ClFft, or ClAmdFft."
+	@echo "Pick a library: Ooura, ClFft, ClAmdFft, or Batches (for ClAmdFft batches)."
 
 .PHONY: $(LIBRARIES) clean $(interp,clean,$(LIBRARIES)) $(interp,$(LIBRARIES),Binary)
 
@@ -35,7 +35,8 @@ release/opencl/amdamd/FFTmoj.exe: tst_FFTmojtest.cpp
 
 Ooura: release/cpu/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
 ClFft: release/opencl/amdapple/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
-ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS))
+ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+Batches: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS))
 
 $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)): release/cpu/FFTmoj.exe
 	@echo "Making $@"
