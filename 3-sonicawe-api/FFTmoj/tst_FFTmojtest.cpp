@@ -414,6 +414,13 @@ void FFTmojTest::runBenchmark()
      // bake
      // baketime = getbaketime
 // }
+
+		char resultsFileName[100];
+		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+
+		complex<float> *results = 0;
+		pChunk resultchunk;
+
 		try 
 		{
 			//fft.reset();
@@ -459,28 +466,30 @@ void FFTmojTest::runBenchmark()
 #endif
 					}
 
-					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
-					ifstream infile(resultsFileName);
-					if (infile)
+					if (!results)
 					{
-						pChunk resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-						complex<float> *results = resultchunk->transform_data->getCpuMemory();
-						if (0 != memcmp(results, r, size*sizeof(complex<float>)))
+						ifstream infile(resultsFileName);
+						if (infile)
 						{
-							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
-							abort();
+							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+							results = resultchunk->transform_data->getCpuMemory();
+						}
+						else
+						{
+							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+#ifdef USE_OPENCL
+							chunk->transform_data = data;
+#else
+							chunk->transform_data = result;
+#endif
+							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+							results = chunk->transform_data->getCpuMemory();
 						}
 					}
-					else
+					if (0 != memcmp(results, r, size*sizeof(complex<float>)))
 					{
-						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-#ifdef USE_OPENCL
-						chunk->transform_data = data;
-#else
-						chunk->transform_data = result;
-#endif
-						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+						cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
+						abort();
 					}
 					
 					wallTimes << " " << wallTime;
