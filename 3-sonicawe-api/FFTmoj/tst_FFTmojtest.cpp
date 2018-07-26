@@ -531,7 +531,7 @@ void FFTmojTest::runBatchTest()
 		return;
 // Load random data
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/set%d/BatchRandomData%d.h5", machine.c_str(), set, run);
+	sprintf(randomfilename, "data/%s/BatchRandomData%d.h5", machine.c_str(), set, run);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
@@ -541,14 +541,14 @@ void FFTmojTest::runBatchTest()
 	for (int size = 1<<10; size <= 1<<10; size = size*2)
 	{
 		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%s/set%d/%s/batch%d/WallTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
+		sprintf(wallTimeFileName, "data/%s/%s/set%d/batch%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
 		ofstream wallTimes(wallTimeFileName);
 
-	#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%s/set%d/%s/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), set, techlib.c_str(), run, size);
+		sprintf(kExTimeFileName, "data/%s/%s/set%d/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
 		ofstream kExTimes(kExTimeFileName);
-	#endif
+#endif
 
 		for (int i = 1; i <= (1<<24)/size; i = i*2)
 		{
@@ -578,18 +578,13 @@ void FFTmojTest::runBatchTest()
 		 // baketime = getbaketime
 	// }
 			wallTimes << i;
-	#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 			kExTimes << i;
-	#endif
+#endif
 
 			for (int j = 0; j < 25; j++)
 			{
-				//TODO: Can't seem to get this right, so using a loop instead...
-				//memcpy(&input, &random, size);
-				for (int k = 0; k < size*i; k++)
-				{
-					input[k] = random[k];
-				}
+				memcpy(input, random, size*sizeof(complex<float>));
 
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 				fft.compute(data, data, FftDirection_Forward);
@@ -599,24 +594,24 @@ void FFTmojTest::runBatchTest()
 				if (j == 0)
 				{
 					char resultsFileName[100];
-					sprintf(resultsFileName, "data/%s/set%d/%s/batch%d/%dResults%d.h5", machine.c_str(), set, techlib.c_str(), run, i, size);
+					sprintf(resultsFileName, "data/%s/%s/set%d/batch%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, run, i, size);
 					Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 					chunk->transform_data = data;
 					Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 				}
 
 				wallTimes << " " << wallTime;
-	#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 				kExTimes << " " << fft.getKernelExecTime();
-	#endif
+#endif
 			}
 
 			if (i < (1<<24)/size)
 			{
 				wallTimes << endl;
-	#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 				kExTimes << endl;
-	#endif
+#endif
 			}
 		}
 	}
