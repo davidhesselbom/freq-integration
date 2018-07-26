@@ -556,10 +556,9 @@ void FFTmojTest::runBenchmark()
 					if (j == 0)
 					{
 						wallTimes << size;
-					#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 						kExTimes << size;
-					#endif
-						char resultsFileName[100];
+#endif
 						sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
 						// TODO: Similar to during input generation, check first if a file exists, and if so, compare to that one
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
@@ -572,18 +571,18 @@ void FFTmojTest::runBenchmark()
 					}
 					
 					wallTimes << " " << wallTime;
-					#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 					kExTimes << " " << fft.getKernelExecTime();
-					#endif
+#endif
 				}
 			}
 			
 			if (i < sizes.size() && size > startSize)
 			{
 				wallTimes << "\n";
-				#ifdef USE_OPENCL
+#ifdef USE_OPENCL
 				kExTimes << "\n";
-				#endif
+#endif
 			}
 		}
 catch( std::exception& e )
