@@ -155,7 +155,7 @@ void FFTmojTest::generateRandomData()
 	for (int i = 1; i <= 5; i++)
 	{
 		char randomfilename[100];
-		sprintf(randomfilename, "data/%s/set%d/RandomData%d.h5", machine.c_str(), set, i);
+		sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), i);
 
 		cout << "Generating " << randomfilename << "... " << flush;
 		
@@ -488,7 +488,7 @@ void FFTmojTest::runBenchmark()
 	int toc = 0;
 
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/set%d/RandomData%d.h5", machine.c_str(), set, run);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), run);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
