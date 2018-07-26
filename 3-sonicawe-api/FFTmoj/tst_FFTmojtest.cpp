@@ -559,8 +559,17 @@ void FFTmojTest::runBenchmark()
 #ifdef USE_OPENCL
 						kExTimes << size;
 #endif
-						sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+					}
+
+					char resultsFileName[100];
+					sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+					ifstream infile(resultsFileName);
+					if (infile)
+					{
 						// TODO: Similar to during input generation, check first if a file exists, and if so, compare to that one
+					}
+					else
+					{
 						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
 						chunk->transform_data = data;
