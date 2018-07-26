@@ -522,6 +522,9 @@ void FFTmojTest::runBenchmark()
 		try 
 		{
 			//fft.reset();
+			// TODO: 25 is a magic number that I should specify elsewhere.
+			// BTW, does it have to be the same for all window sizes?
+			// Wouldn't it make sense to do it fewer times for large sizes?
 			for (int j = 0; j < 25; j++)
 			{
 #ifndef USE_OPENCL
