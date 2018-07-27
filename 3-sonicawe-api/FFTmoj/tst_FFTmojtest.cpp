@@ -544,6 +544,7 @@ void FFTmojTest::runBatchTest()
 	complex<float> *random = randomchunk->transform_data->getCpuMemory();
 	cout << "done." << endl;
 
+	// TODO: This shouldn't be this hardcoded...
 	for (int size = 1<<10; size <= 1<<10; size = size*2)
 	{
 		char wallTimeFileName[100];
