@@ -639,7 +639,7 @@ void FFTmojTest::runBatchTest()
 #endif
 			}
 
-			if (i < 1)
+			if (i > 1)
 			{
 				wallTimes << endl;
 #ifdef USE_OPENCL
