@@ -21,12 +21,6 @@ function compareOutput()
 	% TODO: At some point, verify output from Octave fft is different from its input
 	compareFirstSetOfRandomDataAcrossMachines();
 	%compareFftOutputFromOctave();
-	compareLibraryResultsAcrossSets("Fusion", "Ooura");
-	compareLibraryResultsAcrossSets("Fusion", "ClFft");
-	compareLibraryResultsAcrossSets("Fusion", "ClAmdFft");
-	compareLibraryResultsAcrossSets("Rampage", "Ooura");
-	compareLibraryResultsAcrossSets("Rampage", "ClFft");
-	compareLibraryResultsAcrossSets("Rampage", "ClAmdFft");
 	compareFirstSetOfLibraryResultsAcrossMachines("Ooura");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
@@ -96,30 +90,6 @@ function compareFirstSetOfRandomDataAcrossMachines()
 		fusionFile = sprintf("C:/data/Fusion/set1/RandomData%i.h5", i);
 		rampageFile = sprintf("C:/data/Rampage/set1/RandomData%i.h5", i);
 		compareChunkFiles(fusionFile, rampageFile);
-	end
-	disp("");
-end
-
-function compareLibraryResultsAcrossSets(machine, techlib)
-	disp(sprintf("Comparing %s sizes files from %s...", techlib, machine))
-	firstSizeFile = sprintf("C:/data/%s/set1/%s/Sizes.dat", machine, techlib);
-	for set = 2:3
-		secondSizeFile = sprintf("C:/data/%s/set%i/%s/Sizes.dat", machine, set, techlib);
-		compareSizeFiles(firstSizeFile, secondSizeFile)
-	end
-	
-	sizes = load(firstSizeFile);
-
-	for set = 2:3
-		disp(sprintf("Comparing %s results from %s, set 1 to set %i...", techlib, machine, set))
-		for i = 1:5
-			for size = sizes'
-				firstFile = sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine, techlib, i, size);
-				secondFile = sprintf("C:/data/%s/set%i/%s/run%i/Results%i.h5", machine, set, techlib, i, size);
-
-				compareChunkFiles(firstFile, secondFile);
-			end
-		end
 	end
 	disp("");
 end
