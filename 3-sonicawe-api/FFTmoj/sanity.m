@@ -4,15 +4,15 @@
 
 function sanity()
 	tic()
-	%compareOutput();
-	%computePrecision("Fusion", "Ooura");
-	%computePrecision("Fusion", "ClFft");
-	%computePrecision("Fusion", "ClAmdFft");
-	%computePrecision("Rampage", "ClFft");
-	%compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
-	%compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
-	%compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
-	%compareBatchOutput();
+	compareOutput();
+	computePrecision("Fusion", "Ooura");
+	computePrecision("Fusion", "ClFft");
+	computePrecision("Fusion", "ClAmdFft");
+	computePrecision("Rampage", "ClFft");
+	compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
+	compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
+	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
+	compareBatchOutput();
 	computeBatchPrecision();
 	toc()
 end
@@ -20,21 +20,21 @@ end
 function compareOutput()
 	% TODO: At some point, verify output from Octave fft is different from its input
 	compareFirstSetOfRandomDataAcrossMachines();
-	%compareFftOutputFromOctave();
+	compareFftOutputFromOctave();
 	compareFirstSetOfLibraryResultsAcrossMachines("Ooura");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
 	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
 end
 
 function compareBatchOutput()
-	%compareBatchRandomDataToRandomData()
-	%compareFirstSetOfBatchRandomDataAcrossMachines()
-	%compareBatchFftOutputFromOctave();
-	%compareBatchResultsAcrossSets("Fusion");
-	%compareBatchResultsAcrossSets("Rampage");
-	%compareFirstSetOfBatchResultsAcrossMachines();
-	%compareOutputOfSmallerBatchesToLargestBatch();
-	%compareOutputOfBatchSize1toBenchResults();
+	compareBatchRandomDataToRandomData()
+	compareFirstSetOfBatchRandomDataAcrossMachines()
+	compareBatchFftOutputFromOctave();
+	compareBatchResultsAcrossSets("Fusion");
+	compareBatchResultsAcrossSets("Rampage");
+	compareFirstSetOfBatchResultsAcrossMachines();
+	compareOutputOfSmallerBatchesToLargestBatch();
+	compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBench("Fusion");
 	compareTimesOfBatchSize1toBench("Rampage");
 end
