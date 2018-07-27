@@ -626,7 +626,7 @@ void FFTmojTest::runBatchTest()
 					resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
 					results = resultchunk->transform_data->getCpuMemory();
 				}
-				if (0 != memcmp(results, r, size*sizeof(complex<float>)))
+				if (0 != memcmp(results, r, size*i*sizeof(complex<float>)))
 				{
 					cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
 					abort();
