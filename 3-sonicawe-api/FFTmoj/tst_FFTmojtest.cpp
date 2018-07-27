@@ -597,7 +597,7 @@ void FFTmojTest::runBatchTest()
 
 			for (int j = 0; j < 25; j++)
 			{
-				memcpy(input, random, size*sizeof(complex<float>));
+				memcpy(input, random, size*i*sizeof(complex<float>));
 
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 				fft.compute(data, data, FftDirection_Forward);
