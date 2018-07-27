@@ -162,10 +162,10 @@ function compareTimesOfBatchSize1toBench(machine)
 	for set = 1:5
 		for run = 1:3
 			wallTimes = [wallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/WallTimes.dat", machine, set, run))(13, 3:end)];
-			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/WallTimes1024.dat", machine, set, run))(1, 3:end)];
+			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/WallTimes1024.dat", machine, set, run))(end, 3:end)];
 
 			kernelExecutionTimes = [kernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/KernelExecutionTimes.dat", machine, set, run))(13, 3:end)];
-			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(1, 3:end)];
+			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(end, 3:end)];
 		end
 	end
 
