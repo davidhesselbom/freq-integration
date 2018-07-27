@@ -87,8 +87,8 @@ end
 function compareFirstSetOfRandomDataAcrossMachines()
 	disp("Comparing random data files from Fusion to Rampage, set 1...");
 	for i = 1:5
-		fusionFile = sprintf("C:/data/Fusion/set1/RandomData%i.h5", i);
-		rampageFile = sprintf("C:/data/Rampage/set1/RandomData%i.h5", i);
+		fusionFile = sprintf("C:/data/Fusion/RandomData%i.h5", i);
+		rampageFile = sprintf("C:/data/Rampage/RandomData%i.h5", i);
 		compareChunkFiles(fusionFile, rampageFile);
 	end
 	disp("");
