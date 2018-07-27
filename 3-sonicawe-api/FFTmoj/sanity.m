@@ -9,8 +9,8 @@ function sanity()
 	computePrecision("Fusion", "ClFft");
 	computePrecision("Fusion", "ClAmdFft");
 	computePrecision("Rampage", "ClFft");
-	compareMaxErr("Fusion", "Ooura", "Fusion", "ClFft");
-	compareMaxErr("Fusion", "Ooura", "Rampage", "ClFft");
+	compareMaxErr("Fusion", "ClFft", "Fusion", "Ooura");
+	compareMaxErr("Rampage", "ClFft", "Fusion", "Ooura");
 	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
 	compareBatchOutput();
 	computeBatchPrecision();
@@ -19,21 +19,18 @@ end
 
 function compareOutput()
 	% TODO: At some point, verify output from Octave fft is different from its input
-	compareFirstSetOfRandomDataAcrossMachines();
+	compareRandomDataAcrossMachines();
 	compareFftOutputFromOctave();
-	compareFirstSetOfLibraryResultsAcrossMachines("Ooura");
-	compareFirstSetOfLibraryResultsAcrossMachines("ClFft");
-	compareFirstSetOfLibraryResultsAcrossMachines("ClAmdFft");
+	compareLibraryResultsAcrossMachines("Ooura");
+	compareLibraryResultsAcrossMachines("ClFft");
+	compareLibraryResultsAcrossMachines("ClAmdFft");
 end
 
 function compareBatchOutput()
 	compareBatchRandomDataToRandomData()
-	compareFirstSetOfBatchRandomDataAcrossMachines()
+	compareBatchRandomDataAcrossMachines()
 	compareBatchFftOutputFromOctave();
-	compareBatchResultsAcrossSets("Fusion");
-	compareBatchResultsAcrossSets("Rampage");
-	compareFirstSetOfBatchResultsAcrossMachines();
-	compareOutputOfSmallerBatchesToLargestBatch();
+	compareBatchResultsAcrossMachines();
 	compareOutputOfBatchSize1toBenchResults();
 	compareTimesOfBatchSize1toBench("Fusion");
 	compareTimesOfBatchSize1toBench("Rampage");
@@ -52,6 +49,7 @@ function compareChunkFiles(firstFileName, secondFileName)
 end
 
 function compareSizeFiles(firstFileName, secondFileName)
+	disp("Comparing size files...");
 	firstFile = load(firstFileName);
 	secondFile = load(secondFileName);
 	if (max(firstFile - secondFile) != 0);
@@ -64,11 +62,11 @@ function compareSizeFiles(firstFileName, secondFileName)
 end
 
 function compareFftOutputFromOctave()
-	sizes = load(sprintf("C:/data/Fusion/set1/Ooura/Sizes.dat"));
+	sizes = load(sprintf("C:/data/Fusion/Ooura/Sizes.dat"));
 
-	for run = 1:5
-		disp(sprintf("Computing precision for Octave vs Octave, run %i...", run));
-		randomData = load(sprintf("C:/data/Fusion/set1/RandomData%i.h5", run));
+	for set = 1:5
+		disp(sprintf("Computing precision for Octave vs Octave, set %i...", set));
+		randomData = load(sprintf("C:/data/Fusion/RandomData%i.h5", set));
 		for size = sizes'
 			reference = fft(randomData.chunk(1:size));
 			reference2 = fft(randomData.chunk(1:size));
@@ -84,29 +82,29 @@ function compareFftOutputFromOctave()
 	disp("");
 end
 
-function compareFirstSetOfRandomDataAcrossMachines()
-	disp("Comparing random data files from Fusion to Rampage, set 1...");
-	for i = 1:5
-		fusionFile = sprintf("C:/data/Fusion/RandomData%i.h5", i);
-		rampageFile = sprintf("C:/data/Rampage/RandomData%i.h5", i);
+function compareRandomDataAcrossMachines()
+	disp("Comparing random data files from Fusion to Rampage...");
+	for set = 1:5
+		fusionFile = sprintf("C:/data/Fusion/RandomData%i.h5", set);
+		rampageFile = sprintf("C:/data/Rampage/RandomData%i.h5", set);
 		compareChunkFiles(fusionFile, rampageFile);
 	end
 	disp("");
 end
 
-function compareFirstSetOfLibraryResultsAcrossMachines(techlib)
-	firstSizeFile = sprintf("C:/data/Fusion/set1/%s/Sizes.dat", techlib);
-	secondSizeFile = sprintf("C:/data/Rampage/set1/%s/Sizes.dat", techlib);
+function compareLibraryResultsAcrossMachines(techlib)
+	firstSizeFile = sprintf("C:/data/Fusion/%s/Sizes.dat", techlib);
+	secondSizeFile = sprintf("C:/data/Rampage/%s/Sizes.dat", techlib);
 	compareSizeFiles(firstSizeFile, secondSizeFile)
 	
 	sizes = load(firstSizeFile);
 
 	disp(sprintf("Comparing %s results across machines...", techlib))
 
-	for i = 1:5
+	for set = 1:5
 		for size = sizes'
-			firstFile = sprintf("C:/data/Fusion/set1/%s/run%i/Results%i.h5", techlib, i, size);
-			secondFile = sprintf("C:/data/Rampage/set1/%s/run%i/Results%i.h5", techlib, i, size);
+			firstFile = sprintf("C:/data/Fusion/%s/set%i/Results%i.h5", techlib, set, size);
+			secondFile = sprintf("C:/data/Rampage/%s/set%i/Results%i.h5", techlib, set, size);
 
 			compareChunkFiles(firstFile, secondFile);
 		end
@@ -115,14 +113,14 @@ function compareFirstSetOfLibraryResultsAcrossMachines(techlib)
 end
 
 function compareBatchRandomDataToRandomData()
-	disp(sprintf("Comparing batch random data files to random data files from Fusion, set 1 to set 1..."));
-	for i = 1:5
-		firstFile = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", i)).chunk(1:2^22);
-		secondFile = load(sprintf("C:/data/Fusion/set1/RandomData%i.h5", i)).chunk;
+	disp(sprintf("Comparing batch random data files to random data files from Fusion..."));
+	for set = 1:5
+		firstFile = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set)).chunk(1:2^22);
+		secondFile = load(sprintf("C:/data/Fusion/RandomData%i.h5", set)).chunk;
 		if (max(firstFile - secondFile) != 0);
 			m = maxerr(firstFile, secondFile);
 			n = nrmsd(firstFile, secondFile);
-			disp(sprintf("Run: %i: Random data differs! MaxErr: %i, NRMSD: %i", i, m, n))
+			disp(sprintf("Set: %i: Random data differs! MaxErr: %i, NRMSD: %i", set, m, n))
 		else
 			%disp(sprintf("Random data is identical."))
 		end
@@ -130,39 +128,28 @@ function compareBatchRandomDataToRandomData()
 	disp("");
 end
 
-function compareFirstSetOfBatchRandomDataAcrossMachines()
-	disp("Comparing batch random data files from Fusion to Rampage, set 1...");
-	for i = 1:5
-		fusionFile = sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", i);
-		rampageFile = sprintf("C:/data/Rampage/set1/BatchRandomData%i.h5", i);
+function compareBatchRandomDataAcrossMachines()
+	disp("Comparing batch random data files from Fusion to Rampage...");
+	for set = 1:5
+		fusionFile = sprintf("C:/data/Fusion/BatchRandomData%i.h5", set);
+		rampageFile = sprintf("C:/data/Rampage/BatchRandomData%i.h5", set);
 		compareChunkFiles(fusionFile, rampageFile);
 	end
 	disp("");
 end
 
-function compareOutputOfSmallerBatchesToLargestBatch()
-	for run = 1:5
-		disp(sprintf("Comparing batch results from Fusion, smaller batches to largest batch, run %i...", run));
-		firstFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, 2^14)).chunk;
-		for batchSize = 2.^(0:13)
-			secondFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize)).chunk;
-			if (max(firstFile(1:1024*batchSize) - secondFile) != 0);
-				m = maxerr(firstFile(1:1024*batchSize), secondFile);
-				n = nrmsd(firstFile(1:1024*batchSize), secondFile);
-				disp(sprintf("Run: %i, Batch size: %i: Batch result differs from largets batch! MaxErr: %i, NRMSD: %i", i, batchSize, m, n))
-			else
-				%disp(sprintf("Batch results are identical."))
-			end
-		end
-	end
-	disp("");
-end
-
 function compareOutputOfBatchSize1toBenchResults()
-	for run = 1:5
-		firstFile = sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/1Results1024.h5", run);
-		secondFile = sprintf("C:/data/Fusion/set1/ClAmdFft/run%i/Results1024.h5", run);
-		compareChunkFiles(firstFile, secondFile);
+	disp("Comparing batch output to no-batch output...");
+	for set = 1:5
+		firstFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/16384Results1024.h5", set)).chunk(1:1024);
+		secondFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/Results1024.h5", set)).chunk;
+		if (max(firstFile - secondFile) != 0);
+			m = maxerr(firstFile, secondFile);
+			n = nrmsd(firstFile, secondFile);
+			disp(sprintf("Set: %i: Batch size 1 output differs from bench output! MaxErr: %i, NRMSD: %i", set, m, n))
+		else
+			%disp(sprintf("Random data is identical."))
+		end
 	end
 	disp("");
 end
@@ -172,13 +159,13 @@ function compareTimesOfBatchSize1toBench(machine)
 	kernelExecutionTimes = [];
 	batchWallTimes = [];
 	batchKernelExecutionTimes = [];
-	for set = 1:3
-		for run = 1:5
-			wallTimes = [wallTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/run%i/WallTimes.dat", machine, set, run))(13, 3:end)];
-			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/WallTimes1024.dat", machine, set, run))(1, 3:end)];
+	for set = 1:5
+		for run = 1:3
+			wallTimes = [wallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/WallTimes.dat", machine, set, run))(13, 3:end)];
+			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/WallTimes1024.dat", machine, set, run))(1, 3:end)];
 
-			kernelExecutionTimes = [kernelExecutionTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/run%i/KernelExecutionTimes.dat", machine, set, run))(13, 3:end)];
-			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(1, 3:end)];
+			kernelExecutionTimes = [kernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/KernelExecutionTimes.dat", machine, set, run))(13, 3:end)];
+			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(1, 3:end)];
 		end
 	end
 
@@ -200,12 +187,12 @@ function compareTimesOfBatchSize1toBench(machine)
 end
 
 function compareBatchFftOutputFromOctave()
-	for run = 1:5
-		disp(sprintf("Computing precision for Octave vs Octave, run %i...", run));
-		randomData = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", run));
-		for i = 1:2^14;
-			reference = fft(randomData.chunk(1+(i-1)*1024:i*1024));
-			reference2 = fft(randomData.chunk(1+(i-1)*1024:i*1024));
+	for set = 1:5
+		disp(sprintf("Computing precision for batches vs Octave, set %i...", set));
+		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
+		for slice = 1:2^14;
+			reference = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
+			reference2 = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
 			if (max(reference - reference2) != 0);
 				m = maxerr(reference, reference2);
 				n = nrmsd(reference, reference2);
@@ -218,27 +205,12 @@ function compareBatchFftOutputFromOctave()
 	disp("");
 end
 
-function compareBatchResultsAcrossSets(machine)
-	for set = 2:3
-		disp(sprintf("Comparing batch results from %s, set 1 to set %i...", machine, set));
-		for run = 1:5
-			for batchSize = 2.^(0:14)
-				firstFile = sprintf("C:/data/%s/set1/ClAmdFft/batch%i/%iResults1024.h5", machine, run, batchSize);
-				secondFile = sprintf("C:/data/%s/set%i/ClAmdFft/batch%i/%iResults1024.h5", machine, set, run, batchSize);
-
-				compareChunkFiles(firstFile, secondFile);
-			end
-		end
-		disp("");
-	end
-end
-
-function compareFirstSetOfBatchResultsAcrossMachines()
-	disp(sprintf("Comparing batch results from Fusion to Rampage, set 1..."));
-	for run = 1:5
-		for batchSize = 2.^(0:14)
-			firstFile = sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize);
-			secondFile = sprintf("C:/data/Rampage/set1/ClAmdFft/batch%i/%iResults1024.h5", run, batchSize);
+function compareBatchResultsAcrossMachines()
+	disp(sprintf("Comparing batch results from Fusion to Rampage..."));
+	for set = 1:5
+		for batchSize = 2.^(14)
+			firstFile = sprintf("C:/data/Fusion/ClAmdFft/set%i/%iResults1024.h5", set, batchSize);
+			secondFile = sprintf("C:/data/Rampage/ClAmdFft/set%i/%iResults1024.h5", set, batchSize);
 
 			compareChunkFiles(firstFile, secondFile);
 		end
@@ -247,28 +219,24 @@ function compareFirstSetOfBatchResultsAcrossMachines()
 end
 
 function computeBatchPrecision()
-	% TODO: For each run in the first set from one machine, slice largest batch result into pieces of 1024, 
-	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD. 
+	% For each set from one of the machines, slice largest batch result into pieces of 1024,
+	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD.
 	% See computePrecision below, use a "vectorToSave"
 
-	for run = 1:5
-		disp(sprintf("Computing batch precision, run %i...", run));
-		randomData = load(sprintf("C:/data/Fusion/set1/BatchRandomData%i.h5", run));
-		resultsFile = load(sprintf("C:/data/Fusion/set1/ClAmdFft/batch%i/%iResults1024.h5", run, 2^14));
+	for set = 1:5
+		disp(sprintf("Computing batch precision, set %i...", set));
+		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
+		resultsFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/%iResults1024.h5", set, 2^14));
 
-		for i = 1:2^14
-			randomSlice = randomData.chunk(1+(i-1)*1024:i*1024);
-			resultsSlice = resultsFile.chunk(1+(i-1)*1024:i*1024);
-			if (max(resultsSlice-randomSlice) == 0)
-				% TODO: Make better error message
-				disp(sprintf("PANIC!!! results equal input at batch slice %i", i))
-				break
-			end
+		for slice = 1:2^14
+			randomSlice = randomData.chunk(1+(slice-1)*1024:slice*1024);
+			resultsSlice = resultsFile.chunk(1+(slice-1)*1024:slice*1024);
+
 			reference = fft(randomSlice);
 			startElement = 2;
-			m((run-1)*(2^14)+i) = maxerr(resultsSlice(startElement:end), reference(startElement:end));
-			n((run-1)*(2^14)+i) = nrmsd(resultsSlice(startElement:end), reference(startElement:end));
-			if (run == 5)
+			m((set-1)*(2^14)+slice) = maxerr(resultsSlice(startElement:end), reference(startElement:end));
+			n((set-1)*(2^14)+slice) = nrmsd(resultsSlice(startElement:end), reference(startElement:end));
+			if (set == 5)
 				vectorToSave(1) = max(m)/sqrt(1024);
 				vectorToSave(2) = max(n);
 			end
@@ -279,26 +247,26 @@ function computeBatchPrecision()
 end
 
 function computePrecision(machine, techlib)
-	sizes = load(sprintf("C:/data/%s/set1/%s/Sizes.dat", machine, techlib));
+	sizes = load(sprintf("C:/data/%s/%s/Sizes.dat", machine, techlib));
 	
-	for run = 1:5
-		disp(sprintf("Computing precision for %s on %s, run %i...", techlib, machine, run));
-		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine, run));
+	for set = 1:5
+		disp(sprintf("Computing precision for %s on %s, set %i...", techlib, machine, set));
+		randomData = load(sprintf("C:/data/%s/RandomData%i.h5", machine, set));
 
-		for i = 1:size(sizes', 2)
-			currentSize = sizes(i);
-			resultsFile = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine, techlib, run, currentSize));
+		for index = 1:size(sizes', 2)
+			currentSize = sizes(index);
+			resultsFile = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine, techlib, set, currentSize));
 			reference = fft(randomData.chunk(1:currentSize));
 			% TODO: Does element 1 really need to be excluded?
 			startElement = 2;
-			m(run,i) = maxerr(resultsFile.chunk(startElement:end), reference(startElement:end));
-			n(run,i) = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
+			m(set,index) = maxerr(resultsFile.chunk(startElement:end), reference(startElement:end));
+			n(set,index) = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
 			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
-			if (run == 5)
-				vectorToSave(i,1) = currentSize;
-				vectorToSave(i,2) = max(m(:,i))/sqrt(currentSize);
-				vectorToSave(i,3) = max(n(:,i));
-				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", currentSize, max(m(:,i)), max(n(:,i))))
+			if (set == 5)
+				vectorToSave(index,1) = currentSize;
+				vectorToSave(index,2) = max(m(:,index))/sqrt(currentSize);
+				vectorToSave(index,3) = max(n(:,index));
+				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", currentSize, max(m(:,index)), max(n(:,index))))
 			end
 		end
 	end
@@ -307,25 +275,25 @@ function computePrecision(machine, techlib)
 end
 
 function compareMaxErr(machine1, techlib1, machine2, techlib2)
-	sizes = load(sprintf("C:/data/%s/set1/%s/Sizes.dat", machine1, techlib1));
+	sizes = load(sprintf("C:/data/%s/%s/Sizes.dat", machine1, techlib1));
 
-	for run = 1:5
-		disp(sprintf("Comparing Maxerr for %s on %s with %s on %s, run %i...", techlib1, machine1, techlib2, machine2, run));
-		randomData = load(sprintf("C:/data/%s/set1/RandomData%i.h5", machine1, run));
+	for set = 1:5
+		disp(sprintf("Comparing Maxerr for %s on %s with %s on %s, set %i...", techlib1, machine1, techlib2, machine2, set));
+		randomData = load(sprintf("C:/data/%s/RandomData%i.h5", machine1, set));
 
-		for i = 1:size(sizes', 2)
-			currentSize = sizes(i);
-			resultsFile1 = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine1, techlib1, run, currentSize));
-			resultsFile2 = load(sprintf("C:/data/%s/set1/%s/run%i/Results%i.h5", machine2, techlib2, run, currentSize));
+		for index = 1:size(sizes', 2)
+			currentSize = sizes(index);
+			resultsFile1 = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine1, techlib1, set, currentSize));
+			resultsFile2 = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine2, techlib2, set, currentSize));
 			reference = fft(randomData.chunk(1:currentSize));
 			% TODO: Does element 1 really need to be excluded?
 			startElement = 2;
-			m1(run,i) = maxerr(resultsFile1.chunk(startElement:end), reference(startElement:end));
-			m2(run,i) = maxerr(resultsFile2.chunk(startElement:end), reference(startElement:end));
+			m1(set,index) = maxerr(resultsFile1.chunk(startElement:end), reference(startElement:end));
+			m2(set,index) = maxerr(resultsFile2.chunk(startElement:end), reference(startElement:end));
 			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
-			if (run == 5)
-				if (m1(run,i) != m2(run,i))
-					disp(sprintf("Size: %i, Maxerr diff: %i", currentSize, abs(m1(run,i) - m2(run,i))))
+			if (set == 5)
+				if (m1(set,index) != m2(set,index))
+					disp(sprintf("Size: %i, Maxerr diff: %i", currentSize, abs(m1(set,index) - m2(set,index))))
 				end
 			end
 		end
