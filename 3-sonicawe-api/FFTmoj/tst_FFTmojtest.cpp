@@ -134,8 +134,8 @@ void FFTmojTest::initTestCase()
 	ifstream argvfile(argvfilename);
 	// TODO: Error handling...
 	argvfile >> machine; // which machine we're on
-	argvfile >> set; // which of the 3 sets to run
-	argvfile >> run; // which of the 5 runs to run
+	argvfile >> set; // which of the sets to run
+	argvfile >> run; // which of the runs to run
 	argvfile >> mode; // whether to run benchmarks or batches
 	cout << machine << " " << set << " " << run << " " << mode << endl;
 }
@@ -165,7 +165,7 @@ void FFTmojTest::generateRandomData()
 
 	srand(set);
 
-	int maxSize = 1 << 22;
+	int maxSize = 1 << (10+14);
 
 	float tempfloatr;
 		
@@ -212,7 +212,7 @@ void FFTmojTest::generateRandomData()
 void FFTmojTest::generateBatchRandomData()
 {
 	// Make 5 random vectors with the seeds 1..5,
-	// store them in data/BatchRandomFile#.h5,
+	// store them in data/RandomFile#.h5,
 	// but don't overwrite if exist
 #ifdef RUNBATCHTEST
 	if (mode != "batch")
@@ -220,7 +220,7 @@ void FFTmojTest::generateBatchRandomData()
 	cout << "About to generate batch random data..." << endl;
 
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/BatchRandomData%d.h5", machine.c_str(), set);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
 
 	cout << "Generating " << randomfilename << "... " << flush;
 
@@ -232,7 +232,7 @@ void FFTmojTest::generateBatchRandomData()
 
 	srand(set);
 
-	int maxSize = 1 << 10+14;
+	int maxSize = 1 << (10+14);
 
 	float tempfloatr;
 
@@ -537,7 +537,7 @@ void FFTmojTest::runBatchTest()
 		return;
 // Load random data
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/BatchRandomData%d.h5", machine.c_str(), set, run);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set, run);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
