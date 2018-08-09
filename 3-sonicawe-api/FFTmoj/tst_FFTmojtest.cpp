@@ -545,7 +545,7 @@ void FFTmojTest::runBatchTest()
 	cout << "done." << endl;
 
 	// TODO: This shouldn't be this hardcoded...
-	for (int size = 1<<10; size <= 1<<10; size = size*2)
+	for (int size = 1<<7; size <= 1<<22; size = size*2)
 	{
 		char wallTimeFileName[100];
 		sprintf(wallTimeFileName, "data/%s/%s/set%d/batch%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
