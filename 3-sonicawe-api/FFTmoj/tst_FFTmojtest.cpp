@@ -210,9 +210,8 @@ void FFTmojTest::generateSizeVector()
 	// Get sizes in an interval for current library and store in file
 #ifdef GENERATESIZEVECTOR
 	// TODO: Don't overwrite existing files!
-	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
-	ofstream outputfile(sizefilename);
+	std::string sizefilename = (boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str();
+	ofstream outputfile(sizefilename.c_str());
 
 	int sumSize = 0;
 	int numSize = 0;
