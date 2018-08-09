@@ -128,9 +128,7 @@ void FFTmojTest::initTestCase()
 	mode = "bench";
 	
 	// So, this is dumb, but without argv, what do I do instead?
-	char argvfilename[100];
-	sprintf(argvfilename, "argv.txt");
-	ifstream argvfile(argvfilename);
+	ifstream argvfile("argv.txt");
 	// TODO: Error handling...
 	argvfile >> machine; // which machine we're on
 	argvfile >> set; // which of the sets to run
