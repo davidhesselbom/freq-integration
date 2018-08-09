@@ -67,7 +67,6 @@ private Q_SLOTS:
 	void generateRandomData();
 	void generateSizeVector();
 	void readSizeVector();
-	void generateBatchRandomData();
 	void runBatchTest();
 	void runBenchmark();
 
@@ -208,75 +207,6 @@ void FFTmojTest::generateRandomData()
 	}
 	cout << "done." << endl;
 }
-
-void FFTmojTest::generateBatchRandomData()
-{
-	// Make 5 random vectors with the seeds 1..5,
-	// store them in data/RandomFile#.h5,
-	// but don't overwrite if exist
-#ifdef RUNBATCHTEST
-	if (mode != "batch")
-		return;
-	cout << "About to generate batch random data..." << endl;
-
-	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
-
-	cout << "Generating " << randomfilename << "... " << flush;
-
-	ifstream infile(randomfilename);
-	if (infile)
-	{
-		cout << "already exists, verifying... " << flush;
-	}
-
-	srand(set);
-
-	int maxSize = 1 << (10+14);
-
-	float tempfloatr;
-
-	ChunkData::Ptr data;
-	data.reset(new ChunkData(maxSize));
-	complex<float> *p = data->getCpuMemory();
-
-	for (int i = 0; i < maxSize; i++)
-	{
-		tempfloatr = (float)rand()/(float)RAND_MAX;
-		p[i].real(tempfloatr);
-		tempfloatr = (float)rand()/(float)RAND_MAX;
-		p[i].imag(tempfloatr);
-	}
-
-	Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
-
-	chunk->transform_data = data;
-
-	if (infile)
-	{
-		pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-		complex<float> *random = randomchunk->transform_data->getCpuMemory();
-
-		/*
-		TODO: Is there no way to terminate the whole test if QVERIFY2 fails?
-		Is there another QTest function or macro that does this?
-		QVERIFY2(*randomchunk->transform_data == &data, "Input random data differs from generated random data!");
-		*/
-
-		if (0 != memcmp(p, random, maxSize*sizeof(complex<float>)))
-		{
-			cout << "\nFAIL: Input batch random data differs from generated batch random data!\n" << endl;
-			abort();
-		}
-	}
-	else
-	{
-		Hdf5Chunk::saveChunk( randomfilename, *chunk);
-	}
-	cout << "done." << endl;
-#endif
-}
-
 
 void FFTmojTest::generateSizeVector()
 {
