@@ -149,12 +149,11 @@ void FFTmojTest::generateRandomData()
 	
 	cout << "About to generate random data..." << endl;
 	
-	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
+	std::string randomfilename = (boost::format("data/%s/RandomData%d.h5") % machine % set).str();
 
 	cout << "Generating " << randomfilename << "... " << flush;
 		
-	ifstream infile(randomfilename);
+	ifstream infile(randomfilename.c_str());
 	if (infile)
 	{
 		cout << "already exists, verifying... " << flush;
