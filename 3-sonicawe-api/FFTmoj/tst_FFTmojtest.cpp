@@ -328,18 +328,6 @@ void FFTmojTest::runBenchmark()
 #ifndef USE_OPENCL
         ChunkData::Ptr result(new ChunkData(size));
 #endif
-		
-// CLFFT {
-     // walltimewithbake
-          // fft.compute
-     // endwalltimewithbake
-     // getexectime
-// }
-
-// CLAMDFFT { 
-     // bake
-     // baketime = getbaketime
-// }
 
 		char resultsFileName[100];
 		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
@@ -444,14 +432,6 @@ catch( std::exception& e )
 	kExTimes.close();
 #endif
 
-// CLFFT baketime = walltimewithbake-walltime
-
-// OPENCL {
-     // exectime = getexectime
-     // spara batchtider
-     // spara exectider
-// }
-
 #endif
 }
 
@@ -461,7 +441,7 @@ void FFTmojTest::runBatchTest()
 #ifdef RUNBATCHTEST
 	if (mode != "batch")
 		return;
-// Load random data
+
 	char randomfilename[100];
 	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set, run);
 
@@ -493,11 +473,6 @@ void FFTmojTest::runBatchTest()
 		{
 			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
 
-			/*if (size == 800000)
-			{
-				fft.reset();
-			}*/
-
 #ifdef USE_AMD
 			fft.setBatchSize(i);
 #endif
@@ -505,17 +480,6 @@ void FFTmojTest::runBatchTest()
 			data.reset(new ChunkData(size*i));
 			complex<float> *input = data->getCpuMemory();
 
-	// CLFFT {
-		 // walltimewithbake
-			  // fft.compute
-		 // endwalltimewithbake
-		 // getexectime
-	// }
-
-	// CLAMDFFT {
-		 // bake
-		 // baketime = getbaketime
-	// }
 			wallTimes << i;
 #ifdef USE_OPENCL
 			kExTimes << i;
