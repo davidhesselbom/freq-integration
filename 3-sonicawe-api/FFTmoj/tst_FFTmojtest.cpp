@@ -469,25 +469,25 @@ void FFTmojTest::runBatchTest()
 		char resultsFileName[100];
 		sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, (1<<24)/size, size);
 
-		for (int i = (1<<24)/size; i > 0; i = i/2)
+		for (int batchSize = (1<<24)/size; batchSize > 0; batchSize = batchSize/2)
 		{
-			cout << "Batchsize: " << i << "/" << (1<<24)/size << "\n";
+			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
 
 #ifdef USE_AMD
-			fft.setBatchSize(i);
+			fft.setBatchSize(batchSize);
 #endif
 			ChunkData::Ptr data;
-			data.reset(new ChunkData(size*i));
+			data.reset(new ChunkData(size*batchSize));
 			complex<float> *input = data->getCpuMemory();
 
-			wallTimes << i;
+			wallTimes << batchSize;
 #ifdef USE_OPENCL
-			kExTimes << i;
+			kExTimes << batchSize;
 #endif
 
 			for (int j = 0; j < 25; j++)
 			{
-				memcpy(input, random, size*i*sizeof(complex<float>));
+				memcpy(input, random, size*batchSize*sizeof(complex<float>));
 
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 				fft.compute(data, data, FftDirection_Forward);
@@ -496,7 +496,7 @@ void FFTmojTest::runBatchTest()
 
 				// Verify output != input
 				// It's a little more complicated for multi-batch...
-				for (int k = 0; k < i; k++)
+				for (int k = 0; k < batchSize; k++)
 				{
 					int offset = k*size;
 					if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
@@ -517,7 +517,7 @@ void FFTmojTest::runBatchTest()
 					resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
 					results = resultchunk->transform_data->getCpuMemory();
 				}
-				if (0 != memcmp(results, r, size*i*sizeof(complex<float>)))
+				if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
 				{
 					cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
 					abort();
@@ -529,7 +529,7 @@ void FFTmojTest::runBatchTest()
 #endif
 			}
 
-			if (i > 1)
+			if (batchSize > 1)
 			{
 				wallTimes << endl;
 #ifdef USE_OPENCL
