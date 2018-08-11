@@ -9,7 +9,6 @@
 
 #define GENERATESIZEVECTOR
 #define READSIZEVECTOR
-#define RUNBATCHTEST
 #define RUNBENCHMARK
 #define PLACENESS "inplace"
 #define FFTINPLACE
@@ -67,7 +66,6 @@ private Q_SLOTS:
 	void generateRandomData();
 	void generateSizeVector();
 	void readSizeVector();
-	void runBatchTest();
 	void runBenchmark();
 
 private:
@@ -284,172 +282,6 @@ void FFTmojTest::runBenchmark()
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 #ifdef RUNBENCHMARK
 	if (mode != "bench")
-		return;
-
-	int size = 0, sizeacc = 0;
-
-	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
-	int toc = 0;
-
-	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
-
-	cout << "Loading random data from " << randomfilename << "... " << flush;
-	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
-	complex<float> *random = randomchunk->transform_data->getCpuMemory();
-	cout << "done." << endl;
-
-	for (int i = 0; i < sizes.size(); i++)
-	{
-		size = sizes[i];
-
-		float progress = (float)sizeacc / (float)sizesum;
-		toc = (int)runBenchmarkTimer.elapsedTime();
-		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n",
-			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
-
-		sizeacc += size;
-
-		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
-		ofstream wallTimes(wallTimeFileName);
-
-#ifdef USE_OPENCL
-		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
-		ofstream kExTimes(kExTimeFileName);
-#endif
-
-		char resultsFileName[100];
-		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
-
-		complex<float> *results = 0;
-		pChunk resultchunk;
-
-#ifdef USE_AMD
-		int batchSize = (1 << 24) / size;
-#else
-		int batchSize = 1;
-#endif
-
-		for (batchSize; batchSize > 0; batchSize = batchSize/2)
-		{
-			// TODO: This is wrong, it assumes the max batchsize
-			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
-
-#ifdef USE_AMD
-			fft.setBatchSize(batchSize);
-#endif
-			ChunkData::Ptr data;
-			data.reset(new ChunkData(size*batchSize));
-			complex<float> *input = data->getCpuMemory();
-
-#ifndef USE_OPENCL
-			ChunkData::Ptr result(new ChunkData(size*batchSize));
-#endif
-			wallTimes << batchSize;
-#ifdef USE_OPENCL
-			kExTimes << batchSize;
-#endif
-			try
-			{
-				// TODO: 25 is a magic number that I should specify elsewhere.
-				// BTW, does it have to be the same for all window sizes?
-				// Wouldn't it make sense to do it fewer times for large sizes?
-				for (int j = 0; j < 25; j++)
-				{
-#ifndef USE_OPENCL
-					// Unless inplace, this only needs doing the first iteration.
-					if (j == 0)
-					{
-#endif
-					memcpy(input, random, size*batchSize*sizeof(complex<float>));
-#ifndef USE_OPENCL
-					}
-#endif
-					TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-#ifdef USE_OPENCL
-					fft.compute(data, data, FftDirection_Forward);
-					complex<float> *r = data->getCpuMemory();
-#else
-					fft.compute(data, result, FftDirection_Forward);
-					complex<float> *r = result->getCpuMemory();
-#endif
-					float wallTime = wallTimer.elapsedTime();
-
-					// Verify output != input
-					for (int k = 0; k < batchSize; k++)
-					{
-						int offset = k*size;
-						if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
-						{
-							cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
-							abort();
-						}
-					}
-
-					if (size >= startSize)
-					{
-						if (!results)
-						{
-							ifstream infile(resultsFileName);
-							if (!infile)
-							{
-								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-#ifdef USE_OPENCL
-								chunk->transform_data = data;
-#else
-								chunk->transform_data = result;
-#endif
-								Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-							}
-							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-							results = resultchunk->transform_data->getCpuMemory();
-						}
-						if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
-						{
-							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
-							abort();
-						}
-
-						wallTimes << " " << wallTime;
-#ifdef USE_OPENCL
-						kExTimes << " " << fft.getKernelExecTime();
-#endif
-					}
-				}
-
-				if (batchSize > 1)
-				{
-					wallTimes << "\n";
-#ifdef USE_OPENCL
-					kExTimes << "\n";
-#endif
-				}
-			}
-			catch( std::exception& e )
-			{
-				cout << e.what() << endl;
-				#ifdef USE_AMD
-				fft.reset();
-				#endif
-				i--;
-			}
-		}
-
-		wallTimes.close();
-#ifdef USE_OPENCL
-		kExTimes.close();
-#endif
-	}
-#endif
-}
-
-void FFTmojTest::runBatchTest()
-{
-	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
-#ifdef RUNBATCHTEST
-	if (mode != "batch")
 		return;
 
 	int size = 0, sizeacc = 0;
