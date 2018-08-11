@@ -420,7 +420,7 @@ void FFTmojTest::runBenchmark()
 #endif
 			}
 		}
-catch( std::exception& e )
+		catch( std::exception& e )
 		{
 			cout << e.what() << endl;
 			#ifdef USE_AMD
