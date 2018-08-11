@@ -477,11 +477,11 @@ void FFTmojTest::runBatchTest()
 		ofstream kExTimes(kExTimeFileName);
 #endif
 
-		complex<float> *results = 0;
-		pChunk resultchunk;
-
 		char resultsFileName[100];
 		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+
+		complex<float> *results = 0;
+		pChunk resultchunk;
 
 #ifdef USE_AMD
 		int batchSize = (1 << 24) / size;
