@@ -508,6 +508,9 @@ void FFTmojTest::runBatchTest()
 			data.reset(new ChunkData(size*batchSize));
 			complex<float> *input = data->getCpuMemory();
 
+#ifndef USE_OPENCL
+			ChunkData::Ptr result(new ChunkData(size*batchSize));
+#endif
 			wallTimes << batchSize;
 #ifdef USE_OPENCL
 			kExTimes << batchSize;
