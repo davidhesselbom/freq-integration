@@ -442,6 +442,11 @@ void FFTmojTest::runBatchTest()
 	if (mode != "batch")
 		return;
 
+	int size = 0, sizeacc = 0;
+
+	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
+	int toc = 0;
+
 	char randomfilename[100];
 	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set, run);
 
@@ -451,8 +456,17 @@ void FFTmojTest::runBatchTest()
 	cout << "done." << endl;
 
 	// TODO: This shouldn't be this hardcoded...
-	for (int size = 1<<7; size <= 1<<22; size = size*2)
+	for (int i = 0; i < sizes.size(); i++)
 	{
+		size = sizes[i];
+
+		float progress = (float)sizeacc / (float)sizesum;
+		toc = (int)runBenchmarkTimer.elapsedTime();
+		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n",
+			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
+
+		sizeacc += size;
+
 		char wallTimeFileName[100];
 		sprintf(wallTimeFileName, "data/%s/%s/set%d/batch%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
 		ofstream wallTimes(wallTimeFileName);
