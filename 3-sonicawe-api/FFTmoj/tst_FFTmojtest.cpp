@@ -315,7 +315,7 @@ void FFTmojTest::runBenchmark()
 
 		float progress = (float)sizeacc / (float)sizesum;
 		toc = (int)runBenchmarkTimer.elapsedTime();
-		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n", 
+		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n",
 			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
 		
 		sizeacc += size;
@@ -336,7 +336,7 @@ void FFTmojTest::runBenchmark()
 
 		int batchSize = 1;
 
-		try 
+		try
 		{
 			// TODO: 25 is a magic number that I should specify elsewhere.
 			// BTW, does it have to be the same for all window sizes?
@@ -451,7 +451,7 @@ void FFTmojTest::runBatchTest()
 	int toc = 0;
 
 	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set, run);
+	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
@@ -560,9 +560,9 @@ void FFTmojTest::runBatchTest()
 
 			if (batchSize > 1)
 			{
-				wallTimes << endl;
+				wallTimes << "\n";
 #ifdef USE_OPENCL
-				kExTimes << endl;
+				kExTimes << "\n";
 #endif
 			}
 		}
