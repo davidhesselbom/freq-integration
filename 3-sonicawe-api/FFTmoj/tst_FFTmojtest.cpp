@@ -438,7 +438,7 @@ void FFTmojTest::runBenchmark()
 
 void FFTmojTest::runBatchTest()
 {
-	// Benchmark, for all batch sizes of a given size, the kernel execution time.
+	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 #ifdef RUNBATCHTEST
 	if (mode != "batch")
 		return;
