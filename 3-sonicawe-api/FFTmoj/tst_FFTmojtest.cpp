@@ -500,6 +500,8 @@ void FFTmojTest::runBatchTest()
 #ifdef USE_OPENCL
 			kExTimes << batchSize;
 #endif
+		try
+		{
 			// TODO: 25 is a magic number that I should specify elsewhere.
 			// BTW, does it have to be the same for all window sizes?
 			// Wouldn't it make sense to do it fewer times for large sizes?
@@ -566,6 +568,20 @@ void FFTmojTest::runBatchTest()
 #endif
 			}
 		}
+		catch( std::exception& e )
+		{
+			cout << e.what() << endl;
+			#ifdef USE_AMD
+			fft.reset();
+			#endif
+			i--;
+		}
+		}
+
+		wallTimes.close();
+#ifdef USE_OPENCL
+		kExTimes.close();
+#endif
 	}
 #endif
 }
