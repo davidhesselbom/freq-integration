@@ -334,99 +334,100 @@ void FFTmojTest::runBenchmark()
 		complex<float> *results = 0;
 		pChunk resultchunk;
 
-		int batchSize = 1;
-
-		try
+		for (int batchSize = 1; batchSize > 0; batchSize = batchSize/2)
 		{
-			// TODO: 25 is a magic number that I should specify elsewhere.
-			// BTW, does it have to be the same for all window sizes?
-			// Wouldn't it make sense to do it fewer times for large sizes?
-			for (int j = 0; j < 25; j++)
+			try
 			{
+				// TODO: 25 is a magic number that I should specify elsewhere.
+				// BTW, does it have to be the same for all window sizes?
+				// Wouldn't it make sense to do it fewer times for large sizes?
+				for (int j = 0; j < 25; j++)
+				{
 #ifndef USE_OPENCL
-				// Unless inplace, this only needs doing the first iteration.
-				if (j == 0)
-				{
-#endif
-				memcpy(input, random, size*batchSize*sizeof(complex<float>));
-#ifndef USE_OPENCL
-				}
-#endif
-				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-#ifdef USE_OPENCL
-				fft.compute(data, data, FftDirection_Forward);
-				complex<float> *r = data->getCpuMemory();
-#else
-				fft.compute(data, result, FftDirection_Forward);
-				complex<float> *r = result->getCpuMemory();
-#endif
-				float wallTime = wallTimer.elapsedTime();
-
-				// Verify output != input
-				for (int k = 0; k < batchSize; k++)
-				{
-					int offset = k*size;
-					if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
-					{
-						cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
-						abort();
-					}
-				}
-				
-				if (size >= startSize)
-				{
+					// Unless inplace, this only needs doing the first iteration.
 					if (j == 0)
 					{
-						wallTimes << size;
-#ifdef USE_OPENCL
-						kExTimes << size;
 #endif
+					memcpy(input, random, size*batchSize*sizeof(complex<float>));
+#ifndef USE_OPENCL
+					}
+#endif
+					TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+#ifdef USE_OPENCL
+					fft.compute(data, data, FftDirection_Forward);
+					complex<float> *r = data->getCpuMemory();
+#else
+					fft.compute(data, result, FftDirection_Forward);
+					complex<float> *r = result->getCpuMemory();
+#endif
+					float wallTime = wallTimer.elapsedTime();
+
+					// Verify output != input
+					for (int k = 0; k < batchSize; k++)
+					{
+						int offset = k*size;
+						if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
+						{
+							cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+							abort();
+						}
 					}
 
-					if (!results)
+					if (size >= startSize)
 					{
-						ifstream infile(resultsFileName);
-						if (!infile)
+						if (j == 0)
 						{
-							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+							wallTimes << size;
 #ifdef USE_OPENCL
-							chunk->transform_data = data;
-#else
-							chunk->transform_data = result;
+							kExTimes << size;
 #endif
-							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 						}
-						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-						results = resultchunk->transform_data->getCpuMemory();
-					}
-					if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
-					{
-						cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
-						abort();
-					}
-					
-					wallTimes << " " << wallTime;
+
+						if (!results)
+						{
+							ifstream infile(resultsFileName);
+							if (!infile)
+							{
+								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
-					kExTimes << " " << fft.getKernelExecTime();
+								chunk->transform_data = data;
+#else
+								chunk->transform_data = result;
+#endif
+								Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+							}
+							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+							results = resultchunk->transform_data->getCpuMemory();
+						}
+						if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
+						{
+							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
+							abort();
+						}
+
+						wallTimes << " " << wallTime;
+#ifdef USE_OPENCL
+						kExTimes << " " << fft.getKernelExecTime();
+#endif
+					}
+				}
+
+				if (i < sizes.size() && size > startSize)
+				{
+					wallTimes << "\n";
+#ifdef USE_OPENCL
+					kExTimes << "\n";
 #endif
 				}
 			}
-			
-			if (i < sizes.size() && size > startSize)
+			catch( std::exception& e )
 			{
-				wallTimes << "\n";
-#ifdef USE_OPENCL
-				kExTimes << "\n";
-#endif
+				cout << e.what() << endl;
+				#ifdef USE_AMD
+				fft.reset();
+				#endif
+				i--;
 			}
-		}
-		catch( std::exception& e )
-		{
-			cout << e.what() << endl;
-			#ifdef USE_AMD
-			fft.reset();
-			#endif
-			i--;
 		}
 	}
 
@@ -500,82 +501,82 @@ void FFTmojTest::runBatchTest()
 #ifdef USE_OPENCL
 			kExTimes << batchSize;
 #endif
-		try
-		{
-			// TODO: 25 is a magic number that I should specify elsewhere.
-			// BTW, does it have to be the same for all window sizes?
-			// Wouldn't it make sense to do it fewer times for large sizes?
-			for (int j = 0; j < 25; j++)
+			try
 			{
-#ifndef USE_OPENCL
-				// Unless inplace, this only needs doing the first iteration.
-				if (j == 0)
+				// TODO: 25 is a magic number that I should specify elsewhere.
+				// BTW, does it have to be the same for all window sizes?
+				// Wouldn't it make sense to do it fewer times for large sizes?
+				for (int j = 0; j < 25; j++)
 				{
-#endif
-				memcpy(input, random, size*batchSize*sizeof(complex<float>));
 #ifndef USE_OPENCL
-				}
-#endif
-				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-#ifdef USE_OPENCL
-				fft.compute(data, data, FftDirection_Forward);
-				complex<float> *r = data->getCpuMemory();
-#else
-				fft.compute(data, result, FftDirection_Forward);
-				complex<float> *r = result->getCpuMemory();
-#endif
-				float wallTime = wallTimer.elapsedTime();
-
-				// Verify output != input
-				for (int k = 0; k < batchSize; k++)
-				{
-					int offset = k*size;
-					if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
+					// Unless inplace, this only needs doing the first iteration.
+					if (j == 0)
 					{
-						cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+#endif
+					memcpy(input, random, size*batchSize*sizeof(complex<float>));
+#ifndef USE_OPENCL
+					}
+#endif
+					TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+#ifdef USE_OPENCL
+					fft.compute(data, data, FftDirection_Forward);
+					complex<float> *r = data->getCpuMemory();
+#else
+					fft.compute(data, result, FftDirection_Forward);
+					complex<float> *r = result->getCpuMemory();
+#endif
+					float wallTime = wallTimer.elapsedTime();
+
+					// Verify output != input
+					for (int k = 0; k < batchSize; k++)
+					{
+						int offset = k*size;
+						if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
+						{
+							cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+							abort();
+						}
+					}
+					if (!results)
+					{
+						ifstream infile(resultsFileName);
+						if (!infile)
+						{
+							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+							chunk->transform_data = data;
+							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+						}
+						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+						results = resultchunk->transform_data->getCpuMemory();
+					}
+					if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
+					{
+						cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
 						abort();
 					}
-				}
-				if (!results)
-				{
-					ifstream infile(resultsFileName);
-					if (!infile)
-					{
-						Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-						chunk->transform_data = data;
-						Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-					}
-					resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-					results = resultchunk->transform_data->getCpuMemory();
-				}
-				if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
-				{
-					cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
-					abort();
-				}
 
-				wallTimes << " " << wallTime;
+					wallTimes << " " << wallTime;
 #ifdef USE_OPENCL
-				kExTimes << " " << fft.getKernelExecTime();
+					kExTimes << " " << fft.getKernelExecTime();
 #endif
-			}
+				}
 
-			if (batchSize > 1)
+				if (batchSize > 1)
+				{
+					wallTimes << "\n";
+#ifdef USE_OPENCL
+					kExTimes << "\n";
+#endif
+				}
+			}
+			catch( std::exception& e )
 			{
-				wallTimes << "\n";
-#ifdef USE_OPENCL
-				kExTimes << "\n";
-#endif
+				cout << e.what() << endl;
+				#ifdef USE_AMD
+				fft.reset();
+				#endif
+				i--;
 			}
-		}
-		catch( std::exception& e )
-		{
-			cout << e.what() << endl;
-			#ifdef USE_AMD
-			fft.reset();
-			#endif
-			i--;
-		}
 		}
 
 		wallTimes.close();
