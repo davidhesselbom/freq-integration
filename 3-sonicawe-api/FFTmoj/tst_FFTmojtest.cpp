@@ -283,7 +283,6 @@ void FFTmojTest::runBenchmark()
 {
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
 #ifdef RUNBENCHMARK
-// Create random data	
 	if (mode != "bench")
 		return;
 
@@ -459,7 +458,6 @@ void FFTmojTest::runBatchTest()
 	complex<float> *random = randomchunk->transform_data->getCpuMemory();
 	cout << "done." << endl;
 
-	// TODO: This shouldn't be this hardcoded...
 	for (int i = 0; i < sizes.size(); i++)
 	{
 		size = sizes[i];
