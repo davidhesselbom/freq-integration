@@ -345,6 +345,9 @@ void FFTmojTest::runBenchmark()
 			// TODO: This is wrong, it assumes the max batchsize
 			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
 
+#ifdef USE_AMD
+			fft.setBatchSize(batchSize);
+#endif
 			wallTimes << batchSize;
 #ifdef USE_OPENCL
 			kExTimes << batchSize;
