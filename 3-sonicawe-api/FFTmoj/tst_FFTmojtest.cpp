@@ -540,28 +540,36 @@ void FFTmojTest::runBatchTest()
 							abort();
 						}
 					}
-					if (!results)
-					{
-						ifstream infile(resultsFileName);
-						if (!infile)
-						{
-							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-							chunk->transform_data = data;
-							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-						}
-						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-						results = resultchunk->transform_data->getCpuMemory();
-					}
-					if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
-					{
-						cout << "\nFAIL: Batch FFT results differ from previous results with the same library!\n" << endl;
-						abort();
-					}
 
-					wallTimes << " " << wallTime;
+					if (size >= startSize)
+					{
+						if (!results)
+						{
+							ifstream infile(resultsFileName);
+							if (!infile)
+							{
+								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 #ifdef USE_OPENCL
-					kExTimes << " " << fft.getKernelExecTime();
+								chunk->transform_data = data;
+#else
+								chunk->transform_data = result;
 #endif
+								Hdf5Chunk::saveChunk( resultsFileName, *chunk);
+							}
+							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+							results = resultchunk->transform_data->getCpuMemory();
+						}
+						if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
+						{
+							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
+							abort();
+						}
+
+						wallTimes << " " << wallTime;
+#ifdef USE_OPENCL
+						kExTimes << " " << fft.getKernelExecTime();
+#endif
+					}
 				}
 
 				if (batchSize > 1)
