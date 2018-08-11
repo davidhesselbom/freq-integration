@@ -471,12 +471,12 @@ void FFTmojTest::runBatchTest()
 		sizeacc += size;
 
 		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%s/%s/set%d/batch%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
+		sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
 		ofstream wallTimes(wallTimeFileName);
 
 #ifdef USE_OPENCL
 		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%s/%s/set%d/batch%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
+		sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
 		ofstream kExTimes(kExTimeFileName);
 #endif
 
