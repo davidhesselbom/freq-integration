@@ -335,6 +335,8 @@ void FFTmojTest::runBenchmark()
 		complex<float> *results = 0;
 		pChunk resultchunk;
 
+		int batchSize = 1;
+
 		try 
 		{
 			// TODO: 25 is a magic number that I should specify elsewhere.
@@ -347,7 +349,7 @@ void FFTmojTest::runBenchmark()
 				if (j == 0)
 				{
 #endif
-				memcpy(input, random, size*sizeof(complex<float>));
+				memcpy(input, random, size*batchSize*sizeof(complex<float>));
 #ifndef USE_OPENCL
 				}
 #endif
@@ -362,11 +364,14 @@ void FFTmojTest::runBenchmark()
 				float wallTime = wallTimer.elapsedTime();
 
 				// Verify output != input
-				// Good enough for single batch, but for multi-batch, this needs to be done for each batch...
-				if (0 == memcmp(r, random, size*sizeof(complex<float>)))
+				for (int k = 0; k < batchSize; k++)
 				{
-					cout << "\nFAIL: FFT results are identical to input!\n" << endl;
-					abort();
+					int offset = k*size;
+					if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
+					{
+						cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+						abort();
+					}
 				}
 				
 				if (size >= startSize)
@@ -395,7 +400,7 @@ void FFTmojTest::runBenchmark()
 						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
 						results = resultchunk->transform_data->getCpuMemory();
 					}
-					if (0 != memcmp(results, r, size*sizeof(complex<float>)))
+					if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
 					{
 						cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
 						abort();
@@ -522,7 +527,6 @@ void FFTmojTest::runBatchTest()
 				float wallTime = wallTimer.elapsedTime();
 
 				// Verify output != input
-				// It's a little more complicated for multi-batch...
 				for (int k = 0; k < batchSize; k++)
 				{
 					int offset = k*size;
