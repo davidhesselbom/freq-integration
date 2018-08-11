@@ -287,17 +287,7 @@ void FFTmojTest::runBenchmark()
 		return;
 
 	int size = 0, sizeacc = 0;
-	
-	char wallTimeFileName[100];
-	sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes.dat", machine.c_str(), techlib.c_str(), set, run);
-	ofstream wallTimes(wallTimeFileName);
 
-#ifdef USE_OPENCL
-	char kExTimeFileName[100];
-	sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes.dat", machine.c_str(), techlib.c_str(), set, run);
-	ofstream kExTimes(kExTimeFileName);
-#endif
-	
 	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
 	int toc = 0;
 
@@ -317,9 +307,19 @@ void FFTmojTest::runBenchmark()
 		toc = (int)runBenchmarkTimer.elapsedTime();
 		printf("Size: %i, Done: %4i/%i, %i/%i (%3.1f%%), %.2i:%.2i:%.2i elapsed\n",
 			size, i, sizes.size(), sizeacc, sizesum, progress*100, toc/3600, (toc/60)%60, toc%60);
-		
+
 		sizeacc += size;
-	
+
+		char wallTimeFileName[100];
+		sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
+		ofstream wallTimes(wallTimeFileName);
+
+#ifdef USE_OPENCL
+		char kExTimeFileName[100];
+		sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
+		ofstream kExTimes(kExTimeFileName);
+#endif
+
 		ChunkData::Ptr data;
         data.reset(new ChunkData(size));
 		complex<float> *input = data->getCpuMemory();
@@ -375,14 +375,6 @@ void FFTmojTest::runBenchmark()
 
 					if (size >= startSize)
 					{
-						if (j == 0)
-						{
-							wallTimes << size;
-#ifdef USE_OPENCL
-							kExTimes << size;
-#endif
-						}
-
 						if (!results)
 						{
 							ifstream infile(resultsFileName);
@@ -412,7 +404,7 @@ void FFTmojTest::runBenchmark()
 					}
 				}
 
-				if (i < sizes.size() && size > startSize)
+				if (batchSize > 1)
 				{
 					wallTimes << "\n";
 #ifdef USE_OPENCL
@@ -429,13 +421,12 @@ void FFTmojTest::runBenchmark()
 				i--;
 			}
 		}
-	}
 
-	wallTimes.close();
+		wallTimes.close();
 #ifdef USE_OPENCL
-	kExTimes.close();
+		kExTimes.close();
 #endif
-
+	}
 #endif
 }
 
