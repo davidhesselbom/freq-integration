@@ -320,14 +320,6 @@ void FFTmojTest::runBenchmark()
 		ofstream kExTimes(kExTimeFileName);
 #endif
 
-		ChunkData::Ptr data;
-        data.reset(new ChunkData(size));
-		complex<float> *input = data->getCpuMemory();
-
-#ifndef USE_OPENCL
-        ChunkData::Ptr result(new ChunkData(size));
-#endif
-
 		char resultsFileName[100];
 		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
 
@@ -347,6 +339,13 @@ void FFTmojTest::runBenchmark()
 
 #ifdef USE_AMD
 			fft.setBatchSize(batchSize);
+#endif
+			ChunkData::Ptr data;
+			data.reset(new ChunkData(size*batchSize));
+			complex<float> *input = data->getCpuMemory();
+
+#ifndef USE_OPENCL
+			ChunkData::Ptr result(new ChunkData(size*batchSize));
 #endif
 			wallTimes << batchSize;
 #ifdef USE_OPENCL
