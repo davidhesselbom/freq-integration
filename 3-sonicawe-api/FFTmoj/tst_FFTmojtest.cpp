@@ -484,7 +484,7 @@ void FFTmojTest::runBatchTest()
 		pChunk resultchunk;
 
 		char resultsFileName[100];
-		sprintf(resultsFileName, "data/%s/%s/set%d/%dResults%d.h5", machine.c_str(), techlib.c_str(), set, (1<<24)/size, size);
+		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
 
 		for (int batchSize = (1<<24)/size; batchSize > 0; batchSize = batchSize/2)
 		{
