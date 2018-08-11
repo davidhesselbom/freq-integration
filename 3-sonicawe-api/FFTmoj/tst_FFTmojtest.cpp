@@ -334,7 +334,13 @@ void FFTmojTest::runBenchmark()
 		complex<float> *results = 0;
 		pChunk resultchunk;
 
-		for (int batchSize = 1; batchSize > 0; batchSize = batchSize/2)
+#ifdef USE_AMD
+		int batchSize = (1 << 24) / size;
+#else
+		int batchSize = 1;
+#endif
+
+		for (batchSize; batchSize > 0; batchSize = batchSize/2)
 		{
 			try
 			{
@@ -477,7 +483,13 @@ void FFTmojTest::runBatchTest()
 		char resultsFileName[100];
 		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
 
-		for (int batchSize = (1<<24)/size; batchSize > 0; batchSize = batchSize/2)
+#ifdef USE_AMD
+		int batchSize = (1 << 24) / size;
+#else
+		int batchSize = 1;
+#endif
+
+		for (batchSize; batchSize > 0; batchSize = batchSize/2)
 		{
 			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
 
