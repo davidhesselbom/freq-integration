@@ -342,6 +342,13 @@ void FFTmojTest::runBenchmark()
 
 		for (batchSize; batchSize > 0; batchSize = batchSize/2)
 		{
+			// TODO: This is wrong, it assumes the max batchsize
+			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
+
+			wallTimes << batchSize;
+#ifdef USE_OPENCL
+			kExTimes << batchSize;
+#endif
 			try
 			{
 				// TODO: 25 is a magic number that I should specify elsewhere.
