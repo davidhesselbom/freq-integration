@@ -498,14 +498,28 @@ void FFTmojTest::runBatchTest()
 #ifdef USE_OPENCL
 			kExTimes << batchSize;
 #endif
-
+			// TODO: 25 is a magic number that I should specify elsewhere.
+			// BTW, does it have to be the same for all window sizes?
+			// Wouldn't it make sense to do it fewer times for large sizes?
 			for (int j = 0; j < 25; j++)
 			{
+#ifndef USE_OPENCL
+				// Unless inplace, this only needs doing the first iteration.
+				if (j == 0)
+				{
+#endif
 				memcpy(input, random, size*batchSize*sizeof(complex<float>));
-
+#ifndef USE_OPENCL
+				}
+#endif
 				TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
+#ifdef USE_OPENCL
 				fft.compute(data, data, FftDirection_Forward);
 				complex<float> *r = data->getCpuMemory();
+#else
+				fft.compute(data, result, FftDirection_Forward);
+				complex<float> *r = result->getCpuMemory();
+#endif
 				float wallTime = wallTimer.elapsedTime();
 
 				// Verify output != input
