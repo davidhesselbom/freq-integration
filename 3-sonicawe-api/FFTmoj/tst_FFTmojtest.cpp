@@ -491,6 +491,7 @@ void FFTmojTest::runBatchTest()
 
 		for (batchSize; batchSize > 0; batchSize = batchSize/2)
 		{
+			// TODO: This is wrong, it assumes the max batchsize
 			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
 
 #ifdef USE_AMD
