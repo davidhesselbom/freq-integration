@@ -325,10 +325,8 @@ void FFTmojTest::runBenchmark()
 		std::string wallTimeFileName = (boost::format("data/%s/%s/set%d/run%d/WallTimes%d.dat") % machine % techlib % set % run % size).str();
 		ofstream wallTimes(wallTimeFileName.c_str());
 
-#ifdef USE_OPENCL
 		std::string kExTimeFileName = (boost::format("data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat") % machine % techlib % set % run % size).str();
 		ofstream kExTimes(kExTimeFileName.c_str());
-#endif
 
 		std::string resultsFileName = (boost::format("data/%s/%s/set%d/Results%d.h5") % machine % techlib % set % size).str();
 
@@ -357,9 +355,8 @@ void FFTmojTest::runBenchmark()
 			ChunkData::Ptr result(new ChunkData(size*batchSize));
 #endif
 			wallTimes << batchSize;
-#ifdef USE_OPENCL
 			kExTimes << batchSize;
-#endif
+
 			try
 			{
 				// TODO: 25 is a magic number that I should specify elsewhere.
@@ -422,9 +419,8 @@ void FFTmojTest::runBenchmark()
 						}
 
 						wallTimes << " " << wallTime;
-#ifdef USE_OPENCL
-						kExTimes << " " << fft.getKernelExecTime();
-#endif
+						kExTimes << " ";
+						appendKernelExecutionTime(kExTimes);
 					}
 				}
 
