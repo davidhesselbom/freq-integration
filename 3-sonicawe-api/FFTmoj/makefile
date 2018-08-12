@@ -16,8 +16,7 @@ BENCHMARKS=Wall
 LIBRARIES=Ooura ClFft ClAmdFft
 PLATFORMS=$(MACHINE)
 FIRSTPARTOFTARGETS=$(call interp3,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR))
-LASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
-BATCHLASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
+LASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
 
 all:
 	@echo "Pick a library: Ooura, ClFft, ClAmdFft, or Batches (for ClAmdFft batches)."
@@ -36,7 +35,7 @@ release/opencl/amdamd/FFTmoj.exe: tst_FFTmojtest.cpp
 Ooura: release/cpu/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS))
 ClFft: release/opencl/amdapple/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
 ClAmdFft: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
-Batches: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS))
+Batches: release/opencl/amdamd/FFTmoj.exe $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
 
 $(call interp3,$(FIRSTPARTOFTARGETS),Ooura,$(LASTPARTOFTARGETS)): release/cpu/FFTmoj.exe
 	@echo "Making $@"
@@ -50,7 +49,7 @@ $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)): release/ope
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) bench > argv.txt && ./runclamdfft.bat
 
-$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS)): release/opencl/amdamd/FFTmoj.exe
+$(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)): release/opencl/amdamd/FFTmoj.exe
 	@echo "Making $@"
 	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
 
