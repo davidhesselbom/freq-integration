@@ -28,11 +28,11 @@
     #include "tfr/fftooura.h"
 #endif
 
-#define startSize 1<<8 // 2 ^ 8, 750000
+#define startSize (1<<8) // 2 ^ 8, 750000
 #ifdef USE_APPLE
-#define endSize 1<<21
+#define endSize (1<<22)
 #else
-#define endSize 1<<22 // 2 ^ 22
+#define endSize (1<<22) // 2 ^ 22
 #endif
 
 #include "exceptionassert.h"
