@@ -104,10 +104,13 @@ private:
     #else
         FftClFft fft;
     #endif
+	void appendKernelExecutionTime(ofstream& times) { times << fft.getKernelExecTime(); }
 #elif USE_CUDA
     FftCufft fft;
+	void appendKernelExecutionTime(ofstream& times) { }
 #else
     FftOoura fft;
+	void appendKernelExecutionTime(ofstream& times) { times << fft.getWallExecTime(); }
 #endif
 
 };
