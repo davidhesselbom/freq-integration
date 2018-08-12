@@ -327,8 +327,11 @@ void FFTmojTest::runBenchmark()
 			data.reset(new ChunkData(size*batchSize));
 			complex<float> *input = data->getCpuMemory();
 
+			ChunkData::Ptr result;
 #ifndef USE_OPENCL
-			ChunkData::Ptr result(new ChunkData(size*batchSize));
+			result.reset(new ChunkData(size*batchSize));
+#else
+			result = data;
 #endif
 			wallTimes << batchSize;
 			kExTimes << batchSize;
@@ -350,13 +353,10 @@ void FFTmojTest::runBenchmark()
 					memcpy(input, random, size*batchSize*sizeof(complex<float>));
 #endif
 					TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
-#ifdef USE_OPENCL
-					fft.compute(data, data, FftDirection_Forward);
-					complex<float> *r = data->getCpuMemory();
-#else
+
 					fft.compute(data, result, FftDirection_Forward);
 					complex<float> *r = result->getCpuMemory();
-#endif
+
 					float wallTime = wallTimer.elapsedTime();
 
 					// Verify output != input
@@ -378,11 +378,9 @@ void FFTmojTest::runBenchmark()
 							if (!infile)
 							{
 								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
-#ifdef USE_OPENCL
-								chunk->transform_data = data;
-#else
+
 								chunk->transform_data = result;
-#endif
+
 								Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 							}
 							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
