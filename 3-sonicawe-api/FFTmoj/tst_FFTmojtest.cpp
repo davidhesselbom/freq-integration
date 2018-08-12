@@ -169,10 +169,8 @@ void FFTmojTest::generateRandomData()
 
 	for (int i = 0; i < maxSize; i++)
 	{
-		tempfloatr = (float)rand()/(float)RAND_MAX;
-		p[i].real(tempfloatr);
-		tempfloatr = (float)rand()/(float)RAND_MAX;
-		p[i].imag(tempfloatr);
+		p[i].real((float)rand()/(float)RAND_MAX);
+		p[i].imag((float)rand()/(float)RAND_MAX);
 	}
 
 	Tfr::pChunk chunk( new Tfr::StftChunk(maxSize, Tfr::StftParams::WindowType_Rectangular, 0, true));
