@@ -370,32 +370,29 @@ void FFTmojTest::runBenchmark()
 						}
 					}
 
-					if (size >= startSize)
+					if (!results)
 					{
-						if (!results)
+						ifstream infile(resultsFileName.c_str());
+						if (!infile)
 						{
-							ifstream infile(resultsFileName.c_str());
-							if (!infile)
-							{
-								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
+							Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
 
-								chunk->transform_data = result;
+							chunk->transform_data = result;
 
-								Hdf5Chunk::saveChunk( resultsFileName, *chunk);
-							}
-							resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
-							results = resultchunk->transform_data->getCpuMemory();
+							Hdf5Chunk::saveChunk( resultsFileName, *chunk);
 						}
-						if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
-						{
-							cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
-							abort();
-						}
-
-						wallTimes << " " << wallTime;
-						kExTimes << " ";
-						appendKernelExecutionTime(kExTimes);
+						resultchunk = Hdf5Chunk::loadChunk ( resultsFileName );
+						results = resultchunk->transform_data->getCpuMemory();
 					}
+					if (0 != memcmp(results, r, size*batchSize*sizeof(complex<float>)))
+					{
+						cout << "\nFAIL: FFT results differ from previous results with the same library!\n" << endl;
+						abort();
+					}
+
+					wallTimes << " " << wallTime;
+					kExTimes << " ";
+					appendKernelExecutionTime(kExTimes);
 				}
 
 				wallTimes << "\n";
