@@ -318,15 +318,15 @@ void FFTmojTest::runBenchmark()
 		pChunk resultchunk;
 
 #ifdef USE_AMD
-		int batchSize = (1 << 24) / size;
+		int maxBatchSize = (1 << 24) / size;
 #else
-		int batchSize = 1;
+		int maxBatchSize = 1;
 #endif
 
-		for (batchSize; batchSize > 0; batchSize = batchSize/2)
+		for (int batchSize = maxBatchSize; batchSize > 0; batchSize = batchSize/2)
 		{
-			// TODO: This is wrong, it assumes the max batchsize
-			cout << "Batchsize: " << batchSize << "/" << (1<<24)/size << "\n";
+			// TODO: This is still wrong...
+			cout << "Batchsize: " << batchSize << "/" << maxBatchSize << endl;
 
 #ifdef USE_AMD
 			fft.setBatchSize(batchSize);
