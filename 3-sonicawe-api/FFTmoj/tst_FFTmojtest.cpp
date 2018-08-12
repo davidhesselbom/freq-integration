@@ -264,11 +264,11 @@ void FFTmojTest::readSizeVector()
 	sizefile.close();
 	maxsize = sizes.back();
 #ifdef ONLYPOWERSOF2
-	int i = startSize / 2;
+	int initializationSize = startSize / 2;
 #else
-	int i = fft.lChunkSizeS(startSize);
+	int initializationSize = fft.lChunkSizeS(startSize);
 #endif
-	sizes.push_back(i);
+	sizes.push_back(initializationSize);
 	reverse(sizes.begin(), sizes.end());
 
 	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
