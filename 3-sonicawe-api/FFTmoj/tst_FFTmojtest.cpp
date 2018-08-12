@@ -6,10 +6,6 @@
 #endif
 
 #define TIME_STFT
-
-#define GENERATESIZEVECTOR
-#define READSIZEVECTOR
-#define RUNBENCHMARK
 #define PLACENESS "inplace"
 #define FFTINPLACE
 #define CL_PROFILING
@@ -202,7 +198,6 @@ void FFTmojTest::generateRandomData()
 void FFTmojTest::generateSizeVector()
 {
 	// Get sizes in an interval for current library and store in file
-#ifdef GENERATESIZEVECTOR
 	std::string sizefilename = (boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str();
 	ifstream infile(sizefilename.c_str());
 	if (infile)
@@ -235,13 +230,11 @@ void FFTmojTest::generateSizeVector()
 		cout << "Number of sizes: " << numSize << "\n";
 		cout << "Sum of sizes: " << sumSize << endl;
 	}
-#endif
 }
 
 void FFTmojTest::readSizeVector()
 {
 	// Read sizes from file
-#ifdef READSIZEVECTOR
 	ifstream sizefile((boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str().c_str());
 
 	int size = 0, prevsize = 0;
@@ -272,13 +265,11 @@ void FFTmojTest::readSizeVector()
 	reverse(sizes.begin(), sizes.end());
 
 	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
-#endif
 }
 
 void FFTmojTest::runBenchmark()
 {
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
-#ifdef RUNBENCHMARK
 	if (mode != "bench")
 		return;
 
@@ -431,7 +422,6 @@ void FFTmojTest::runBenchmark()
 		kExTimes.close();
 #endif
 	}
-#endif
 }
 
 QTEST_MAIN(FFTmojTest)
