@@ -241,9 +241,8 @@ void FFTmojTest::readSizeVector()
 {
 	// Read sizes from file
 #ifdef READSIZEVECTOR
-	char sizefilename[100];
-	sprintf(sizefilename, "data/%s/%s/Sizes.dat", machine.c_str(), techlib.c_str());
-	ifstream sizefile(sizefilename);
+	std::string sizefilename = (boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str();
+	ifstream sizefile(sizefilename.c_str());
 
 	int size = 0, prevsize = 0;
 
@@ -289,8 +288,7 @@ void FFTmojTest::runBenchmark()
 	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
 	int toc = 0;
 
-	char randomfilename[100];
-	sprintf(randomfilename, "data/%s/RandomData%d.h5", machine.c_str(), set);
+	std::string randomfilename = (boost::format("data/%s/RandomData%d.h5") % machine % set).str();
 
 	cout << "Loading random data from " << randomfilename << "... " << flush;
 	pChunk randomchunk = Hdf5Chunk::loadChunk ( randomfilename );
@@ -308,18 +306,15 @@ void FFTmojTest::runBenchmark()
 
 		sizeacc += size;
 
-		char wallTimeFileName[100];
-		sprintf(wallTimeFileName, "data/%s/%s/set%d/run%d/WallTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
-		ofstream wallTimes(wallTimeFileName);
+		std::string wallTimeFileName = (boost::format("data/%s/%s/set%d/run%d/WallTimes%d.dat") % machine % techlib % set % run % size).str();
+		ofstream wallTimes(wallTimeFileName.c_str());
 
 #ifdef USE_OPENCL
-		char kExTimeFileName[100];
-		sprintf(kExTimeFileName, "data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat", machine.c_str(), techlib.c_str(), set, run, size);
-		ofstream kExTimes(kExTimeFileName);
+		std::string kExTimeFileName = (boost::format("data/%s/%s/set%d/run%d/KernelExecutionTimes%d.dat") % machine % techlib % set % run % size).str();
+		ofstream kExTimes(kExTimeFileName.c_str());
 #endif
 
-		char resultsFileName[100];
-		sprintf(resultsFileName, "data/%s/%s/set%d/Results%d.h5", machine.c_str(), techlib.c_str(), set, size);
+		std::string resultsFileName = (boost::format("data/%s/%s/set%d/Results%d.h5") % machine % techlib % set % size).str();
 
 		complex<float> *results = 0;
 		pChunk resultchunk;
@@ -390,7 +385,7 @@ void FFTmojTest::runBenchmark()
 					{
 						if (!results)
 						{
-							ifstream infile(resultsFileName);
+							ifstream infile(resultsFileName.c_str());
 							if (!infile)
 							{
 								Tfr::pChunk chunk( new Tfr::StftChunk(size, Tfr::StftParams::WindowType_Rectangular, 0, true));
