@@ -28,7 +28,7 @@
     #include "tfr/fftooura.h"
 #endif
 
-#define startSize (1<<8) // 2 ^ 8, 750000
+#define startSize (1<<8) // 2 ^ 8
 #ifdef USE_APPLE
 #define endSize (1<<21)
 #else
