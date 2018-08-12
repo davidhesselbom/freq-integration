@@ -226,9 +226,9 @@ void FFTmojTest::generateSizeVector()
 			if (i != endSize)
 				outputfile << "\n";
 #ifdef ONLYPOWERSOF2
-				i = i * 2;
+			i = i * 2;
 #else
-				i = fft.sChunkSizeG(i);
+			i = fft.sChunkSizeG(i);
 #endif
 		}
 		outputfile.close();
