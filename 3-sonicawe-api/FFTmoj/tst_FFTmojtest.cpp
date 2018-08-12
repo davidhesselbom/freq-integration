@@ -30,7 +30,7 @@
 
 #define startSize (1<<8) // 2 ^ 8, 750000
 #ifdef USE_APPLE
-#define endSize (1<<22)
+#define endSize (1<<21)
 #else
 #define endSize (1<<22) // 2 ^ 22
 #endif
