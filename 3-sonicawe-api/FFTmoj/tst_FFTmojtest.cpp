@@ -231,13 +231,10 @@ void FFTmojTest::generateSizeVector()
 				i = fft.sChunkSizeG(i);
 #endif
 		}
-
 		outputfile.close();
 		cout << "Number of sizes: " << numSize << "\n";
 		cout << "Sum of sizes: " << sumSize << endl;
 	}
-
-
 #endif
 }
 
@@ -245,8 +242,7 @@ void FFTmojTest::readSizeVector()
 {
 	// Read sizes from file
 #ifdef READSIZEVECTOR
-	std::string sizefilename = (boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str();
-	ifstream sizefile(sizefilename.c_str());
+	ifstream sizefile((boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str().c_str());
 
 	int size = 0, prevsize = 0;
 
@@ -276,7 +272,6 @@ void FFTmojTest::readSizeVector()
 	reverse(sizes.begin(), sizes.end());
 
 	printf("FYI first size: %d, last size: %d, # of sizes: %d\n", sizes.front(), sizes.back(), sizes.size());
-
 #endif
 }
 
