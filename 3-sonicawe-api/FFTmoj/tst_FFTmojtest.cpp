@@ -161,8 +161,6 @@ void FFTmojTest::generateRandomData()
 
 	int maxSize = 1 << (10+14);
 
-	float tempfloatr;
-		
 	ChunkData::Ptr data;
 	data.reset(new ChunkData(maxSize));
 	complex<float> *p = data->getCpuMemory();
