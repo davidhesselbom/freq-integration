@@ -266,7 +266,7 @@ function computePrecision(machine, techlib)
 				vectorToSave(index,1) = currentSize;
 				vectorToSave(index,2) = max(m(:,index))/sqrt(currentSize);
 				vectorToSave(index,3) = max(n(:,index));
-				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", currentSize, max(m(:,index)), max(n(:,index))))
+				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", vectorToSave(index,1), vectorToSave(index,2), vectorToSave(index,3)))
 			end
 		end
 	end
