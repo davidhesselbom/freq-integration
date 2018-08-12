@@ -344,10 +344,10 @@ void FFTmojTest::runBenchmark()
 					// Unless inplace, this only needs doing the first iteration.
 					if (j == 0)
 					{
-#endif
-					memcpy(input, random, size*batchSize*sizeof(complex<float>));
-#ifndef USE_OPENCL
+						memcpy(input, random, size*batchSize*sizeof(complex<float>));
 					}
+#else
+					memcpy(input, random, size*batchSize*sizeof(complex<float>));
 #endif
 					TIME_STFT TaskTimer wallTimer("Wall-clock timer started");
 #ifdef USE_OPENCL
