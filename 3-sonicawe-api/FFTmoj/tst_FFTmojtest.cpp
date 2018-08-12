@@ -273,9 +273,6 @@ void FFTmojTest::readSizeVector()
 void FFTmojTest::runBenchmark()
 {
 	// Benchmark wall-time, bake time, kernel execution time, store first FFT result.
-	if (mode != "bench")
-		return;
-
 	int size = 0, sizeacc = 0;
 
 	TIME_STFT TaskTimer runBenchmarkTimer("runBenchmark timer started\n");
@@ -402,9 +399,7 @@ void FFTmojTest::runBenchmark()
 				}
 
 				wallTimes << "\n";
-#ifdef USE_OPENCL
 				kExTimes << "\n";
-#endif
 			}
 			catch( std::exception& e )
 			{
@@ -415,11 +410,6 @@ void FFTmojTest::runBenchmark()
 				i--;
 			}
 		}
-
-		wallTimes.close();
-#ifdef USE_OPENCL
-		kExTimes.close();
-#endif
 	}
 }
 
