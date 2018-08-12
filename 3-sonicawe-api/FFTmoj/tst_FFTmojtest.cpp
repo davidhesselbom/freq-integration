@@ -205,32 +205,40 @@ void FFTmojTest::generateSizeVector()
 {
 	// Get sizes in an interval for current library and store in file
 #ifdef GENERATESIZEVECTOR
-	// TODO: Don't overwrite existing files!
 	std::string sizefilename = (boost::format("data/%s/%s/Sizes.dat") % machine % techlib).str();
-	ofstream outputfile(sizefilename.c_str());
-
-	int sumSize = 0;
-	int numSize = 0;
-	int i = startSize;
-	while (i <= endSize)
+	ifstream infile(sizefilename.c_str());
+	if (infile)
 	{
-		sumSize += i;
-		numSize++;
+		cout << "Size file " << sizefilename << " already exists." << endl;
+	}
+	else
+	{
+		cout << "Generating " << sizefilename << endl;
+		ofstream outputfile(sizefilename.c_str());
 
-		outputfile << i;
-		if (i != endSize)
-			outputfile << "\n";
+		int sumSize = 0;
+		int numSize = 0;
+		int i = startSize;
+		while (i <= endSize)
+		{
+			sumSize += i;
+			numSize++;
+
+			outputfile << i;
+			if (i != endSize)
+				outputfile << "\n";
 #ifdef ONLYPOWERSOF2
-			i = i * 2;
+				i = i * 2;
 #else
-			i = fft.sChunkSizeG(i);
+				i = fft.sChunkSizeG(i);
 #endif
+		}
+
+		outputfile.close();
+		cout << "Number of sizes: " << numSize << "\n";
+		cout << "Sum of sizes: " << sumSize << endl;
 	}
 
-	outputfile.close();
-
-	cout << "Number of sizes: " << numSize << "\n";
-	cout << "Sum of sizes: " << sumSize << "\n";
 
 #endif
 }
