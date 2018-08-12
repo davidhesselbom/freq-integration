@@ -141,7 +141,7 @@ void FFTmojTest::cleanupTestCase()
 
 void FFTmojTest::generateRandomData()
 {
-	// Make 5 random vectors with the seeds 1..5,
+	// Make a random vector using the "set" variable as the seed,
 	// store them in data/RandomFile#.h5,
 	// but don't overwrite if exist
 	
