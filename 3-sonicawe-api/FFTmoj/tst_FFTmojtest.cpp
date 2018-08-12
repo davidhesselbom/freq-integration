@@ -307,12 +307,14 @@ void FFTmojTest::runBenchmark()
 		complex<float> *results = 0;
 		pChunk resultchunk;
 
-#ifdef USE_AMD
-		int maxBatchSize = (1 << 24) / size;
-#else
 		int maxBatchSize = 1;
-#endif
 
+#ifdef USE_AMD
+		if (mode == "batch")
+		{
+			maxBatchSize = (1 << 24) / size;
+		}
+#endif
 		for (int batchSize = maxBatchSize; batchSize > 0; batchSize = batchSize/2)
 		{
 			// TODO: This is still wrong...
