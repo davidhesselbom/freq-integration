@@ -17,7 +17,7 @@ LIBRARIES=Ooura ClFft ClAmdFft
 PLATFORMS=$(MACHINE)
 FIRSTPARTOFTARGETS=$(call interp3,data$(SEPARATOR),$(PLATFORMS),$(SEPARATOR))
 LASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times.dat)
-BATCHLASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)batch,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
+BATCHLASTPARTOFTARGETS=$(call interp7,$(SEPARATOR)set,$(SETS),$(SEPARATOR)run,$(RUNS),$(SEPARATOR),$(BENCHMARKS),Times1024.dat)
 
 all:
 	@echo "Pick a library: Ooura, ClFft, ClAmdFft, or Batches (for ClAmdFft batches)."
@@ -52,7 +52,7 @@ $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS)): release/ope
 
 $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(BATCHLASTPARTOFTARGETS)): release/opencl/amdamd/FFTmoj.exe
 	@echo "Making $@"
-	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst batch,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
+	@mkdir -p $(dir $@) && echo $(word 2,$(subst $(SEPARATOR), ,$@)) $(subst set,,$(word 4,$(subst $(SEPARATOR), ,$@))) $(subst run,,$(word 5,$(subst $(SEPARATOR), ,$@))) batch > argv.txt && ./runclamdfft.bat
 
 clean: $(call interp,clean,$(LIBRARIES))
 	
