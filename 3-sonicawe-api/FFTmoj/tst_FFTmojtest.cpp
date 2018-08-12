@@ -370,12 +370,12 @@ void FFTmojTest::runBenchmark()
 					float wallTime = wallTimer.elapsedTime();
 
 					// Verify output != input
-					for (int k = 0; k < batchSize; k++)
+					for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
 					{
-						int offset = k*size;
+						int offset = batchIndex*size;
 						if (0 == memcmp(r+offset, random+offset, size*sizeof(complex<float>)))
 						{
-							cout << "\nFAIL: FFT results at batch " << k << " are identical to input!\n" << endl;
+							cout << "\nFAIL: FFT results at batch " << batchIndex << " are identical to input!\n" << endl;
 							abort();
 						}
 					}
