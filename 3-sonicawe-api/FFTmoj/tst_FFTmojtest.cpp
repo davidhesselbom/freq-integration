@@ -69,7 +69,6 @@ private:
 	string techlib;
 	int maxsize, sizesum;
 	std::vector<int> sizes;
-	int seedVal;
 	int run;
 	string machine;
 	int set;
@@ -117,8 +116,7 @@ void FFTmojTest::initTestCase()
 #else
     techlib = "Ooura";
 #endif
-	sizesum = maxsize = seedVal = 0;
-	seedVal = time(0);
+	sizesum = maxsize = 0;
 	run = 1;
 	set = 1;
 	machine = "Rampage";
