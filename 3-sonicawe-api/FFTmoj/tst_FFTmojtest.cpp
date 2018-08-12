@@ -49,6 +49,29 @@ using namespace Signal;
 using namespace Adapters;
 using namespace Tfr;
 
+class TimeKeeper
+{
+
+public:
+	TimeKeeper(std::string outFile) { timesFile.open(outFile.c_str()); }
+	void addString(std::string stringToAppend) { timesFile << stringToAppend; }
+#ifdef USE_OPENCL
+    #ifdef USE_AMD
+		void addKernelExecutionTime(FftClAmdFft& fft) { timesFile << fft.getKernelExecTime(); }
+    #else
+		void addKernelExecutionTime(FftClFft& fft) { timesFile << fft.getKernelExecTime(); }
+    #endif
+#elif USE_CUDA
+	void addKernelExecutionTime(FftCufft& fft) { /* ??? */ }
+#else
+	void addKernelExecutionTime(FftOoura& fft) { timesFile << fft.getWallExecTime(); }
+#endif
+
+private:
+	std::ofstream timesFile;
+
+};
+
 class FFTmojTest : public QObject
 {
     Q_OBJECT
