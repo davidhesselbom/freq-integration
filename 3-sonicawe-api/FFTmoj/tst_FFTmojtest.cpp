@@ -422,7 +422,6 @@ void FFTmojTest::runBenchmark()
 #ifdef USE_OPENCL
 				kExTimes << "\n";
 #endif
-				}
 			}
 			catch( std::exception& e )
 			{
