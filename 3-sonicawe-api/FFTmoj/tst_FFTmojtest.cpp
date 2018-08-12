@@ -410,11 +410,9 @@ void FFTmojTest::runBenchmark()
 					}
 				}
 
-				if (batchSize > 1)
-				{
-					wallTimes << "\n";
+				wallTimes << "\n";
 #ifdef USE_OPENCL
-					kExTimes << "\n";
+				kExTimes << "\n";
 #endif
 				}
 			}
