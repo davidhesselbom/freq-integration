@@ -20,10 +20,10 @@ end
 function compareOutput(dataPath)
 	% TODO: At some point, verify output from Octave fft is different from its input
 	compareRandomDataAcrossMachines();
-	compareFftOutputFromOctave();
 	compareLibraryResultsAcrossMachines("Ooura");
 	compareLibraryResultsAcrossMachines("ClFft");
 	compareLibraryResultsAcrossMachines("ClAmdFft");
+	compareFftOutputFromOctave(dataPath);
 end
 
 function compareBatchOutput(dataPath)
@@ -55,12 +55,12 @@ function compareSizeFiles(firstFileName, secondFileName)
 	end
 end
 
-function compareFftOutputFromOctave()
-	sizes = load(sprintf("C:/data/Fusion/Ooura/Sizes.dat"));
+function compareFftOutputFromOctave(dataPath)
+	sizes = load(sprintf("%s/Fusion/Ooura/Sizes.dat", dataPath));
 
 	for set = 1:5
 		disp(sprintf("Computing precision for Octave vs Octave, set %i...", set));
-		randomData = load(sprintf("C:/data/Fusion/RandomData%i.h5", set));
+		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
 		for size = sizes'
 			reference = fft(randomData.chunk(1:size));
 			reference2 = fft(randomData.chunk(1:size));
