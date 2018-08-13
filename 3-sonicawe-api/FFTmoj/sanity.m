@@ -2,9 +2,9 @@
 % Verify that all the RandomData and Results files are equal
 % in each set on both machines, for each FFT library
 
-function sanity()
+function sanity(dataPath)
 	tic()
-	compareOutput();
+	compareOutput(dataPath);
 	computePrecision("Fusion", "Ooura");
 	computePrecision("Fusion", "ClFft");
 	computePrecision("Fusion", "ClAmdFft");
@@ -12,12 +12,12 @@ function sanity()
 	compareMaxErr("Fusion", "ClFft", "Fusion", "Ooura");
 	compareMaxErr("Rampage", "ClFft", "Fusion", "Ooura");
 	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
-	compareBatchOutput();
 	computeBatchPrecision();
+	compareBatchOutput(dataPath);
 	toc()
 end
 
-function compareOutput()
+function compareOutput(dataPath)
 	% TODO: At some point, verify output from Octave fft is different from its input
 	compareRandomDataAcrossMachines();
 	compareFftOutputFromOctave();
@@ -26,7 +26,7 @@ function compareOutput()
 	compareLibraryResultsAcrossMachines("ClAmdFft");
 end
 
-function compareBatchOutput()
+function compareBatchOutput(dataPath)
 	compareBatchFftOutputFromOctave();
 end
 
