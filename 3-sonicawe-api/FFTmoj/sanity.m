@@ -5,10 +5,10 @@
 function sanity(dataPath)
 	tic()
 	compareOutput(dataPath);
-	computePrecision("Fusion", "Ooura");
-	computePrecision("Fusion", "ClFft");
-	computePrecision("Fusion", "ClAmdFft");
-	computePrecision("Rampage", "ClFft");
+	computePrecision(dataPath, "Rampage", "Ooura");
+	computePrecision(dataPath, "Fusion", "ClFft");
+	computePrecision(dataPath, "Rampage", "ClAmdFft");
+	computePrecision(dataPath, "Rampage", "ClFft");
 	compareMaxErr("Fusion", "ClFft", "Fusion", "Ooura");
 	compareMaxErr("Rampage", "ClFft", "Fusion", "Ooura");
 	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
@@ -156,16 +156,16 @@ function computeBatchPrecision()
 	save("BatchPrecision.dat", "vectorToSave");
 end
 
-function computePrecision(machine, techlib)
-	sizes = load(sprintf("C:/data/%s/%s/Sizes.dat", machine, techlib));
+function computePrecision(dataPath, machine, techlib)
+	sizes = load(sprintf("%s/%s/%s/Sizes.dat", dataPath, machine, techlib));
 	
 	for set = 1:5
 		disp(sprintf("Computing precision for %s on %s, set %i...", techlib, machine, set));
-		randomData = load(sprintf("C:/data/%s/RandomData%i.h5", machine, set));
+		randomData = load(sprintf("%s/%s/RandomData%i.h5", dataPath, machine, set));
 
 		for index = 1:size(sizes', 2)
 			currentSize = sizes(index);
-			resultsFile = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine, techlib, set, currentSize));
+			resultsFile = load(sprintf("%s/%s/%s/set%i/Results%i.h5", dataPath, machine, techlib, set, currentSize));
 			reference = fft(randomData.chunk(1:currentSize));
 			% TODO: Does element 1 really need to be excluded?
 			startElement = 2;
