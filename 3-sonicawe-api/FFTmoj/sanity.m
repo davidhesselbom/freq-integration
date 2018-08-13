@@ -107,6 +107,8 @@ function compareLibraryResultsAcrossMachines(techlib)
 end
 
 function compareBatchFftOutputFromOctave()
+	% Verify Octave returns the same result if slicing input the same way FFTmoj does for batches
+	% TODO: This needs doing for all sizes of FFT, not just 1024
 	for set = 1:5
 		disp(sprintf("Computing precision for batches vs Octave, set %i...", set));
 		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
