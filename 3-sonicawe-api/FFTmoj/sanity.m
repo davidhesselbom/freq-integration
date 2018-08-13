@@ -12,8 +12,8 @@ function sanity(dataPath)
 	compareMaxErr(dataPath, "Fusion", "ClFft", "Fusion", "Ooura");
 	compareMaxErr(dataPath, "Rampage", "ClFft", "Fusion", "Ooura");
 	compareMaxErr(dataPath, "Fusion", "ClFft", "Rampage", "ClFft");
-	computeBatchPrecision();
 	compareBatchOutput(dataPath);
+	computeBatchPrecision(dataPath);
 	toc()
 end
 
@@ -127,16 +127,16 @@ function compareBatchFftOutputFromOctave()
 	disp("");
 end
 
-function computeBatchPrecision()
+function computeBatchPrecision(dataPath)
 	% For each set from one of the machines, slice largest batch result into pieces of 1024,
 	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD.
 	% See computePrecision below, use a "vectorToSave"
 
 	% TODO: Use this instead of computePrecision for all libraries, and all sizes.
 	for set = 1:5
-		disp(sprintf("Computing batch precision, set %i...", set));
-		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
-		resultsFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/%iResults1024.h5", set, 2^14));
+		disp(sprintf("Computing precision, set %i...", set));
+		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
+		resultsFile = load(sprintf("%s/Fusion/ClAmdFft/set%i/%iResults1024.h5", dataPath, set, 2^14));
 
 		for slice = 1:2^14
 			randomSlice = randomData.chunk(1+(slice-1)*1024:slice*1024);
