@@ -113,7 +113,7 @@ function compareBatchFftOutputFromOctave(dataPath)
 	% TODO: This needs doing for all sizes of FFT, not just 1024
 	for set = 1:5
 		disp(sprintf("Computing precision for batches vs Octave, set %i...", set));
-		randomData = load(sprintf("%s/Fusion/BatchRandomData%i.h5", dataPath, set));
+		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
 		for slice = 1:2^14;
 			reference = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
 			reference2 = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
@@ -138,7 +138,7 @@ function computeBatchPrecision(dataPath)
 	for set = 1:5
 		disp(sprintf("Computing precision, set %i...", set));
 		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
-		resultsFile = load(sprintf("%s/Fusion/ClAmdFft/set%i/%iResults1024.h5", dataPath, set, 2^14));
+		resultsFile = load(sprintf("%s/Fusion/ClAmdFft/set%i/Results1024.h5", dataPath, set));
 
 		for slice = 1:2^14
 			randomSlice = randomData.chunk(1+(slice-1)*1024:slice*1024);
