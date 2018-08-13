@@ -136,7 +136,7 @@ function computeBatchPrecision(dataPath)
 
 	% TODO: Use this instead of computePrecision for all libraries, and all sizes.
 	for set = 1:5
-		disp(sprintf("Computing precision, set %i...", set));
+		disp(sprintf("Computing precision for all batches, set %i...", set));
 		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
 		resultsFile = load(sprintf("%s/Fusion/ClAmdFft/set%i/Results1024.h5", dataPath, set));
 
