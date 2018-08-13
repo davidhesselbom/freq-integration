@@ -18,7 +18,6 @@ function sanity(dataPath)
 end
 
 function compareOutput(dataPath)
-	% TODO: At some point, verify output from Octave fft is different from its input
 	compareRandomDataAcrossMachines(dataPath);
 	compareFftOutputFromOctave(dataPath);
 	compareLibraryResultsAcrossMachines(dataPath, "Ooura");
@@ -64,6 +63,9 @@ function compareFftOutputFromOctave(dataPath)
 		for size = sizes'
 			reference = fft(randomData.chunk(1:size));
 			reference2 = fft(randomData.chunk(1:size));
+			if (max(randomData.chunk(1:size) - reference) == 0)
+				disp("PANIC: Octave's fft results are identical to input!");
+			end
 			if (max(reference - reference2) != 0);
 				m = maxerr(reference, reference2);
 				n = nrmsd(reference, reference2);
