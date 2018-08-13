@@ -9,9 +9,9 @@ function sanity(dataPath)
 	computePrecision(dataPath, "Fusion", "ClFft");
 	computePrecision(dataPath, "Rampage", "ClAmdFft");
 	computePrecision(dataPath, "Rampage", "ClFft");
-	compareMaxErr("Fusion", "ClFft", "Fusion", "Ooura");
-	compareMaxErr("Rampage", "ClFft", "Fusion", "Ooura");
-	compareMaxErr("Fusion", "ClFft", "Rampage", "ClFft");
+	compareMaxErr(dataPath, "Fusion", "ClFft", "Fusion", "Ooura");
+	compareMaxErr(dataPath, "Rampage", "ClFft", "Fusion", "Ooura");
+	compareMaxErr(dataPath, "Fusion", "ClFft", "Rampage", "ClFft");
 	computeBatchPrecision();
 	compareBatchOutput(dataPath);
 	toc()
@@ -184,17 +184,17 @@ function computePrecision(dataPath, machine, techlib)
 	disp("");
 end
 
-function compareMaxErr(machine1, techlib1, machine2, techlib2)
-	sizes = load(sprintf("C:/data/%s/%s/Sizes.dat", machine1, techlib1));
+function compareMaxErr(dataPath, machine1, techlib1, machine2, techlib2)
+	sizes = load(sprintf("%s/%s/%s/Sizes.dat", dataPath, machine1, techlib1));
 
 	for set = 1:5
 		disp(sprintf("Comparing Maxerr for %s on %s with %s on %s, set %i...", techlib1, machine1, techlib2, machine2, set));
-		randomData = load(sprintf("C:/data/%s/RandomData%i.h5", machine1, set));
+		randomData = load(sprintf("%s/%s/RandomData%i.h5", dataPath, machine1, set));
 
 		for index = 1:size(sizes', 2)
 			currentSize = sizes(index);
-			resultsFile1 = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine1, techlib1, set, currentSize));
-			resultsFile2 = load(sprintf("C:/data/%s/%s/set%i/Results%i.h5", machine2, techlib2, set, currentSize));
+			resultsFile1 = load(sprintf("%s/%s/%s/set%i/Results%i.h5", dataPath, machine1, techlib1, set, currentSize));
+			resultsFile2 = load(sprintf("%s/%s/%s/set%i/Results%i.h5", dataPath, machine2, techlib2, set, currentSize));
 			reference = fft(randomData.chunk(1:currentSize));
 			% TODO: Does element 1 really need to be excluded?
 			startElement = 2;
