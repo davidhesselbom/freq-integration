@@ -1,5 +1,8 @@
 SHELL = "C:\Program Files\Git\bin\bash"
 
+#DATA=data
+DATA=G:\\data
+
 containing = $(foreach word,$2,$(if $(findstring $1,$(word)),$(word)))
 not-containing = $(foreach word,$2,$(if $(findstring $1,$(word)),,$(word)))
 interp = $(foreach word,$1,$(addprefix $(word),$2))
@@ -64,3 +67,6 @@ cleanClFft:
 	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),ClFft,$(LASTPARTOFTARGETS))
 cleanClAmdFft:
 	@rm -f $(call interp3,$(FIRSTPARTOFTARGETS),ClAmdFft,$(LASTPARTOFTARGETS))
+
+sanityCheck:
+	octave-cli --eval "sanity(\"$(DATA)\")"
