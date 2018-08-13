@@ -223,6 +223,7 @@ function computeBatchPrecision()
 	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD.
 	% See computePrecision below, use a "vectorToSave"
 
+	% TODO: Use this instead of computePrecision for all libraries, and all sizes.
 	for set = 1:5
 		disp(sprintf("Computing batch precision, set %i...", set));
 		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
