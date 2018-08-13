@@ -20,10 +20,10 @@ end
 function compareOutput(dataPath)
 	% TODO: At some point, verify output from Octave fft is different from its input
 	compareRandomDataAcrossMachines(dataPath);
-	compareLibraryResultsAcrossMachines("Ooura");
-	compareLibraryResultsAcrossMachines("ClFft");
-	compareLibraryResultsAcrossMachines("ClAmdFft");
 	compareFftOutputFromOctave(dataPath);
+	compareLibraryResultsAcrossMachines(dataPath, "Ooura");
+	compareLibraryResultsAcrossMachines(dataPath, "ClFft");
+	compareLibraryResultsAcrossMachines(dataPath, "ClAmdFft");
 end
 
 function compareBatchOutput(dataPath)
@@ -86,9 +86,9 @@ function compareRandomDataAcrossMachines(dataPath)
 	disp("");
 end
 
-function compareLibraryResultsAcrossMachines(techlib)
-	firstSizeFile = sprintf("C:/data/Fusion/%s/Sizes.dat", techlib);
-	secondSizeFile = sprintf("C:/data/Rampage/%s/Sizes.dat", techlib);
+function compareLibraryResultsAcrossMachines(dataPath, techlib)
+	firstSizeFile = sprintf("%s/Fusion/%s/Sizes.dat", dataPath, techlib);
+	secondSizeFile = sprintf("%s/Rampage/%s/Sizes.dat", dataPath, techlib);
 	compareSizeFiles(firstSizeFile, secondSizeFile)
 	
 	sizes = load(firstSizeFile);
@@ -97,8 +97,8 @@ function compareLibraryResultsAcrossMachines(techlib)
 
 	for set = 1:5
 		for size = sizes'
-			firstFile = sprintf("C:/data/Fusion/%s/set%i/Results%i.h5", techlib, set, size);
-			secondFile = sprintf("C:/data/Rampage/%s/set%i/Results%i.h5", techlib, set, size);
+			firstFile = sprintf("%s/Fusion/%s/set%i/Results%i.h5", dataPath, techlib, set, size);
+			secondFile = sprintf("%s/Rampage/%s/set%i/Results%i.h5", dataPath, techlib, set, size);
 
 			compareChunkFiles(firstFile, secondFile);
 		end
