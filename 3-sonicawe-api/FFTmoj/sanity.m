@@ -27,7 +27,7 @@ function compareOutput(dataPath)
 end
 
 function compareBatchOutput(dataPath)
-	compareBatchFftOutputFromOctave();
+	compareBatchFftOutputFromOctave(dataPath);
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -106,12 +106,12 @@ function compareLibraryResultsAcrossMachines(techlib)
 	disp("");
 end
 
-function compareBatchFftOutputFromOctave()
+function compareBatchFftOutputFromOctave(dataPath)
 	% Verify Octave returns the same result if slicing input the same way FFTmoj does for batches
 	% TODO: This needs doing for all sizes of FFT, not just 1024
 	for set = 1:5
 		disp(sprintf("Computing precision for batches vs Octave, set %i...", set));
-		randomData = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set));
+		randomData = load(sprintf("%s/Fusion/BatchRandomData%i.h5", dataPath, set));
 		for slice = 1:2^14;
 			reference = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
 			reference2 = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
