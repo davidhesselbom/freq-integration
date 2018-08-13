@@ -19,7 +19,7 @@ end
 
 function compareOutput(dataPath)
 	% TODO: At some point, verify output from Octave fft is different from its input
-	compareRandomDataAcrossMachines();
+	compareRandomDataAcrossMachines(dataPath);
 	compareLibraryResultsAcrossMachines("Ooura");
 	compareLibraryResultsAcrossMachines("ClFft");
 	compareLibraryResultsAcrossMachines("ClAmdFft");
@@ -76,11 +76,11 @@ function compareFftOutputFromOctave(dataPath)
 	disp("");
 end
 
-function compareRandomDataAcrossMachines()
+function compareRandomDataAcrossMachines(dataPath)
 	disp("Comparing random data files from Fusion to Rampage...");
 	for set = 1:5
-		fusionFile = sprintf("C:/data/Fusion/RandomData%i.h5", set);
-		rampageFile = sprintf("C:/data/Rampage/RandomData%i.h5", set);
+		fusionFile = sprintf("%s/Fusion/RandomData%i.h5", dataPath, set);
+		rampageFile = sprintf("%s/Rampage/RandomData%i.h5", dataPath, set);
 		compareChunkFiles(fusionFile, rampageFile);
 	end
 	disp("");
