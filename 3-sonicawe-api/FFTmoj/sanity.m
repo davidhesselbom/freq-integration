@@ -27,13 +27,7 @@ function compareOutput()
 end
 
 function compareBatchOutput()
-	compareBatchRandomDataToRandomData()
-	compareBatchRandomDataAcrossMachines()
 	compareBatchFftOutputFromOctave();
-	compareBatchResultsAcrossMachines();
-	compareOutputOfBatchSize1toBenchResults();
-	compareTimesOfBatchSize1toBench("Fusion");
-	compareTimesOfBatchSize1toBench("Rampage");
 end
 
 function compareChunkFiles(firstFileName, secondFileName)
@@ -112,80 +106,6 @@ function compareLibraryResultsAcrossMachines(techlib)
 	disp("");
 end
 
-function compareBatchRandomDataToRandomData()
-	disp(sprintf("Comparing batch random data files to random data files from Fusion..."));
-	for set = 1:5
-		firstFile = load(sprintf("C:/data/Fusion/BatchRandomData%i.h5", set)).chunk(1:2^22);
-		secondFile = load(sprintf("C:/data/Fusion/RandomData%i.h5", set)).chunk;
-		if (max(firstFile - secondFile) != 0);
-			m = maxerr(firstFile, secondFile);
-			n = nrmsd(firstFile, secondFile);
-			disp(sprintf("Set: %i: Random data differs! MaxErr: %i, NRMSD: %i", set, m, n))
-		else
-			%disp(sprintf("Random data is identical."))
-		end
-	end
-	disp("");
-end
-
-function compareBatchRandomDataAcrossMachines()
-	disp("Comparing batch random data files from Fusion to Rampage...");
-	for set = 1:5
-		fusionFile = sprintf("C:/data/Fusion/BatchRandomData%i.h5", set);
-		rampageFile = sprintf("C:/data/Rampage/BatchRandomData%i.h5", set);
-		compareChunkFiles(fusionFile, rampageFile);
-	end
-	disp("");
-end
-
-function compareOutputOfBatchSize1toBenchResults()
-	disp("Comparing batch output to no-batch output...");
-	for set = 1:5
-		firstFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/16384Results1024.h5", set)).chunk(1:1024);
-		secondFile = load(sprintf("C:/data/Fusion/ClAmdFft/set%i/Results1024.h5", set)).chunk;
-		if (max(firstFile - secondFile) != 0);
-			m = maxerr(firstFile, secondFile);
-			n = nrmsd(firstFile, secondFile);
-			disp(sprintf("Set: %i: Batch size 1 output differs from bench output! MaxErr: %i, NRMSD: %i", set, m, n))
-		else
-			%disp(sprintf("Random data is identical."))
-		end
-	end
-	disp("");
-end
-
-function compareTimesOfBatchSize1toBench(machine)
-	wallTimes = [];
-	kernelExecutionTimes = [];
-	batchWallTimes = [];
-	batchKernelExecutionTimes = [];
-	for set = 1:5
-		for run = 1:3
-			wallTimes = [wallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/WallTimes.dat", machine, set, run))(13, 3:end)];
-			batchWallTimes = [batchWallTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/WallTimes1024.dat", machine, set, run))(end, 3:end)];
-
-			kernelExecutionTimes = [kernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/run%i/KernelExecutionTimes.dat", machine, set, run))(13, 3:end)];
-			batchKernelExecutionTimes = [batchKernelExecutionTimes, load(sprintf("C:/data/%s/ClAmdFft/set%i/batch%i/KernelExecutionTimes1024.dat", machine, set, run))(end, 3:end)];
-		end
-	end
-
-	meanWallTimesDiff = 100*abs((mean(wallTimes) - mean(batchWallTimes))/mean(wallTimes));
-	meanKernelExecutionTimesDiff = 100*abs((mean(kernelExecutionTimes) - mean(batchKernelExecutionTimes))/mean(kernelExecutionTimes));
-	disp(sprintf("Mean walltime difference between no batch and single batch for 1024 on %s: %i %%", machine, meanWallTimesDiff));
-	disp(sprintf("Mean kernel execution time difference between no batch and single batch for 1024 on %s: %i %%", machine, meanKernelExecutionTimesDiff));
-	% TODO: Find a more suitable way to present the below numbers. Box plot?
-	disp(min(wallTimes));
-	disp(max(wallTimes));
-	disp(min(batchWallTimes));
-	disp(max(batchWallTimes));
-	disp(min(kernelExecutionTimes));
-	disp(max(kernelExecutionTimes));
-	disp(min(batchKernelExecutionTimes));
-	disp(max(batchKernelExecutionTimes));
-
-	disp("");
-end
-
 function compareBatchFftOutputFromOctave()
 	for set = 1:5
 		disp(sprintf("Computing precision for batches vs Octave, set %i...", set));
@@ -200,19 +120,6 @@ function compareBatchFftOutputFromOctave()
 			else
 				%disp(sprintf("Octave results are identical."))
 			end
-		end
-	end
-	disp("");
-end
-
-function compareBatchResultsAcrossMachines()
-	disp(sprintf("Comparing batch results from Fusion to Rampage..."));
-	for set = 1:5
-		for batchSize = 2.^(14)
-			firstFile = sprintf("C:/data/Fusion/ClAmdFft/set%i/%iResults1024.h5", set, batchSize);
-			secondFile = sprintf("C:/data/Rampage/ClAmdFft/set%i/%iResults1024.h5", set, batchSize);
-
-			compareChunkFiles(firstFile, secondFile);
 		end
 	end
 	disp("");
