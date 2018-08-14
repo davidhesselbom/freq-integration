@@ -129,35 +129,6 @@ function compareBatchFftOutputFromOctave(dataPath)
 	disp("");
 end
 
-function computeBatchPrecision(dataPath)
-	% For each set from one of the machines, slice largest batch result into pieces of 1024,
-	% compare each piece with fft result from Octave, and store the maximum maxerr and NRMSD.
-	% See computePrecision below, use a "vectorToSave"
-
-	% TODO: Use this instead of computePrecision for all libraries, and all sizes.
-	for set = 1:5
-		disp(sprintf("Computing precision for all batches, set %i...", set));
-		randomData = load(sprintf("%s/Fusion/RandomData%i.h5", dataPath, set));
-		resultsFile = load(sprintf("%s/Fusion/ClAmdFft/set%i/Results1024.h5", dataPath, set));
-
-		for slice = 1:2^14
-			randomSlice = randomData.chunk(1+(slice-1)*1024:slice*1024);
-			resultsSlice = resultsFile.chunk(1+(slice-1)*1024:slice*1024);
-
-			reference = fft(randomSlice);
-			startElement = 2;
-			m((set-1)*(2^14)+slice) = maxerr(resultsSlice(startElement:end), reference(startElement:end));
-			n((set-1)*(2^14)+slice) = nrmsd(resultsSlice(startElement:end), reference(startElement:end));
-			if (set == 5)
-				vectorToSave(1) = max(m)/sqrt(1024);
-				vectorToSave(2) = max(n);
-			end
-		end
-	end
-	disp(sprintf("Maximum Maxerr: %i, Maximum NRMSD: %i", max(m), max(n)))
-	save("BatchPrecision.dat", "vectorToSave");
-end
-
 function computePrecision(dataPath, machine, techlib)
 	% For each size in each set from one techlib from one of the machines, slice result file,
 	% compare each slice with fft result from Octave, and store the maximum maxerr and NRMSD.
