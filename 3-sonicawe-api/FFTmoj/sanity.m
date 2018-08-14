@@ -163,7 +163,7 @@ function computePrecision(dataPath, machine, techlib)
 	% compare each slice with fft result from Octave, and store the maximum maxerr and NRMSD.
 	sizes = load(sprintf("%s/%s/%s/Sizes.dat", dataPath, machine, techlib));
 
-	vectorToSave = zeros(rows(sizes), 3);
+	vectorToSave = zeros(rows(sizes), 5);
 	m = zeros(5, rows(sizes));
 	n = zeros(5, rows(sizes));
 
@@ -191,6 +191,8 @@ function computePrecision(dataPath, machine, techlib)
 				vectorToSave(index,1) = currentSize;
 				vectorToSave(index,2) = max(m(:,index));
 				vectorToSave(index,3) = max(n(:,index));
+				vectorToSave(index,4) = vectorToSave(index,2)/sqrt(currentSize);
+				vectorToSave(index,5) = vectorToSave(index,3)/sqrt(currentSize);
 				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", vectorToSave(index,1), vectorToSave(index,2), vectorToSave(index,3)))
 			else
 				printf(".");
