@@ -5,9 +5,9 @@
 function sanity(dataPath)
 	tic()
 	compareOutput(dataPath);
-	computePrecision(dataPath, "Rampage", "Ooura");
+	computePrecision(dataPath, "Fusion", "Ooura");
+	computePrecision(dataPath, "Fusion", "ClAmdFft");
 	computePrecision(dataPath, "Fusion", "ClFft");
-	computePrecision(dataPath, "Rampage", "ClAmdFft");
 	computePrecision(dataPath, "Rampage", "ClFft");
 	compareMaxErr(dataPath, "Fusion", "ClFft", "Fusion", "Ooura");
 	compareMaxErr(dataPath, "Rampage", "ClFft", "Fusion", "Ooura");
