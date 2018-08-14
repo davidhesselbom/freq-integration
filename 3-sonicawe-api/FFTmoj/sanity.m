@@ -32,7 +32,7 @@ end
 function compareChunkFiles(firstFileName, secondFileName)
 	firstFile = load(firstFileName);
 	secondFile = load(secondFileName);
-	if (max(firstFile.chunk - secondFile.chunk) != 0);
+	if (firstFile.chunk != secondFile.chunk);
 		m = maxerr(firstFile.chunk, secondFile.chunk);
 		n = nrmsd(firstFile.chunk, secondFile.chunk);
 		disp(sprintf("%s and %s differ! MaxErr: %i, NRMSD: %i", firstFileName, secondFileName, m, n))
@@ -45,7 +45,7 @@ function compareSizeFiles(firstFileName, secondFileName)
 	disp("Comparing size files...");
 	firstFile = load(firstFileName);
 	secondFile = load(secondFileName);
-	if (max(firstFile - secondFile) != 0);
+	if (firstFile != secondFile);
 		m = maxerr(firstFile, secondFile);
 		n = nrmsd(firstFile, secondFile);
 		disp(sprintf("%s and %s differ! MaxErr: %i, NRMSD: %i", firstFileName, secondFileName, m, n))
@@ -63,10 +63,10 @@ function compareFftOutputFromOctave(dataPath)
 		for size = sizes'
 			reference = fft(randomData.chunk(1:size));
 			reference2 = fft(randomData.chunk(1:size));
-			if (max(randomData.chunk(1:size) - reference) == 0)
+			if (randomData.chunk(1:size) == reference)
 				disp("PANIC: Octave's fft results are identical to input!");
 			end
-			if (max(reference - reference2) != 0);
+			if (reference != reference2);
 				m = maxerr(reference, reference2);
 				n = nrmsd(reference, reference2);
 				disp(sprintf("Size: %i: Octave results differ! MaxErr: %i, NRMSD: %i", size, m, n))
@@ -117,7 +117,7 @@ function compareBatchFftOutputFromOctave(dataPath)
 		for slice = 1:2^14;
 			reference = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
 			reference2 = fft(randomData.chunk(1+(slice-1)*1024:slice*1024));
-			if (max(reference - reference2) != 0);
+			if (reference != reference2);
 				m = maxerr(reference, reference2);
 				n = nrmsd(reference, reference2);
 				disp(sprintf("Size: %i: Octave results differ! MaxErr: %i, NRMSD: %i", size, m, n))
