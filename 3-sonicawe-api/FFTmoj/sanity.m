@@ -79,11 +79,12 @@ function compareFftOutputFromOctave(dataPath)
 end
 
 function compareRandomDataAcrossMachines(dataPath)
-	disp("Comparing random data files from Fusion to Rampage...");
+	printf("Comparing random data files from Fusion to Rampage ");
 	for set = 1:5
 		fusionFile = sprintf("%s/Fusion/RandomData%i.h5", dataPath, set);
 		rampageFile = sprintf("%s/Rampage/RandomData%i.h5", dataPath, set);
 		compareChunkFiles(fusionFile, rampageFile);
+		printf(".");
 	end
 	disp("");
 end
@@ -95,7 +96,7 @@ function compareLibraryResultsAcrossMachines(dataPath, techlib)
 	
 	sizes = load(firstSizeFile);
 
-	disp(sprintf("Comparing %s results across machines...", techlib))
+	printf("Comparing %s results across machines ", techlib);
 
 	for set = 1:5
 		for size = sizes'
@@ -104,6 +105,7 @@ function compareLibraryResultsAcrossMachines(dataPath, techlib)
 
 			compareChunkFiles(firstFile, secondFile);
 		end
+		printf(".");
 	end
 	disp("");
 end
