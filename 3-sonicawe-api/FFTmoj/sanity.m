@@ -159,24 +159,34 @@ function computeBatchPrecision(dataPath)
 end
 
 function computePrecision(dataPath, machine, techlib)
+	% For each size in each set from one techlib from one of the machines, slice result file,
+	% compare each slice with fft result from Octave, and store the maximum maxerr and NRMSD.
 	sizes = load(sprintf("%s/%s/%s/Sizes.dat", dataPath, machine, techlib));
-	
+
+	vectorToSave = zeros(rows(sizes), 3);
+	m = zeros(5, rows(sizes));
+	n = zeros(5, rows(sizes));
+
 	for set = 1:5
 		disp(sprintf("Computing precision for %s on %s, set %i...", techlib, machine, set));
 		randomData = load(sprintf("%s/%s/RandomData%i.h5", dataPath, machine, set));
 
-		for index = 1:size(sizes', 2)
+		for index = 1:rows(sizes)
 			currentSize = sizes(index);
 			resultsFile = load(sprintf("%s/%s/%s/set%i/Results%i.h5", dataPath, machine, techlib, set, currentSize));
-			reference = fft(randomData.chunk(1:currentSize));
-			% TODO: Does element 1 really need to be excluded?
-			startElement = 2;
-			m(set,index) = maxerr(resultsFile.chunk(startElement:end), reference(startElement:end));
-			n(set,index) = nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end));
-			%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
+			for slice = 1:rows(resultsFile.chunk)/currentSize
+				randomSlice = randomData.chunk(1+(slice-1)*currentSize:slice*currentSize);
+				resultsSlice = resultsFile.chunk(1+(slice-1)*currentSize:slice*currentSize);
+				reference = fft(randomSlice);
+				% TODO: Does element 1 really need to be excluded?
+				startElement = 2;
+				m(set,index) = max(m(set,index), maxerr(resultsFile.chunk(startElement:end), reference(startElement:end)));
+				n(set,index) = max(n(set,index), nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end)));
+				%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
+			end
 			if (set == 5)
 				vectorToSave(index,1) = currentSize;
-				vectorToSave(index,2) = max(m(:,index))/sqrt(currentSize);
+				vectorToSave(index,2) = max(m(:,index));
 				vectorToSave(index,3) = max(n(:,index));
 				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", vectorToSave(index,1), vectorToSave(index,2), vectorToSave(index,3)))
 			end
