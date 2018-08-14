@@ -70,3 +70,6 @@ cleanClAmdFft:
 
 sanityCheck:
 	octave-cli --eval "sanity(\"$(DATA)\")"
+
+timeDataPack:
+	find data -name "*.dat" | tar -cf timeDataPack.tar -T -
