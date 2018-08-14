@@ -168,7 +168,7 @@ function computePrecision(dataPath, machine, techlib)
 	n = zeros(5, rows(sizes));
 
 	for set = 1:5
-		disp(sprintf("Computing precision for %s on %s, set %i...", techlib, machine, set));
+		printf("Computing precision for %s on %s, set %i ", techlib, machine, set);
 		randomData = load(sprintf("%s/%s/RandomData%i.h5", dataPath, machine, set));
 
 		for index = 1:rows(sizes)
@@ -185,12 +185,18 @@ function computePrecision(dataPath, machine, techlib)
 				%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
 			end
 			if (set == 5)
+				if (index == 1)
+					printf("\n");
+				end
 				vectorToSave(index,1) = currentSize;
 				vectorToSave(index,2) = max(m(:,index));
 				vectorToSave(index,3) = max(n(:,index));
 				disp(sprintf("Size: %i, Maximum Maxerr: %i, Maximum NRMSD: %i", vectorToSave(index,1), vectorToSave(index,2), vectorToSave(index,3)))
+			else
+				printf(".");
 			end
 		end
+		printf("\n");
 	end
 	save(sprintf("%sPrecision%s.dat", techlib, machine), "vectorToSave");
 	disp("");
