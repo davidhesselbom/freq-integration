@@ -8,7 +8,6 @@ function sanity(dataPath)
 	compareMaxErr(dataPath, "Fusion", "ClFft", "Fusion", "Ooura");
 	compareMaxErr(dataPath, "Rampage", "ClFft", "Fusion", "Ooura");
 	compareMaxErr(dataPath, "Fusion", "ClFft", "Rampage", "ClFft");
-	computeBatchPrecision(dataPath);
 	computePrecisionGroup(dataPath);
 	compareBatchFftOutputFromOctave(dataPath);
 	toc()
