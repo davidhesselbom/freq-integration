@@ -180,8 +180,8 @@ function computePrecision(dataPath, machine, techlib)
 				reference = fft(randomSlice);
 				% TODO: Does element 1 really need to be excluded?
 				startElement = 2;
-				m(set,index) = max(m(set,index), maxerr(resultsFile.chunk(startElement:end), reference(startElement:end)));
-				n(set,index) = max(n(set,index), nrmsd(resultsFile.chunk(startElement:end), reference(startElement:end)));
+				m(set,index) = max(m(set,index), maxerr(resultsSlice(startElement:end), reference(startElement:end)));
+				n(set,index) = max(n(set,index), nrmsd(resultsSlice(startElement:end), reference(startElement:end)));
 				%disp(sprintf("Size: %i, MaxErr: %i, NRMSD: %i", currentSize, m, n))
 			end
 			if (set == 5)
